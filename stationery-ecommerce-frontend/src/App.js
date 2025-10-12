@@ -1,11 +1,14 @@
 import React from 'react';
-import LoginPage from './features/auth/pages/LoginPage';
+import AppRoutes from "./routes/AppRoutes";
+import {BrowserRouter} from "react-router-dom";
 
 function App() {
     return (
-        <div className="App">
-            <LoginPage />
-        </div>
+        <BrowserRouter>
+            <div className="App">
+                <AppRoutes/>
+            </div>
+        </BrowserRouter>
     );
 }
 

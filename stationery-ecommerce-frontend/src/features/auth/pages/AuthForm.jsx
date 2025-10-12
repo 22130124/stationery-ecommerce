@@ -4,7 +4,7 @@ import styles from './AuthForm.module.scss';
 import { FaUser, FaLock } from 'react-icons/fa';
 import {FcGoogle} from "react-icons/fc";
 
-// formType: 'login' | 'register'
+// formType: 'login' | 'signup'
 const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -12,7 +12,7 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess })
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (formType === 'register' && password !== confirmPassword) {
+        if (formType === 'signup' && password !== confirmPassword) {
             // Xử lý lỗi mật khẩu không khớp
             onSubmit({ error: 'Mật khẩu xác nhận không khớp!' });
             return;
@@ -55,7 +55,7 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess })
                     </div>
 
                     {/* Input Confirm Password (chỉ hiển thị khi đăng ký) */}
-                    {formType === 'register' && (
+                    {formType === 'signup' && (
                         <div className={styles.inputGroup}>
                             <FaLock className={styles.inputIcon} />
                             <input
