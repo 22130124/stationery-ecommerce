@@ -1,7 +1,7 @@
-// LoginPage.module.scss
+// AuthForm.module.scss
 @import '../../../styles/variables';
 
-.loginContainer {
+.authContainer {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -11,7 +11,7 @@
 }
 
 /* Card Đăng Nhập */
-.loginCard {
+.authCard {
   background: $card-background;
   padding: 40px;
   border-radius: 16px;
@@ -91,7 +91,7 @@ button {
   gap: 10px;
 }
 
-.loginBtn {
+.submitBtn {
   background-color: $primary-color;
   color: $white-color;
 
