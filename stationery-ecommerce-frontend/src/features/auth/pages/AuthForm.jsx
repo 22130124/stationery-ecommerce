@@ -3,9 +3,12 @@ import React, { useState } from 'react';
 import styles from './AuthForm.module.scss';
 import { FaUser, FaLock } from 'react-icons/fa';
 import {FcGoogle} from "react-icons/fc";
+import {useNavigate} from "react-router-dom";
 
 // formType: 'login' | 'signup'
 const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess }) => {
+    const navigate = useNavigate();
+
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -14,7 +17,7 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess })
         e.preventDefault();
         if (formType === 'signup' && password !== confirmPassword) {
             // Xử lý lỗi mật khẩu không khớp
-            onSubmit({ error: 'Mật khẩu xác nhận không khớp!' });
+            onSubmit({ error: 'Confirmation password does not match' });
             return;
         }
         
@@ -24,6 +27,11 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess })
     const handleGoogleLogin = () => {
         alert('Redirecting to the Google auth page...');
     };
+
+    const handleSwitchPage = () => {
+        const nextPage = formType === "signup" ? "login" : "signup";
+        navigate(`/${nextPage}`)
+    }
 
     return (
         <div className={styles.authContainer}>
@@ -89,6 +97,10 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess })
                         Đăng nhập với Google
                     </button>
                 </div>
+
+                <button className={styles.switchBtn} onClick={handleSwitchPage}>
+                    {formType === "login" ? "Create New Account" : "Back To Login"}
+                </button>
             </div>
         </div>
     );

@@ -3,9 +3,10 @@ package com.tqk.stationeryecommercebackend.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.tqk.stationeryecommercebackend.request.LoginRequest;
+import com.tqk.stationeryecommercebackend.request.AuthRequest;
 import com.tqk.stationeryecommercebackend.service.AuthService;
 
+import javax.validation.Valid;
 import java.util.Map;
 
 @RestController
@@ -15,9 +16,16 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/login")
-    private ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    private ResponseEntity<?> login(@Valid @RequestBody AuthRequest request) {
         String token = authService.login(request);
         Map<String, Object> response = Map.of("token", token);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/sign-up")
+    private ResponseEntity<?> signUp(@Valid @RequestBody AuthRequest request) {
+        Integer accountId = authService.signUp(request);
+        Map<String, Object> response = Map.of("accountId", accountId);
         return ResponseEntity.ok(response);
     }
 }

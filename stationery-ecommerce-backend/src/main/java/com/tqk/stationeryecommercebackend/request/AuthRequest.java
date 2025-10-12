@@ -1,7 +1,11 @@
 package com.tqk.stationeryecommercebackend.request;
 
-public class LoginRequest {
+import javax.validation.constraints.NotBlank;
+
+public class AuthRequest {
+    @NotBlank
     private String username;
+    @NotBlank
     private String password;
 
     public String getUsername() {

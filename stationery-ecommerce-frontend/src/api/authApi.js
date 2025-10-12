@@ -3,32 +3,33 @@ import {API_URL} from "../config/apiConfig";
 
 const BASE_URL = `${API_URL}/api/auth`;
 
-export const login = async (username, password) => {
-    const request = {
-        username,
-        password,
-    }
-
-    let response
+const postAuthRequest = async (endpoint, payload) => {
+    let response;
 
     try {
-        response = await fetch(`${BASE_URL}/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(request)
+        response = await fetch(`${BASE_URL}/${endpoint}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
         });
     } catch (error) {
-        console.log('Login failed:', error)
-        throw new Error("Unable to connect to the server. Please check your network connection or try again later")
+        console.error(`${endpoint} failed:`, error);
+        throw new Error(
+            "Unable to connect to the server. Please check your network connection or try again later"
+        );
     }
 
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(data.message || "Something went wrong")
+        throw new Error(data.message || "Something went wrong");
     }
 
-    return data
-}
+    return data;
+};
+
+export const login = (username, password) =>
+    postAuthRequest("login", { username, password });
+
+export const signUp = (username, password) =>
+    postAuthRequest("sign-up", { username, password });
