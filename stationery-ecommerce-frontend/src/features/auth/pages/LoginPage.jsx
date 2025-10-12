@@ -1,20 +1,31 @@
 // LoginPage.jsx
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import styles from './LoginPage.module.scss';
-import { FaUser, FaLock } from 'react-icons/fa';
-import { FcGoogle } from 'react-icons/fc';
+import {FaUser, FaLock} from 'react-icons/fa';
+import {FcGoogle} from 'react-icons/fc';
+import {login} from "../../../api/authApi";
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [message, setMessage] = useState('');
+    const [isLoggedInSuccess, setIsLoggedInSuccess] = useState(false);
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        alert(`Đăng nhập với:\nTài khoản: ${username}\nMật khẩu: ${password}`);
+        try {
+            const data = await login(username, password);
+            localStorage.setItem('token', data.token);
+            setMessage("Success! Redirecting to the home page...");
+            setIsLoggedInSuccess(true);
+        } catch (error) {
+            setMessage(error.message);
+            setIsLoggedInSuccess(false);
+        }
     };
 
     const handleGoogleLogin = () => {
-        alert('Đang chuyển hướng đến trang đăng nhập của Google...');
+        alert('Redirecting to the Google login page...');
     };
 
     return (
@@ -23,7 +34,7 @@ const LoginPage = () => {
                 <h2>Đăng Nhập</h2>
                 <form onSubmit={handleLogin}>
                     <div className={styles.inputGroup}>
-                        <FaUser className={styles.inputIcon} />
+                        <FaUser className={styles.inputIcon}/>
                         <input
                             type="text"
                             placeholder="Tài khoản"
@@ -33,7 +44,7 @@ const LoginPage = () => {
                         />
                     </div>
                     <div className={styles.inputGroup}>
-                        <FaLock className={styles.inputIcon} />
+                        <FaLock className={styles.inputIcon}/>
                         <input
                             type="password"
                             placeholder="Mật khẩu"
@@ -42,6 +53,7 @@ const LoginPage = () => {
                             required
                         />
                     </div>
+                    {message && <p className={isLoggedInSuccess ? styles.successMessage : styles.errorMessage}>{message}</p>}
                     <button type="submit" className={styles.loginBtn}>
                         Đăng Nhập
                     </button>
@@ -52,7 +64,7 @@ const LoginPage = () => {
                 </div>
 
                 <button onClick={handleGoogleLogin} className={styles.googleBtn}>
-                    <FcGoogle className={styles.googleIcon} />
+                    <FcGoogle className={styles.googleIcon}/>
                     Đăng nhập với Google
                 </button>
             </div>

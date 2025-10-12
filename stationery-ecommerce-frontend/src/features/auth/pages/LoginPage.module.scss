@@ -64,6 +64,17 @@
   }
 }
 
+// Message
+.errorMessage {
+  color: #D8000C;
+  margin-top: 10px;
+}
+
+.successMessage {
+  color: #008035;
+  margin-top: 10px;
+}
+
 /* Các loại nút */
 button {
   width: 100%;
