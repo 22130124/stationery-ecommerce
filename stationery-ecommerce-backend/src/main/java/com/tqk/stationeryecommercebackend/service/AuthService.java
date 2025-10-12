@@ -3,6 +3,7 @@ package com.tqk.stationeryecommercebackend.service;
 import com.tqk.stationeryecommercebackend.exception.AuthException;
 import com.tqk.stationeryecommercebackend.model.Account;
 import com.tqk.stationeryecommercebackend.model.AuthProvider;
+import com.tqk.stationeryecommercebackend.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.tqk.stationeryecommercebackend.repository.AccountRepository;
@@ -11,13 +12,15 @@ import com.tqk.stationeryecommercebackend.request.LoginRequest;
 
 @Service
 public class AuthService {
-    private AccountRepository accountRepository;
-    private AuthProviderRepository authProviderRepository;
+    private final AccountRepository accountRepository;
+    private final AuthProviderRepository authProviderRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public AuthService(AccountRepository accountRepository, AuthProviderRepository authProviderRepository) {
+    public AuthService(AccountRepository accountRepository, AuthProviderRepository authProviderRepository, JwtTokenProvider jwtTokenProvider) {
         this.accountRepository = accountRepository;
         this.authProviderRepository = authProviderRepository;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     public String login(LoginRequest request) {
@@ -32,6 +35,6 @@ public class AuthService {
             throw new AuthException("Username or password is incorrect");
         }
 
-        return "123";
+        return jwtTokenProvider.generateToken(account);
     }
 }
