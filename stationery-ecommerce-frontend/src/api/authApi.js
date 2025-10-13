@@ -33,3 +33,6 @@ export const login = (username, password) =>
 
 export const signUp = (username, password) =>
     postAuthRequest("sign-up", { username, password });
+
+export const loginWithGoogle = (googleAccessToken) =>
+    postAuthRequest("google-login", { token: googleAccessToken });

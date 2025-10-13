@@ -21,7 +21,7 @@ public class AuthProvider {
     private String provider;
 
     @Column(name = "provider_id")
-    private Long providerId;
+    private String providerId;
 
     @Column(name = "password")
     private String password;
@@ -54,11 +54,11 @@ public class AuthProvider {
         this.provider = provider;
     }
 
-    public Long getProviderId() {
+    public String getProviderId() {
         return providerId;
     }
 
-    public void setProviderId(Long providerId) {
+    public void setProviderId(String providerId) {
         this.providerId = providerId;
     }
 

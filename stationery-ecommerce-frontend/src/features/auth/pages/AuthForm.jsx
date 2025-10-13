@@ -2,8 +2,10 @@
 import React, { useState } from 'react';
 import styles from './AuthForm.module.scss';
 import { FaUser, FaLock } from 'react-icons/fa';
-import {FcGoogle} from "react-icons/fc";
-import {useNavigate} from "react-router-dom";
+import {FcGoogle} from 'react-icons/fc';
+import {useNavigate} from 'react-router-dom';
+import {GoogleLogin, useGoogleLogin} from '@react-oauth/google';
+import {loginWithGoogle} from '../../../api/authApi';
 
 // formType: 'login' | 'signup'
 const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess }) => {
@@ -24,12 +26,27 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess })
         onSubmit({ username, password });
     };
 
-    const handleGoogleLogin = () => {
-        alert('Redirecting to the Google auth page...');
+    // Hàm xử lý đăng nhập Google
+    const handleGoogleSuccess = async (credentialResponse) => {
+        try {
+            // credentialResponse.credential là ID Token để backend xác thực
+            const data = await loginWithGoogle(credentialResponse.credential);
+            localStorage.setItem('token', data.token);
+            // navigate('/');
+            alert('Success! Redirecting to the home page...');
+        } catch (error) {
+            console.error('Lỗi xác thực với backend:', error);
+            alert('Xác thực với backend thất bại.');
+        }
+    };
+
+    const handleGoogleError = () => {
+        console.log('Google Login Failed');
+        alert('Login failed! Please try again');
     };
 
     const handleSwitchPage = () => {
-        const nextPage = formType === "signup" ? "login" : "signup";
+        const nextPage = formType === 'signup' ? 'login' : 'signup';
         navigate(`/${nextPage}`)
     }
 
@@ -42,8 +59,8 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess })
                     <div className={styles.inputGroup}>
                         <FaUser className={styles.inputIcon} />
                         <input
-                            type="text"
-                            placeholder="Tài khoản"
+                            type='text'
+                            placeholder='Tài khoản'
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             required
@@ -54,8 +71,8 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess })
                     <div className={styles.inputGroup}>
                         <FaLock className={styles.inputIcon} />
                         <input
-                            type="password"
-                            placeholder="Mật khẩu"
+                            type='password'
+                            placeholder='Mật khẩu'
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
@@ -67,8 +84,8 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess })
                         <div className={styles.inputGroup}>
                             <FaLock className={styles.inputIcon} />
                             <input
-                                type="password"
-                                placeholder="Xác nhận mật khẩu"
+                                type='password'
+                                placeholder='Xác nhận mật khẩu'
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 required
@@ -83,7 +100,7 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess })
                         </p>
                     )}
 
-                    <button type="submit" className={styles.submitBtn}>
+                    <button type='submit' className={styles.submitBtn}>
                         {buttonText}
                     </button>
                 </form>
@@ -92,14 +109,18 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess })
                     <div className={styles.divider}>
                         <span>HOẶC</span>
                     </div>
-                    <button onClick={handleGoogleLogin} className={styles.googleBtn}>
-                        <FcGoogle className={styles.googleIcon} />
-                        Đăng nhập với Google
-                    </button>
+                    <div className={styles.googleBtnContainer}>
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={handleGoogleError}
+                            useOneTap={false}
+                            text="signin_with"
+                        />
+                    </div>
                 </div>
 
                 <button className={styles.switchBtn} onClick={handleSwitchPage}>
-                    {formType === "login" ? "Create New Account" : "Back To Login"}
+                    {formType === 'login' ? 'Create New Account' : 'Back To Login'}
                 </button>
             </div>
         </div>

@@ -82,7 +82,7 @@ button {
   border: none;
   border-radius: 8px;
   font-size: 1rem;
-  font-weight: 600;
+  //font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
@@ -106,20 +106,9 @@ button {
   margin-top: 20px;
 }
 
-.googleBtn {
-  background-color: $white-color;
-  color: #555;
-  border: 1px solid $input-border-color;
-
-  &:hover {
-    background-color: #f7f7f7;
-    border-color: #ccc;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  }
-
-  .googleIcon {
-    font-size: 1.2rem;
-  }
+.googleBtnContainer {
+  display: flex;
+  justify-content: center;
 }
 
 /* Đường kẻ phân cách */
