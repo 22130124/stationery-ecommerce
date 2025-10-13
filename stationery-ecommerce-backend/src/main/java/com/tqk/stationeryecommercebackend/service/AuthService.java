@@ -7,6 +7,7 @@ import com.tqk.stationeryecommercebackend.security.JwtTokenProvider;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.tqk.stationeryecommercebackend.repository.AccountRepository;
 import com.tqk.stationeryecommercebackend.repository.AuthProviderRepository;
@@ -19,12 +20,14 @@ public class AuthService {
     private final AccountRepository accountRepository;
     private final AuthProviderRepository authProviderRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public AuthService(AccountRepository accountRepository, AuthProviderRepository authProviderRepository, JwtTokenProvider jwtTokenProvider) {
+    public AuthService(AccountRepository accountRepository, AuthProviderRepository authProviderRepository, JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder) {
         this.accountRepository = accountRepository;
         this.authProviderRepository = authProviderRepository;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public String login(AuthRequest request) {
@@ -35,7 +38,7 @@ public class AuthService {
 
         AuthProvider authProvider = authProviderRepository.findByAccount(account).orElseThrow(() -> new AuthException("Username or password is incorrect"));
 
-        if (!password.equals(authProvider.getPassword())) {
+        if (!passwordEncoder.matches(password, authProvider.getPassword())) {
             throw new AuthException("Username or password is incorrect");
         }
 
@@ -60,8 +63,8 @@ public class AuthService {
 
             AuthProvider authProvider = new AuthProvider();
             authProvider.setAccount(account);
-            authProvider.setPassword(password);
             authProvider.setProvider("local");
+            authProvider.setPassword(passwordEncoder.encode(password));
             authProviderRepository.save(authProvider);
 
             return account.getId();
