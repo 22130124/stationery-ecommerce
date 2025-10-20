@@ -1,4 +1,4 @@
-package com.tqk.stationeryecommercebackend.request;
+package com.tqk.stationeryecommercebackend.dto.auth;
 
 import javax.validation.constraints.NotBlank;
 

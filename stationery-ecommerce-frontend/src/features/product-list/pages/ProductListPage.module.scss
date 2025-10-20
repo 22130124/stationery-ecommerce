@@ -1,0 +1,75 @@
+/* Bạn có thể thêm file CSS reset hoặc base styles ở đây */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.product-list-page {
+  display: grid;
+  grid-template-columns: 280px 1fr; /* Sidebar 280px, phần còn lại cho main content */
+  gap: 2rem;
+
+  @media (max-width: 992px) {
+    grid-template-columns: 220px 1fr;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr; /* Trên mobile, sidebar sẽ ở trên */
+    gap: 1.5rem;
+  }
+
+  &__main {
+    width: 100%;
+  }
+
+  &__controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+
+    @media (max-width: 576px) {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: stretch;
+    }
+
+    .search-bar {
+      display: flex;
+      input {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #ccc;
+        border-radius: 4px 0 0 4px;
+        min-width: 250px;
+      }
+      button {
+        padding: 0.5rem 1rem;
+        border: 1px solid #e53935;
+        background-color: #e53935;
+        color: white;
+        cursor: pointer;
+        border-radius: 0 4px 4px 0;
+      }
+    }
+
+    .sort-bar {
+      select {
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+    }
+  }
+
+  &__grid {
+    display: grid;
+    /* Tạo các cột co dãn, tối thiểu 200px, tối đa là 1fr (chia đều) */
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+}

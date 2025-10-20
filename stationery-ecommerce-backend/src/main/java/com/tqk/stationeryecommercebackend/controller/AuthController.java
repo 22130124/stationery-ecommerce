@@ -1,15 +1,13 @@
 package com.tqk.stationeryecommercebackend.controller;
 
-import com.tqk.stationeryecommercebackend.request.GoogleAuthRequest;
+import com.tqk.stationeryecommercebackend.dto.auth.GoogleAuthRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.tqk.stationeryecommercebackend.request.AuthRequest;
+import com.tqk.stationeryecommercebackend.dto.auth.AuthRequest;
 import com.tqk.stationeryecommercebackend.service.AuthService;
 
 import javax.validation.Valid;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Map;
 
 @RestController

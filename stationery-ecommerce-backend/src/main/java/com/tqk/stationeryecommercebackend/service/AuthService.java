@@ -9,8 +9,6 @@ import com.tqk.stationeryecommercebackend.model.Account;
 import com.tqk.stationeryecommercebackend.model.AuthProvider;
 import com.tqk.stationeryecommercebackend.security.JwtTokenProvider;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -18,13 +16,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.tqk.stationeryecommercebackend.repository.AccountRepository;
 import com.tqk.stationeryecommercebackend.repository.AuthProviderRepository;
-import com.tqk.stationeryecommercebackend.request.AuthRequest;
+import com.tqk.stationeryecommercebackend.dto.auth.AuthRequest;
 
 import javax.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
-import java.util.Optional;
 
 @Service
 public class AuthService {
