@@ -1,11 +1,19 @@
 $primary-color: #0077b6;
+$secondary-color: #d1d1f7;
+$white-color: #fff;
+$text-color: #333;
+
+// Auth
 $input-border-color: #ddd;
 $input-focus-border-color: $primary-color;
-$secondary-color: #d1d1f7;
 $background-gradient-start: #f0f2f5;
 $background-gradient-end: #d9e2f5;
 $card-background: #ffffff;
-$text-color: #333;
-$white-color: #fff;
 $shadow-color: rgba(0, 0, 0, 0.1);
 $divider-color: #ccc;
+
+// Product List
+$discount-color: #e53935;
+$base-price-color: #888;
+
+

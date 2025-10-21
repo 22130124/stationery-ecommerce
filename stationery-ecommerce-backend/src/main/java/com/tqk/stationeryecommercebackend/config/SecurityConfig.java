@@ -41,7 +41,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Cho phép tất cả các request OPTIONS đi qua
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // Cho phép các request đến API đăng nhập/đăng ký
                         .requestMatchers("**").permitAll()
                 );
         return http.build();

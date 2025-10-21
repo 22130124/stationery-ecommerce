@@ -1,0 +1,83 @@
+@import "../../../styles/variables";
+
+.sidebar {
+  background-color: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 8px;
+  height: fit-content;
+}
+
+.title {
+  font-size: 1.25rem;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 0.75rem;
+}
+
+.navList, .submenu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navItem {
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+}
+
+.link, .parentLink {
+  text-decoration: none;
+  color: #555;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+  display: block;
+  padding: 0.4rem 0;
+
+  &:hover {
+    color: $primary-color;
+  }
+}
+
+.parentLink {
+  font-weight: bold;
+  color: #333;
+}
+
+.parentLinkWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.submenu {
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+
+  &.show {
+    max-height: 500px; /* Một giá trị đủ lớn */
+  }
+}
+
+// Icon Chevron để sổ ra/vào
+.chevron {
+  border: solid #555;
+  border-width: 2px 2px 0 0;
+  display: inline-block;
+  padding: 3px;
+  transform: rotate(45deg);
+  transition: transform 0.3s ease;
+
+  &.open {
+    transform: rotate(135deg);
+  }
+}
+
+.active {
+  color: $primary-color;
+  font-weight: bold;
+}
