@@ -3,7 +3,7 @@
 
 // External Libraries
 import React, {useState, useEffect} from "react";
-import { useSearchParams } from "react-router-dom";
+import {useSearchParams} from "react-router-dom";
 
 // Import Components
 import Sidebar from "../components/Sidebar";
@@ -15,7 +15,7 @@ import styles from "./ProductListPage.module.scss";
 
 // APIs
 import {getCategories} from "../../../api/categoryApi";
-import {getAllProducts, getProductsByCategoryAndPagination} from "../../../api/productApi";
+import {getProductsByCategoryAndPagination} from "../../../api/productApi";
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -114,7 +114,10 @@ const ProductListPage = () => {
 
                     <div className={styles.productGrid}>
                         {products.map((product) => (
-                            <ProductCard key={product.id} product={product}/>
+                            <ProductCard
+                                key={product.id}
+                                product={product}
+                            />
                         ))}
                     </div>
 

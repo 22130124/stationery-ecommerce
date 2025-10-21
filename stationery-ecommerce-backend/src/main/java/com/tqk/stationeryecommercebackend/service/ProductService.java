@@ -2,6 +2,7 @@ package com.tqk.stationeryecommercebackend.service;
 
 import com.tqk.stationeryecommercebackend.dto.product.ProductListResponse;
 import com.tqk.stationeryecommercebackend.dto.product.ProductResponse;
+import com.tqk.stationeryecommercebackend.exception.ProductNotFoundException;
 import com.tqk.stationeryecommercebackend.model.Category;
 import com.tqk.stationeryecommercebackend.model.Product;
 import com.tqk.stationeryecommercebackend.repository.CategoryRepository;
@@ -51,5 +52,10 @@ public class ProductService {
                 productPage.getTotalPages(),
                 productPage.getTotalElements()
         );
+    }
+
+    public ProductResponse getProductBySlug(String slug) {
+        Product product = productRepository.findBySlug(slug).orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm với slug: " + slug));
+        return product.convertToDto();
     }
 }

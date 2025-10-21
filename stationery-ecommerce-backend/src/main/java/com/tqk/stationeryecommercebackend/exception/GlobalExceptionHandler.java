@@ -17,6 +17,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleProductNotFoundException(ProductNotFoundException ex) {
+        // Tạo một đối tượng Map để làm body cho response lỗi
+        Map<String, String> errorResponse = Map.of(
+                "message", ex.getMessage(),
+                "status", String.valueOf(HttpStatus.NOT_FOUND.value())
+        );
+
+        // Trả về một ResponseEntity với body là errorResponse và status code là 404 NOT_FOUND
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, String>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         Map<String, String> response = Map.of("message", "Invalid or missing data");

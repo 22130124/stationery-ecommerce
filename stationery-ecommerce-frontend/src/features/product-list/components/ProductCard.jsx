@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './ProductCard.module.scss';
+import {Link} from "react-router-dom";
 
 // Định dạng tiền tệ
 const formatCurrency = (amount) => {
@@ -18,35 +19,37 @@ const ProductCard = ({ product }) => {
         : 0;
 
     return (
-        <div className={styles.card}>
-            <div className={styles.imageWrapper}>
-                <img src={imageUrl} alt={product.name} className={styles.image} />
-                {hasDiscount && (
-                    <div className={styles.discountTag}>
-                        -{discountPercentage}%
-                    </div>
-                )}
-            </div>
-            <div className={styles.info}>
-                <h3 className={styles.name}>{product.name}</h3>
-                <div className={styles.price}>
-                    {hasDiscount ? (
-                        <>
+        <Link to={`/${product.slug}`} className={styles.productLink}>
+            <div className={styles.card}>
+                <div className={styles.imageWrapper}>
+                    <img src={imageUrl} alt={product.name} className={styles.image} />
+                    {hasDiscount && (
+                        <div className={styles.discountTag}>
+                            -{discountPercentage}%
+                        </div>
+                    )}
+                </div>
+                <div className={styles.info}>
+                    <h3 className={styles.name}>{product.name}</h3>
+                    <div className={styles.price}>
+                        {hasDiscount ? (
+                            <>
                             <span className={styles.discountPrice}>
                                 {formatCurrency(discountPrice)}
                             </span>
-                            <span className={styles.basePrice}>
+                                <span className={styles.basePrice}>
                                 {formatCurrency(basePrice)}
                             </span>
-                        </>
-                    ) : (
-                        <span className={styles.discountPrice}>
+                            </>
+                        ) : (
+                            <span className={styles.discountPrice}>
                             {formatCurrency(basePrice)}
                         </span>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 };
 
