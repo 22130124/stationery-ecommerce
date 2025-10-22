@@ -3,7 +3,7 @@
 import { Toaster } from 'react-hot-toast';
 
 const toastOptions = {
-    position: "top-right",
+    position: "top-center",
     style: {
         background: '#363636',
         color: '#fff',

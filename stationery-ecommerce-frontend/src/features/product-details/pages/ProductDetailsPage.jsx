@@ -75,13 +75,40 @@ const ProductDetailsPage = () => {
     };
 
     const handleAddToCartButtonClick = () => {
-        setCart((prev) => [...prev, {
-            productId: product.id,
-            variantId: selectedVariant.id,
-            quantity: quantity,
-        }]);
-        toast.success(`Đã thêm ${quantity} ${product.name} ${selectedVariant.name} vào giỏ hàng`);
-    }
+        setCart((prev) => {
+            // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
+            const existingItemIndex = prev.findIndex(
+                (item) =>
+                    item.productId === product.id &&
+                    item.variantId === selectedVariant.id
+            );
+
+            // Nếu đã có, cập nhật quantity
+            if (existingItemIndex !== -1) {
+                const updatedCart = [...prev];
+                updatedCart[existingItemIndex] = {
+                    ...updatedCart[existingItemIndex],
+                    quantity: updatedCart[existingItemIndex].quantity + quantity,
+                };
+                return updatedCart;
+            }
+
+            // Nếu chưa có, thêm mới vào giỏ
+            return [
+                ...prev,
+                {
+                    productId: product.id,
+                    variantId: selectedVariant.id,
+                    quantity: quantity,
+                },
+            ];
+        });
+
+        toast.dismiss();
+        toast.success(
+            `Đã thêm ${quantity} ${product.name} ${selectedVariant.name} vào giỏ hàng`
+        );
+    };
 
     console.log("Cart", cart)
 
