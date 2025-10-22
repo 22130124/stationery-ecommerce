@@ -1,54 +1,53 @@
 // ShoppingCart.jsx
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import styles from './ShoppingCart.module.scss';
-import { FaTrashAlt } from 'react-icons/fa';
-
-const initialCartItems = [
-    {
-        id: 1,
-        name: "Bút bi Thiên Long TL-027",
-        slug: "but-bi-thien-long-tl-027",
-        brand: { name: "Thiên Long" },
-        variants: [
-            { id: 1, name: "Mực Xanh", basePrice: 5000, discountPrice: 4500, defaultImage: { url: "https://placehold.co/600x600/3498db/ffffff.png?text=SP1001+Xanh" } },
-            { id: 2, name: "Mực Đỏ", basePrice: 5000, discountPrice: null, defaultImage: { url: "https://placehold.co/600x600/e74c3c/ffffff.png?text=SP1001+Do" } }
-        ],
-        quantity: 2,
-        selectedVariantId: 1
-    },
-    {
-        id: 2,
-        name: "Tập 96 trang Campus",
-        slug: "tap-96-trang-campus",
-        brand: { name: "Campus" },
-        variants: [{ id: 4, name: "Kẻ ngang", basePrice: 12000, discountPrice: 10000, defaultImage: { url: "https://placehold.co/600x600/2ecc71/ffffff.png?text=Tap+Campus" } }],
-        quantity: 5,
-        selectedVariantId: 4
-    },
-    {
-        id: 3,
-        name: "Gôm tẩy Pentel",
-        slug: "gom-tay-pentel",
-        brand: { name: "Pentel" },
-        variants: [{ id: 5, name: "Trắng", basePrice: 8000, discountPrice: null, defaultImage: { url: "https://placehold.co/600x600/ecf0f1/2c3e50.png?text=Gom+Pentel" } }],
-        quantity: 1,
-        selectedVariantId: 5
-    }
-];
-
-const formatCurrency = (amount) => {
-    if (typeof amount !== 'number') return '';
-    return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-};
+import {FaTrashAlt} from 'react-icons/fa';
+import {getCartItems} from "../../../api/cartApi";
 
 const ShoppingCart = () => {
-    const [cartItems, setCartItems] = useState(initialCartItems);
+    const [cartItems, setCartItems] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
+    const [storedCart, setStoredCart] = useState(() => {
+        try {
+            const storedCart = localStorage.getItem("cart");
+            return storedCart ? JSON.parse(storedCart) : [];
+        } catch (error) {
+            console.error("Lỗi khi đọc giỏ hàng từ localStorage:", error);
+            return [];
+        }
+    });
+
+    useEffect(() => {
+        if (storedCart.length < 0) return;
+        const variantIds = storedCart.map((item) => item.variantId);
+        const fetchCartItems = async () => {
+            const data = await getCartItems(variantIds);
+
+            const cartItemsData = data.cartItems.map(item => {
+                const storedItem = storedCart.find(
+                    localItem => localItem.variantId === item.variant.id
+                );
+
+                return {
+                    ...item,
+                    quantity: storedItem ? storedItem.quantity : 1
+                };
+            });
+
+            setCartItems(cartItemsData);
+        }
+        fetchCartItems();
+    }, [])
+    console.log("Cart Items:", cartItems);
+
+    useEffect(() => {
+        localStorage.setItem("cart", JSON.stringify(storedCart));
+    }, [storedCart]);
 
     useEffect(() => {
         const calculateTotal = () => {
             return cartItems.reduce((total, item) => {
-                const variant = item.variants.find(v => v.id === item.selectedVariantId);
+                const variant = item.variant
                 if (!variant) return total;
                 const price = variant.discountPrice ?? variant.basePrice;
                 return total + (price * item.quantity);
@@ -57,27 +56,46 @@ const ShoppingCart = () => {
         setTotalPrice(calculateTotal());
     }, [cartItems]);
 
-    const handleQuantityChange = (productId, variantId, newQuantity) => {
+    const handleQuantityChange = (variantId, newQuantity) => {
         if (newQuantity < 1) return;
-        setCartItems(prevItems =>
-            prevItems.map(item =>
-                (item.id === productId && item.selectedVariantId === variantId)
-                    ? { ...item, quantity: newQuantity }
+
+        setStoredCart((prev) =>
+            prev.map(item =>
+                (item.variantId === variantId)
+                    ? {...item, quantity: newQuantity}
                     : item
             )
-        );
+        )
+
+        setCartItems((prev) =>
+            prev.map(item =>
+                (item.variant.id === variantId)
+                    ? {...item, quantity: newQuantity}
+                    : item
+            ));
     };
 
-    const handleRemoveItem = (productId, variantId) => {
+    const handleRemoveItem = (variantId) => {
         setCartItems(prevItems =>
             prevItems.filter(item =>
-                !(item.id === productId && item.selectedVariantId === variantId)
+                !(item.variant.id === variantId)
+            )
+        );
+
+        setStoredCart(prevItems =>
+            prevItems.filter(item =>
+                !(item.variantId === variantId)
             )
         );
     };
 
-    const CartItem = ({ item }) => {
-        const variant = item.variants.find(v => v.id === item.selectedVariantId);
+    const formatCurrency = (amount) => {
+        if (typeof amount !== 'number') return '';
+        return amount.toLocaleString('vi-VN', {style: 'currency', currency: 'VND'});
+    };
+
+    const CartItem = ({item}) => {
+        const variant = item.variant;
         if (!variant) return null;
 
         const finalPrice = variant.discountPrice ?? variant.basePrice;
@@ -86,12 +104,12 @@ const ShoppingCart = () => {
             <div className={styles.cartItem}>
                 <div className={styles.productInfo}>
                     <div className={styles.itemImage}>
-                        <img src={variant.defaultImage.url} alt={item.name} />
+                        <img src={variant.defaultImage.url} alt={item.name}/>
                     </div>
                     <div className={styles.itemDetails}>
                         <h3 className={styles.itemName}>{item.name}</h3>
                         <p className={styles.itemVariant}>Phân loại: {variant.name}</p>
-                        <p className={styles.itemBrand}>Thương hiệu: {item.brand.name}</p>
+                        <p className={styles.itemBrand}>Thương hiệu: {item.brandName}</p>
                     </div>
                 </div>
 
@@ -103,7 +121,7 @@ const ShoppingCart = () => {
                 </div>
 
                 <div className={styles.itemQuantity}>
-                    <button onClick={() => handleQuantityChange(item.id, variant.id, item.quantity - 1)}>-</button>
+                    <button onClick={() => handleQuantityChange(variant.id, item.quantity - 1)}>-</button>
 
                     <input
                         type="number"
@@ -111,7 +129,7 @@ const ShoppingCart = () => {
                         onChange={(e) => handleQuantityChange(item.id, variant.id, parseInt(e.target.value, 10) || 1)}
                         min="1"
                     />
-                    <button onClick={() => handleQuantityChange(item.id, variant.id, item.quantity + 1)}>+</button>
+                    <button onClick={() => handleQuantityChange(variant.id, item.quantity + 1)}>+</button>
                 </div>
 
                 <div className={styles.itemTotal}>
@@ -119,8 +137,8 @@ const ShoppingCart = () => {
                 </div>
 
                 <div className={styles.itemActions}>
-                    <button onClick={() => handleRemoveItem(item.id, variant.id)} className={styles.removeButton}>
-                        <FaTrashAlt />
+                    <button onClick={() => handleRemoveItem(variant.id)} className={styles.removeButton}>
+                        <FaTrashAlt/>
                     </button>
                 </div>
             </div>
@@ -142,11 +160,10 @@ const ShoppingCart = () => {
                             <div className={styles.headerActions}></div>
                         </div>
                         {cartItems.map(item => (
-                            <CartItem key={`${item.id}-${item.selectedVariantId}`} item={item} />
+                            <CartItem key={`${item.variant.id}-${item.selectedVariantId}`} item={item}/>
                         ))}
                     </div>
 
-                    {/* --- Cải thiện UX: Khối tóm tắt sẽ được "ghim" lại khi cuộn --- */}
                     <div className={styles.cartSummary}>
                         <h2>Tóm tắt đơn hàng</h2>
                         <div className={styles.summaryLine}>
@@ -157,7 +174,7 @@ const ShoppingCart = () => {
                             <span>Phí vận chuyển</span>
                             <span>Miễn phí</span>
                         </div>
-                        <hr />
+                        <hr/>
                         <div className={`${styles.summaryLine} ${styles.total}`}>
                             <span>Tổng cộng</span>
                             <span>{formatCurrency(totalPrice)}</span>
@@ -167,7 +184,6 @@ const ShoppingCart = () => {
                 </div>
             ) : (
                 <div className={styles.emptyCart}>
-                    {/* Có thể thêm SVG Icon ở đây để đẹp hơn */}
                     <p>Giỏ hàng của bạn chưa có sản phẩm nào.</p>
                     <a href="/">Tiếp tục mua sắm</a>
                 </div>
