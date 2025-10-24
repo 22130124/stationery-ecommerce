@@ -3,8 +3,13 @@ import React, {useState, useEffect} from 'react';
 import styles from './ShoppingCart.module.scss';
 import {FaTrashAlt} from 'react-icons/fa';
 import {getCartItems} from "../../../api/cartApi";
+import {useNavigate} from "react-router-dom";
+import {useLocation} from "react-router";
 
 const ShoppingCart = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
     const [cartItems, setCartItems] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
     const [storedCart, setStoredCart] = useState(() => {
@@ -88,6 +93,13 @@ const ShoppingCart = () => {
             )
         );
     };
+
+    const handleConfirm = () => {
+        if(!localStorage.getItem("token")) {
+            const currentPath = location.pathname;
+            navigate(`/login?redirect=${currentPath}`);
+        }
+    }
 
     const formatCurrency = (amount) => {
         if (typeof amount !== 'number') return '';
@@ -179,7 +191,7 @@ const ShoppingCart = () => {
                             <span>Tổng cộng</span>
                             <span>{formatCurrency(totalPrice)}</span>
                         </div>
-                        <button className={styles.checkoutButton}>Tiến hành thanh toán</button>
+                        <button className={styles.checkoutButton} onClick={handleConfirm}>Tiến hành thanh toán</button>
                     </div>
                 </div>
             ) : (

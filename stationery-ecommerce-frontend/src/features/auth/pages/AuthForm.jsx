@@ -6,10 +6,12 @@ import {FcGoogle} from 'react-icons/fc';
 import {useNavigate} from 'react-router-dom';
 import {GoogleLogin, useGoogleLogin} from '@react-oauth/google';
 import {loginWithGoogle} from '../../../api/authApi';
+import {useLocation} from "react-router";
 
 // formType: 'login' | 'signup'
-const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess }) => {
+const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess, onGoogleSuccess }) => {
     const navigate = useNavigate();
+    const location = useLocation();
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -18,8 +20,7 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess })
     const handleSubmit = (e) => {
         e.preventDefault();
         if (formType === 'signup' && password !== confirmPassword) {
-            // Xử lý lỗi mật khẩu không khớp
-            onSubmit({ error: 'Confirmation password does not match' });
+            onSubmit({ error: 'Mật khẩu không khớp' });
             return;
         }
         
@@ -31,9 +32,9 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess })
         try {
             // credentialResponse.credential là ID Token để backend xác thực
             const data = await loginWithGoogle(credentialResponse.credential);
-            localStorage.setItem('token', data.token);
-            // navigate('/');
-            alert('Success! Redirecting to the home page...');
+            if (onGoogleSuccess) {
+                onGoogleSuccess(data.token);
+            }
         } catch (error) {
             console.error('Lỗi xác thực với backend:', error);
             alert('Xác thực với backend thất bại.');
@@ -42,12 +43,19 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess })
 
     const handleGoogleError = () => {
         console.log('Google Login Failed');
-        alert('Login failed! Please try again');
+        alert('Đăng nhập thất bại hãy thử lại sau');
     };
 
     const handleSwitchPage = () => {
         const nextPage = formType === 'signup' ? 'login' : 'signup';
-        navigate(`/${nextPage}`)
+        const searchParams = new URLSearchParams(location.search);
+        const redirectPath = searchParams.get("redirect");
+
+        if (redirectPath) {
+            navigate(`/${nextPage}?redirect=${redirectPath}`);
+        } else {
+            navigate(`/${nextPage}`);
+        }
     }
 
     return (
