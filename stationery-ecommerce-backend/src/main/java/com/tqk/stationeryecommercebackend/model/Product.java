@@ -62,6 +62,9 @@ public class Product {
     @OneToMany(mappedBy = "product")
     private List<ProductVariant> variants;
 
+    @OneToMany(mappedBy = "product")
+    private List<ProductImage> images;
+
     public ProductResponse convertToDto() {
         ProductResponse dto = new ProductResponse();
         dto.setId(this.id);
@@ -83,6 +86,11 @@ public class Product {
             variantResponses.add(productVariantResponse);
             if (productVariant.getIsDefault()) {
                 dto.setDefaultVariant(productVariantResponse);
+            }
+        }
+        for (ProductImage productImage : this.images) {
+            if(productImage.getIsDefault()) {
+                dto.setDefaultImage(productImage.convertToDto());
             }
         }
         dto.setVariants(variantResponses);
@@ -199,5 +207,13 @@ public class Product {
 
     public void setVariants(List<ProductVariant> variants) {
         this.variants = variants;
+    }
+
+    public List<ProductImage> getImages() {
+        return images;
+    }
+
+    public void setImages(List<ProductImage> images) {
+        this.images = images;
     }
 }

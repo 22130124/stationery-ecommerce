@@ -11,7 +11,7 @@ const ProductCard = ({ product }) => {
     const defaultVariant = product.defaultVariant;
     const basePrice = defaultVariant?.basePrice || 0;
     const discountPrice = defaultVariant?.discountPrice || basePrice;
-    const imageUrl = defaultVariant?.defaultImage?.url;
+    const imageUrl = product.defaultImage.url;
 
     const hasDiscount = discountPrice < basePrice;
     const discountPercentage = hasDiscount

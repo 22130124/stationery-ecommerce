@@ -89,10 +89,10 @@ const Header = () => {
             </div>
 
             {/* Giỏ hàng */}
-            <div className={styles.menuItem}>
+            <Link className={styles.menuItem} to={"/shopping-cart"}>
                 <FaShoppingCart/>
                 <span>Giỏ hàng</span>
-            </div>
+            </Link>
 
             {/* User */}
             <div

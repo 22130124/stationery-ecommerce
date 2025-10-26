@@ -116,7 +116,7 @@ const ShoppingCart = () => {
             <div className={styles.cartItem}>
                 <div className={styles.productInfo}>
                     <div className={styles.itemImage}>
-                        <img src={variant.defaultImage.url} alt={item.name}/>
+                        <img src={variant.images[0].url} alt={item.name}/>
                     </div>
                     <div className={styles.itemDetails}>
                         <h3 className={styles.itemName}>{item.name}</h3>

@@ -23,6 +23,7 @@ public class ProductResponse {
     private LocalDateTime updatedAt;
     private List<ProductVariantResponse> variants;
     private ProductVariantResponse defaultVariant;
+    private ProductImageResponse defaultImage;
 
     public Integer getId() {
         return id;
@@ -142,5 +143,13 @@ public class ProductResponse {
 
     public void setDefaultVariant(ProductVariantResponse defaultVariant) {
         this.defaultVariant = defaultVariant;
+    }
+
+    public ProductImageResponse getDefaultImage() {
+        return defaultImage;
+    }
+
+    public void setDefaultImage(ProductImageResponse defaultImage) {
+        this.defaultImage = defaultImage;
     }
 }
