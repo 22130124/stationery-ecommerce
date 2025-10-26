@@ -3,9 +3,11 @@ import React, {useState} from 'react';
 import AuthForm from "./AuthForm";
 import {signUp} from "../../../api/authApi";
 import {useNavigate} from "react-router-dom";
+import {useLocation} from "react-router";
 
 const SignUpPage = () => {
     const navigate = useNavigate();
+    const location = useLocation();
 
     const [message, setMessage] = useState('')
     const [isSuccess, setIsSuccess] = useState(false)
@@ -48,6 +50,23 @@ const SignUpPage = () => {
         return true;
     }
 
+    const handleSubmitSuccess = () => {
+        setIsSuccess(true)
+        setMessage("Đăng ký thành công");
+
+        const searchParams = new URLSearchParams(location.search);
+        const redirectPath = searchParams.get("redirect");
+
+        setTimeout(() => {
+            if (redirectPath) {
+                navigate(`/login?redirect=${redirectPath}`);
+            } else {
+                navigate("/login");
+            }
+        }, 1000);
+    };
+
+
     const handleSubmit = async (formData) => {
         if (formData.error) {
             setMessage(formData.error)
@@ -61,20 +80,12 @@ const SignUpPage = () => {
 
         try {
             const data = await signUp(formData.username, formData.password)
-            setMessage("Success! Redirecting to the login page...")
-            setIsSuccess(true)
-            delayNavigate()
+            handleSubmitSuccess()
         } catch (error) {
             setMessage(error.message)
             setIsSuccess(false)
         }
     };
-
-    const delayNavigate = () => {
-        setTimeout(() => {
-            navigate("/login");
-        }, 2000)
-    }
 
     return (
         <AuthForm

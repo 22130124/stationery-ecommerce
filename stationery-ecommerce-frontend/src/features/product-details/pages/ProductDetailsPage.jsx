@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import { getProductBySlug } from "../../../api/productApi";
 import styles from "./ProductDetailsPage.module.scss";
 import ReactMarkdown from 'react-markdown';
+import toast from "react-hot-toast";
 
 // Icon ngôi sao đơn giản để đánh giá
 const StarIcon = () => <>⭐</>;
@@ -15,6 +16,15 @@ const ProductDetailsPage = () => {
     const [selectedVariant, setSelectedVariant] = useState(null);
     const [mainImage, setMainImage] = useState('');
     const [quantity, setQuantity] = useState(1);
+    const [cart, setCart] = useState(() => {
+        try {
+            const storedCart = localStorage.getItem("cart");
+            return storedCart ? JSON.parse(storedCart) : [];
+        } catch (error) {
+            console.error("Lỗi khi đọc giỏ hàng từ localStorage:", error);
+            return [];
+        }
+    });
 
     useEffect(() => {
         if (!slug) return;
@@ -24,11 +34,9 @@ const ProductDetailsPage = () => {
                 const data = await getProductBySlug(slug);
                 if (data && data.product) {
                     setProduct(data.product);
-                    // Lấy variant mặc định hoặc variant đầu tiên trong danh sách
                     const defaultVar = data.product.defaultVariant || data.product.variants?.[0];
                     if (defaultVar) {
                         setSelectedVariant(defaultVar);
-                        // Lấy ảnh mặc định của variant hoặc ảnh đầu tiên
                         setMainImage(defaultVar.defaultImage?.url || defaultVar.images?.[0]?.url || '');
                     }
                 }
@@ -41,6 +49,10 @@ const ProductDetailsPage = () => {
     }, [slug]);
 
     console.log(product);
+
+    useEffect(() => {
+        localStorage.setItem("cart", JSON.stringify(cart));
+    }, [cart])
 
     const formatPrice = (price) =>
         price?.toLocaleString("vi-VN", { style: "currency", currency: "VND" }) || "";
@@ -63,8 +75,42 @@ const ProductDetailsPage = () => {
     };
 
     const handleAddToCartButtonClick = () => {
-        alert("Add to cart");
-    }
+        setCart((prev) => {
+            // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
+            const existingItemIndex = prev.findIndex(
+                (item) =>
+                    item.productId === product.id &&
+                    item.variantId === selectedVariant.id
+            );
+
+            // Nếu đã có, cập nhật quantity
+            if (existingItemIndex !== -1) {
+                const updatedCart = [...prev];
+                updatedCart[existingItemIndex] = {
+                    ...updatedCart[existingItemIndex],
+                    quantity: updatedCart[existingItemIndex].quantity + quantity,
+                };
+                return updatedCart;
+            }
+
+            // Nếu chưa có, thêm mới vào giỏ
+            return [
+                ...prev,
+                {
+                    productId: product.id,
+                    variantId: selectedVariant.id,
+                    quantity: quantity,
+                },
+            ];
+        });
+
+        toast.dismiss();
+        toast.success(
+            `Đã thêm ${quantity} ${product.name} ${selectedVariant.name} vào giỏ hàng`
+        );
+    };
+
+    console.log("Cart", cart)
 
     const handleBuyNowButtonClick = () => {
         alert("Buy now");
@@ -121,6 +167,7 @@ const ProductDetailsPage = () => {
                         )}
                     </div>
 
+                    {/* Variants */}
                     <div className={styles.variantSection}>
                         <span className={styles.variantLabel}>Phân loại:</span>
                         <div className={styles.variantOptions}>

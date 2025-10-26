@@ -1,0 +1,321 @@
+// src/features/shopping-cart/pages/ShoppingCart.module.scss
+@import "../../../styles/variables";
+
+$border-color: #dee2e6;
+$box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+@mixin flex-center($justify: center, $align: center) {
+  display: flex;
+  justify-content: $justify;
+  align-items: $align;
+}
+
+.shoppingCart {
+  max-width: 1300px;
+  margin: 2rem auto;
+  padding: 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: $text-color;
+
+  .cartHeader {
+    font-size: 2.25rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+  }
+}
+
+.cartBody {
+  display: grid;
+  grid-template-columns: 2.5fr 1fr;
+  gap: 2rem;
+}
+
+.listHeader {
+  display: grid;
+  grid-template-columns: 3fr 1.5fr 1.5fr 1.5fr 0.5fr;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  color: $dark-gray-color;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  align-items: center;
+
+  .headerProduct { grid-column: 1; }
+  .headerPrice, .headerQuantity, .headerTotal {
+    text-align: center;
+  }
+}
+
+.cartItem {
+  display: grid;
+  grid-template-columns: 3fr 1.5fr 1.5fr 1.5fr 0.5fr;
+  gap: 1rem;
+  padding: 1.5rem;
+  background-color: $white-color;
+  border-radius: 12px;
+  box-shadow: $box-shadow;
+  margin-bottom: 1.5rem;
+  align-items: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .productInfo {
+    @include flex-center(flex-start, center);
+    gap: 1rem;
+  }
+
+  .itemImage {
+    width: 90px;
+    height: 90px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .itemDetails {
+    .itemName {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 0.25rem;
+      color: $text-color;
+    }
+    .itemVariant, .itemBrand {
+      font-size: 0.85rem;
+      color: $dark-gray-color;
+      margin: 0;
+    }
+  }
+
+  .itemPrice {
+    text-align: center;
+    .originalPrice {
+      text-decoration: line-through;
+      color: $dark-gray-color;
+      font-size: 0.85rem;
+      display: block;
+    }
+    .finalPrice {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+  }
+
+  .itemQuantity {
+    @include flex-center;
+
+    input {
+      width: 45px;
+      height: 36px;
+      text-align: center;
+      border: 1px solid $border-color;
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 500;
+      -moz-appearance: textfield;
+
+      &:focus {
+        outline: 1px solid $primary-color;
+      }
+    }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    button {
+      width: 36px;
+      height: 36px;
+      border: 1px solid $border-color;
+      background-color: $white-color;
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: $dark-gray-color;
+      @include flex-center;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: $border-color;
+        color: $text-color;
+      }
+
+      &:first-of-type {
+        border-right: none;
+        border-radius: 6px 0 0 6px;
+      }
+      &:last-of-type {
+        border-left: none;
+        border-radius: 0 6px 6px 0;
+      }
+    }
+  }
+
+  .itemTotal {
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: $primary-color;
+  }
+
+  .itemActions {
+    text-align: center;
+    .removeButton {
+      background: none;
+      border: none;
+      color: $dark-gray-color;
+      cursor: pointer;
+      font-size: 1.25rem;
+      padding: 0.5rem;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      @include flex-center;
+      transition: color 0.2s, background-color 0.2s;
+
+      &:hover {
+        color: $danger-color;
+        background-color: lighten($danger-color, 35%);
+      }
+    }
+  }
+}
+
+.cartSummary {
+  padding: 2rem;
+  border-radius: 12px;
+  background-color: $white-color;
+  box-shadow: $box-shadow;
+  height: fit-content;
+
+  position: sticky;
+  top: 2rem;
+
+  h2 {
+    font-size: 1.5rem;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .summaryLine {
+    @include flex-center(space-between, center);
+    margin-bottom: 1rem;
+    font-size: 1rem;
+
+    span:last-child {
+      font-weight: 600;
+    }
+
+    &.total {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: $text-color;
+    }
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid $border-color;
+    margin: 1.5rem 0;
+  }
+
+  .checkoutButton {
+    width: 100%;
+    padding: 0.9rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    background-color: $primary-color;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    &:hover {
+      background-color: $primary-dark-color;
+      transform: scale(1.02);
+    }
+  }
+}
+
+.emptyCart {
+  text-align: center;
+  padding: 5rem 2rem;
+  background-color: $white-color;
+  border-radius: 12px;
+  box-shadow: $box-shadow;
+
+  p {
+    font-size: 1.2rem;
+    color: $dark-gray-color;
+    margin-bottom: 1.5rem;
+  }
+
+  a {
+    display: inline-block;
+    padding: 0.8rem 2rem;
+    background-color: $primary-color;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background-color 0.2s, transform 0.2s;
+    &:hover {
+      background-color: $primary-dark-color;
+      transform: scale(1.05);
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .cartBody {
+    grid-template-columns: 1fr;
+  }
+  .cartSummary {
+    position: static;
+    margin-top: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .listHeader {
+    display: none;
+  }
+
+  .cartItem {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    padding: 1rem;
+
+    .productInfo {
+
+    }
+
+    .itemPrice, .itemQuantity, .itemTotal {
+      @include flex-center(space-between, center);
+      width: 100%;
+      padding: 0.5rem 0;
+      border-top: 1px solid $border-color;
+    }
+
+    .itemPrice::before { content: 'Đơn giá:'; font-weight: normal; color: $dark-gray-color; }
+    .itemTotal::before { content: 'Thành tiền:'; font-weight: normal; color: $dark-gray-color; }
+    .itemQuantity::before { content: 'Số lượng:'; font-weight: normal; color: $dark-gray-color; }
+
+    .itemActions {
+      text-align: right;
+      padding-top: 0.5rem;
+      border-top: 1px solid $border-color;
+    }
+  }
+}
