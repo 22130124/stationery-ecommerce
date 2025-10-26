@@ -27,28 +27,6 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
-.searchBar {
-  display: flex;
-
-  input {
-    flex: 1;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #ccc;
-    border-radius: 4px 0 0 4px;
-    min-width: 250px;
-    outline-color: #e53935;
-  }
-
-  button {
-    padding: 0.5rem 1rem;
-    border: 1px solid #e53935;
-    background-color: $primary-color;
-    color: white;
-    cursor: pointer;
-    border-radius: 0 4px 4px 0;
-  }
-}
-
 .sortBar {
   select {
     padding: 0.5rem;

@@ -97,10 +97,6 @@ const ProductListPage = () => {
                 {/* Main Content */}
                 <main className={styles.mainContent}>
                     <div className={styles.controls}>
-                        <div className={styles.searchBar}>
-                            <input type="text" placeholder="Tìm kiếm sản phẩm..."/>
-                            <button>Tìm</button>
-                        </div>
                         <div className={styles.sortBar}>
                             <label htmlFor="sort">Sắp xếp theo: </label>
                             <select name="sort" id="sort">

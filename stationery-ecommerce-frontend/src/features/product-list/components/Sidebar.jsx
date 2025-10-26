@@ -27,6 +27,7 @@ const Sidebar = ({ categories }) => {
     const handleClickCategory = (slug) => {
         const newParams = new URLSearchParams(searchParams);
         newParams.set("category", slug);
+        newParams.set("page", "1");
         setSearchParams(newParams);
     };
 
