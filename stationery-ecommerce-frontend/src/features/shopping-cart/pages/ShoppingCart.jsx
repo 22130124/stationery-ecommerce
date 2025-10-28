@@ -98,7 +98,7 @@ const ShoppingCart = () => {
         if(!localStorage.getItem("token")) {
             const currentPath = location.pathname;
             navigate(`/login?redirect=${currentPath}`);
-        }
+            }
     }
 
     const formatCurrency = (amount) => {
