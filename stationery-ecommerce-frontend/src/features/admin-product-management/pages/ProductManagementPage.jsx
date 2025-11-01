@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table } from 'antd';
 import styles from './ProductManagementPage.module.scss';
+import AddProductModal from "../components/AddProductModal";
 
 const ProductManagementPage = () => {
     const [products, setProducts] = useState([
@@ -85,6 +86,20 @@ const ProductManagementPage = () => {
     ]);
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
+    const showAddModal = () => {
+        setIsModalVisible(true);
+    };
+
+    const handleModalClose = () => {
+        setIsModalVisible(false);
+    };
+
+    const handleModalSubmit = (values) => {
+        console.log('Form values submitted:', values);
+        setIsModalVisible(false);
+    };
 
     const formatCurrency = (value) => {
         if (!value) return '';
@@ -204,7 +219,7 @@ const ProductManagementPage = () => {
                     placeholder="Tìm kiếm theo tên, mã sản phẩm..."
                     onChange={e => setSearchText(e.target.value)}
                 />
-                <button className={styles.addButton}>
+                <button className={styles.addButton} onClick={showAddModal}>
                     + Thêm sản phẩm
                 </button>
             </div>
@@ -225,6 +240,13 @@ const ProductManagementPage = () => {
                     bordered
                 />
             </div>
+            {isModalVisible && (
+                <AddProductModal
+                    visible={isModalVisible}
+                    onClose={handleModalClose}
+                    onSubmit={handleModalSubmit}
+                />
+            )}
         </div>
     );
 };
