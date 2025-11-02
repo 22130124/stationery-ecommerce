@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table } from 'antd';
 import styles from './ProductManagementPage.module.scss';
-import AddProductModal from "../components/AddProductModal";
+import AddProductModal from "../components/modals/AddProductModal";
 
 const ProductManagementPage = () => {
     const [products, setProducts] = useState([

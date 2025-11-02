@@ -1,8 +1,10 @@
 import React, {useState, useEffect} from 'react';
 import {Modal, Form, Input, Select, TreeSelect, Upload} from 'antd';
-import {getCategories} from "../../../api/categoryApi";
-import {getSuppliers} from "../../../api/supplierApi";
-import {getBrandsBySupplierId} from "../../../api/brandApi";
+import {getCategories} from "../../../../api/categoryApi";
+import {getSuppliers} from "../../../../api/supplierApi";
+import {getBrandsBySupplierId} from "../../../../api/brandApi";
+import styles from "./AddProductModal.module.scss"
+import ProductImages from "../product-images/ProductImages";
 
 const {Option} = Select;
 
@@ -36,14 +38,12 @@ const AddProductModal = ({visible, onClose, onSubmit}) => {
         };
         fetchBrands();
     }, [selectedSupplierId]);
-    console.log("Brands:", brands)
 
     // Xử lý logic khi chọn supplier
     const handleSupplierChange = (value) => {
         setSelectedSupplierId(value);
         form.setFieldsValue({brandId: undefined});
     };
-    console.log("SelectedSupplierId: " + selectedSupplierId);
 
     // Hàm chuyển đổi dữ liệu category sang định dạng của TreeSelect
     const transformCategories = (nodes) => {
@@ -142,6 +142,11 @@ const AddProductModal = ({visible, onClose, onSubmit}) => {
                         allowClear
                         treeExpandAction="click"
                     />
+                </Form.Item>
+
+                <Form.Item name="images"
+                           label="Ảnh sản phẩm (chung)">
+                    <ProductImages/>
                 </Form.Item>
             </Form>
         </Modal>
