@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, {useId, useState} from "react";
 import styles from "./ProductImages.module.scss";
 import { deleteImage, uploadImage } from "../../../../api/uploadApi";
 import { MoreOutlined } from "@ant-design/icons";
 
 const ProductImages = ({ value = [], onChange }) => {
-    const [images, setImages] = useState(value);
+    const images = value || [];
     const [opened, setOpened] = useState(null);
+    const inputId = useId();
 
     const handleFiles = async (files) => {
         const fileArray = Array.from(files);
@@ -23,39 +24,39 @@ const ProductImages = ({ value = [], onChange }) => {
             }
         }
 
-        setImages(prev => [...prev, ...newImages]);
-        onChange?.([...images, ...newImages]);
+        let updatedImages = [...images, ...newImages];
+        onChange?.(updatedImages);
 
         for (const img of newImages) {
             try {
                 const res = await uploadImage(img.file);
-                setImages(prev => prev.map(i =>
+                updatedImages = updatedImages.map(i =>
                     i.fingerprint === img.fingerprint
                         ? { ...i, url: res.secure_url, public_id: res.public_id, uploading: false }
                         : i
-                ));
+                );
+                onChange?.(updatedImages);
             } catch {
-                setImages(prev => prev.map(i =>
+                updatedImages = updatedImages.map(i =>
                     i.fingerprint === img.fingerprint
                         ? { ...i, uploading: false, error: true }
                         : i
-                ));
+                );
+                onChange?.(updatedImages);
             }
         }
     };
 
     const setDefault = (fp) => {
-        const updated = images.map(i => ({ ...i, isDefault: i.fingerprint === fp }));
-        setImages(updated);
-        onChange?.(updated);
+        const updatedImages = images.map(i => ({ ...i, isDefault: i.fingerprint === fp }));
+        onChange?.(updatedImages);
         setOpened(null);
     };
 
     const removeImage = async (fp) => {
         const target = images.find(i => i.fingerprint === fp);
-        const updated = images.filter(i => i.fingerprint !== fp);
-        setImages(updated);
-        onChange?.(updated);
+        const updatedImages = images.filter(i => i.fingerprint !== fp);
+        onChange?.(updatedImages);
         setOpened(null);
 
         if (target?.public_id) {
@@ -85,7 +86,7 @@ const ProductImages = ({ value = [], onChange }) => {
         <div className={styles.container}>
             <div
                 className={styles.uploadZone}
-                onClick={() => document.getElementById("fileInput").click()}
+                onClick={() => document.getElementById(inputId).click()}
                 onDrop={handleDrop}
                 onDragOver={(e) => e.preventDefault()}
             >
@@ -93,7 +94,7 @@ const ProductImages = ({ value = [], onChange }) => {
             </div>
             <input
                 type="file"
-                id="fileInput"
+                id={inputId}
                 multiple
                 accept="image/*"
                 onChange={handleInputChange}

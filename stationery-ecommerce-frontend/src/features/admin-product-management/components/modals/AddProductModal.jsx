@@ -4,6 +4,7 @@ import {getCategories} from "../../../../api/categoryApi";
 import {getSuppliers} from "../../../../api/supplierApi";
 import {getBrandsBySupplierId} from "../../../../api/brandApi";
 import ProductImages from "../product-images/ProductImages";
+import ProductVariantsForm from "../product-variants-form/ProductVariantsForm";
 
 const {Option} = Select;
 
@@ -147,6 +148,8 @@ const AddProductModal = ({visible, onClose, onSubmit}) => {
                            label="Ảnh sản phẩm (chung)">
                     <ProductImages/>
                 </Form.Item>
+
+                <ProductVariantsForm/>
             </Form>
         </Modal>
     );

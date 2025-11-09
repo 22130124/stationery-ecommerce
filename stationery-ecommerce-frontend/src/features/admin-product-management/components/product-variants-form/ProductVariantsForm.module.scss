@@ -1,0 +1,56 @@
+.container {
+  padding-top: 10px;
+}
+
+.heading {
+  margin-top: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #333;
+}
+
+.variantItem {
+  border: 1px solid #d9d9d9;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  background-color: #f7f7f7;
+  transition: border-color 0.3s;
+  position: relative;
+
+  &:hover {
+    border-color: #40a9ff;
+  }
+}
+
+.variantSpace {
+  display: flex;
+  margin-bottom: 8px;
+  align-items: flex-end !important;
+  flex-wrap: wrap;
+}
+
+.removeButton {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 24px;
+  color: #ff4d4f;
+  cursor: pointer;
+  transition: color 0.3s;
+  padding: 5px;
+  line-height: 1;
+  z-index: 10;
+
+  &:hover {
+    color: #ff7875;
+  }
+}
+
+.checkboxGroup {
+  display: flex;
+  gap: 20px;
+  margin-left: 20px;
+}
