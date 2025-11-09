@@ -3,7 +3,6 @@ import {Modal, Form, Input, Select, TreeSelect, Upload} from 'antd';
 import {getCategories} from "../../../../api/categoryApi";
 import {getSuppliers} from "../../../../api/supplierApi";
 import {getBrandsBySupplierId} from "../../../../api/brandApi";
-import styles from "./AddProductModal.module.scss"
 import ProductImages from "../product-images/ProductImages";
 
 const {Option} = Select;

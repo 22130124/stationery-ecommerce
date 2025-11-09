@@ -1,105 +1,120 @@
 import React, { useState } from "react";
-import { Upload, message } from "antd";
-import { MoreOutlined } from "@ant-design/icons";
 import styles from "./ProductImages.module.scss";
+import { deleteImage, uploadImage } from "../../../../api/uploadApi";
+import { MoreOutlined } from "@ant-design/icons";
 
 const ProductImages = ({ value = [], onChange }) => {
-    const [productImages, setProductImages] = useState(value);
-    const [activeMenu, setActiveMenu] = useState(null);
+    const [images, setImages] = useState(value);
+    const [opened, setOpened] = useState(null);
 
-    const handleBeforeUpload = (file) => {
-        const isImage = file.type.startsWith("image/");
-        if (!isImage) {
-            message.error("Chỉ được tải lên file ảnh");
-            return Upload.LIST_IGNORE;
+    const handleFiles = async (files) => {
+        const fileArray = Array.from(files);
+        const newImages = [];
+
+        for (const f of fileArray) {
+            const fp = `${f.name}_${f.size}_${f.lastModified || 0}`;
+            if (!images.some(img => img.fingerprint === fp)) {
+                newImages.push({
+                    file: f,
+                    url: URL.createObjectURL(f),
+                    fingerprint: fp,
+                    uploading: true,
+                });
+            }
         }
-        const isLt5M = file.size / 1024 / 1024 < 10;
-        if (!isLt5M) {
-            message.error("Ảnh phải nhỏ hơn 10MB");
-            return Upload.LIST_IGNORE;
+
+        setImages(prev => [...prev, ...newImages]);
+        onChange?.([...images, ...newImages]);
+
+        for (const img of newImages) {
+            try {
+                const res = await uploadImage(img.file);
+                setImages(prev => prev.map(i =>
+                    i.fingerprint === img.fingerprint
+                        ? { ...i, url: res.secure_url, public_id: res.public_id, uploading: false }
+                        : i
+                ));
+            } catch {
+                setImages(prev => prev.map(i =>
+                    i.fingerprint === img.fingerprint
+                        ? { ...i, uploading: false, error: true }
+                        : i
+                ));
+            }
         }
-        return false;
     };
 
-    const handleUploadChange = ({ fileList }) => {
-        const newList = fileList.map((file) => {
-            const existing = productImages.find((img) => img.uid === file.uid);
-
-            return {
-                uid: file.uid,
-                url: file.url || URL.createObjectURL(file.originFileObj),
-                isDefault: existing ? existing.isDefault : false,
-                originFileObj: file.originFileObj,
-            };
-        });
-
-        setProductImages(newList);
-        onChange?.(newList);
-    };
-
-
-    const handleSetDefault = (uid) => {
-        const updated = productImages.map((img) => ({
-            ...img,
-            isDefault: img.uid === uid,
-        }));
-        setProductImages(updated);
+    const setDefault = (fp) => {
+        const updated = images.map(i => ({ ...i, isDefault: i.fingerprint === fp }));
+        setImages(updated);
         onChange?.(updated);
-        setActiveMenu(null);
+        setOpened(null);
     };
 
-    const handleRemove = (uid) => {
-        const updated = productImages.filter((img) => img.uid !== uid);
-        setProductImages(updated);
+    const removeImage = async (fp) => {
+        const target = images.find(i => i.fingerprint === fp);
+        const updated = images.filter(i => i.fingerprint !== fp);
+        setImages(updated);
         onChange?.(updated);
-        setActiveMenu(null);
+        setOpened(null);
+
+        if (target?.public_id) {
+            try {
+                await deleteImage(target.public_id);
+            } catch (err) {
+                console.error("Xóa ảnh thất bại:", err);
+            }
+        }
     };
 
-    const handlePreview = (img) => {
+    const preview = (img) => {
         window.open(img.url, "_blank");
-        setActiveMenu(null);
+        setOpened(null);
     };
 
-    console.log("images:", productImages)
+    const handleInputChange = (e) => {
+        handleFiles(e.target.files);
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        handleFiles(e.dataTransfer.files);
+    };
 
     return (
         <div className={styles.container}>
-            <Upload
+            <div
+                className={styles.uploadZone}
+                onClick={() => document.getElementById("fileInput").click()}
+                onDrop={handleDrop}
+                onDragOver={(e) => e.preventDefault()}
+            >
+                <p>+ Thêm ảnh hoặc kéo thả vào đây</p>
+            </div>
+            <input
+                type="file"
+                id="fileInput"
                 multiple
                 accept="image/*"
-                listType="picture-card"
-                fileList={productImages}
-                onChange={handleUploadChange}
-                beforeUpload={handleBeforeUpload}
-                showUploadList={false}
-            >
-                {productImages.length >= 8 ? null : "+ Upload"}
-            </Upload>
+                onChange={handleInputChange}
+                style={{ display: "none" }}
+            />
 
             <div className={styles.previewGrid}>
-                {productImages.map((img) => (
-                    <div key={img.uid} className={styles.imageCard}>
+                {images.map(img => (
+                    <div key={img.fingerprint} className={styles.imageCard}>
                         <img src={img.url} alt="" />
                         {img.isDefault && <span className={styles.defaultBadge}>Mặc định</span>}
 
-                        <div
-                            className={styles.menuIcon}
-                            onClick={() =>
-                                setActiveMenu(activeMenu === img.uid ? null : img.uid)
-                            }
-                        >
+                        <div className={styles.menuIcon} onClick={() => setOpened(opened === img.fingerprint ? null : img.fingerprint)}>
                             <MoreOutlined />
                         </div>
 
-                        {activeMenu === img.uid && (
+                        {opened === img.fingerprint && (
                             <div className={styles.menuDropdown}>
-                                {!img.isDefault && (
-                                    <button onClick={() => handleSetDefault(img.uid)}>
-                                        Đặt làm mặc định
-                                    </button>
-                                )}
-                                <button onClick={() => handlePreview(img)}>Xem ảnh</button>
-                                <button onClick={() => handleRemove(img.uid)}>Xóa</button>
+                                {!img.isDefault && <button onClick={() => setDefault(img.fingerprint)}>Đặt làm mặc định</button>}
+                                <button onClick={() => preview(img)}>Xem ảnh</button>
+                                <button onClick={() => removeImage(img.fingerprint)}>Xóa</button>
                             </div>
                         )}
                     </div>
