@@ -1,6 +1,5 @@
 package com.tqk.stationeryecommercebackend.repository;
 
-import com.tqk.stationeryecommercebackend.dto.product.ProductResponse;
 import com.tqk.stationeryecommercebackend.model.Category;
 import com.tqk.stationeryecommercebackend.model.Product;
 import org.springframework.data.domain.Page;
@@ -16,4 +15,6 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     Page<Product> findByCategory(Category category, Pageable pageable);
 
     Optional<Product> findBySlug(String slug);
+
+    Product findTopByOrderByIdDesc();
 }

@@ -35,14 +35,29 @@
   position: absolute;
   top: 6px;
   right: 6px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 20%;
   padding: 4px;
   cursor: pointer;
   transition: 0.2s;
+  color: #fff;
 
-  &:hover {
-    background: white;
+  .menuIcon {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 20%;
+    padding: 4px;
+    cursor: pointer;
+    transition: 0.2s;
+    color: #fff;
+
+    &:hover,
+    &.active {
+      background: white;
+      color: #000000;
+    }
   }
 }
 

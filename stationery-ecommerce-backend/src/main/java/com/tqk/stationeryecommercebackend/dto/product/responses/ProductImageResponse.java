@@ -1,4 +1,4 @@
-package com.tqk.stationeryecommercebackend.dto.product;
+package com.tqk.stationeryecommercebackend.dto.product.responses;
 
 import java.time.LocalDateTime;
 

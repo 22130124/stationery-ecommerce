@@ -1,6 +1,6 @@
 package com.tqk.stationeryecommercebackend.dto.cart;
 
-import com.tqk.stationeryecommercebackend.dto.product.ProductVariantResponse;
+import com.tqk.stationeryecommercebackend.dto.product.responses.ProductVariantResponse;
 
 public class CartItemResponse {
     private Integer productId;

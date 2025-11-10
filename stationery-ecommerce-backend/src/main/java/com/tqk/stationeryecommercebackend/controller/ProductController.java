@@ -1,11 +1,13 @@
 package com.tqk.stationeryecommercebackend.controller;
 
-import com.tqk.stationeryecommercebackend.dto.product.ProductListResponse;
-import com.tqk.stationeryecommercebackend.dto.product.ProductResponse;
+import com.tqk.stationeryecommercebackend.dto.product.requests.ProductRequest;
+import com.tqk.stationeryecommercebackend.dto.product.responses.ProductListResponse;
+import com.tqk.stationeryecommercebackend.dto.product.responses.ProductResponse;
 import com.tqk.stationeryecommercebackend.service.ProductService;
 import jakarta.persistence.EntityListeners;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +26,18 @@ public class ProductController {
         List<ProductResponse> products = productService.getProducts();
         Map<String, Object> response = Map.of("products", products);
         return ResponseEntity.ok(response); 
+    }
+
+    @PostMapping("/admin")
+    public ResponseEntity<?> createProduct(@RequestBody ProductRequest productRequest) {
+        try {
+            ProductResponse product = productService.saveProduct(productRequest);
+            Map<String, Object> response = Map.of("product", product, "message", "Product created successfully");
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            Map<String, Object> errorResponse = Map.of("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping

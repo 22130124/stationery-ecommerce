@@ -1,12 +1,23 @@
-import React, {useId, useState} from "react";
+import React, {useId, useState, useRef, useEffect} from "react";
 import styles from "./ProductImages.module.scss";
-import { deleteImage, uploadImage } from "../../../../api/uploadApi";
-import { MoreOutlined } from "@ant-design/icons";
+import {deleteImage, uploadImage} from "../../../../api/uploadApi";
+import {MoreOutlined} from "@ant-design/icons";
 
-const ProductImages = ({ value = [], onChange }) => {
+const ProductImages = ({value = [], onChange, allowSetDefault = false}) => {
     const images = value || [];
     const [opened, setOpened] = useState(null);
     const inputId = useId();
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+                setOpened(null);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     const handleFiles = async (files) => {
         const fileArray = Array.from(files);
@@ -24,7 +35,14 @@ const ProductImages = ({ value = [], onChange }) => {
             }
         }
 
-        let updatedImages = [...images, ...newImages];
+        let updatedImages;
+        if (images.length === 0 && newImages.length > 0) {
+            newImages[0].isDefault = true;
+            updatedImages = [...images, ...newImages];
+        } else {
+            updatedImages = [...images, ...newImages];
+        }
+
         onChange?.(updatedImages);
 
         for (const img of newImages) {
@@ -32,14 +50,14 @@ const ProductImages = ({ value = [], onChange }) => {
                 const res = await uploadImage(img.file);
                 updatedImages = updatedImages.map(i =>
                     i.fingerprint === img.fingerprint
-                        ? { ...i, url: res.secure_url, public_id: res.public_id, uploading: false }
+                        ? {...i, url: res.secure_url, public_id: res.public_id, uploading: false}
                         : i
                 );
                 onChange?.(updatedImages);
             } catch {
                 updatedImages = updatedImages.map(i =>
                     i.fingerprint === img.fingerprint
-                        ? { ...i, uploading: false, error: true }
+                        ? {...i, uploading: false, error: true}
                         : i
                 );
                 onChange?.(updatedImages);
@@ -48,7 +66,7 @@ const ProductImages = ({ value = [], onChange }) => {
     };
 
     const setDefault = (fp) => {
-        const updatedImages = images.map(i => ({ ...i, isDefault: i.fingerprint === fp }));
+        const updatedImages = images.map(i => ({...i, isDefault: i.fingerprint === fp}));
         onChange?.(updatedImages);
         setOpened(null);
     };
@@ -98,22 +116,32 @@ const ProductImages = ({ value = [], onChange }) => {
                 multiple
                 accept="image/*"
                 onChange={handleInputChange}
-                style={{ display: "none" }}
+                style={{display: "none"}}
             />
 
             <div className={styles.previewGrid}>
                 {images.map(img => (
                     <div key={img.fingerprint} className={styles.imageCard}>
-                        <img src={img.url} alt="" />
+                        <img src={img.url} alt=""/>
                         {img.isDefault && <span className={styles.defaultBadge}>Mặc định</span>}
 
-                        <div className={styles.menuIcon} onClick={() => setOpened(opened === img.fingerprint ? null : img.fingerprint)}>
-                            <MoreOutlined />
+                        <div
+                            className={styles.menuIcon}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setOpened(opened === img.fingerprint ? null : img.fingerprint);
+                            }}
+                        >
+                            <MoreOutlined/>
                         </div>
 
                         {opened === img.fingerprint && (
-                            <div className={styles.menuDropdown}>
-                                {!img.isDefault && <button onClick={() => setDefault(img.fingerprint)}>Đặt làm mặc định</button>}
+                            <div className={styles.menuDropdown}
+                                 ref={dropdownRef}
+                                 onClick={(e) => e.stopPropagation()}
+                            >
+                                {allowSetDefault && !img.isDefault &&
+                                    <button onClick={() => setDefault(img.fingerprint)}>Đặt làm mặc định</button>}
                                 <button onClick={() => preview(img)}>Xem ảnh</button>
                                 <button onClick={() => removeImage(img.fingerprint)}>Xóa</button>
                             </div>

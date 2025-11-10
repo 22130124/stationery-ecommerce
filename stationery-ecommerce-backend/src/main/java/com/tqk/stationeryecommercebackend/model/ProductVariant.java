@@ -1,7 +1,7 @@
 package com.tqk.stationeryecommercebackend.model;
 
-import com.tqk.stationeryecommercebackend.dto.product.ProductImageResponse;
-import com.tqk.stationeryecommercebackend.dto.product.ProductVariantResponse;
+import com.tqk.stationeryecommercebackend.dto.product.responses.ProductImageResponse;
+import com.tqk.stationeryecommercebackend.dto.product.responses.ProductVariantResponse;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -47,7 +47,7 @@ public class ProductVariant {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "variant")
-    private List<ProductImage> images;
+    private List<ProductImage> images = new ArrayList<>();
 
     public ProductVariantResponse convertToDto() {
         ProductVariantResponse dto = new ProductVariantResponse();
@@ -60,9 +60,11 @@ public class ProductVariant {
         dto.setCreatedAt(this.createdAt);
         dto.setUpdatedAt(this.updatedAt);
         List<ProductImageResponse> imagesResponses = new ArrayList<>();
-        for (ProductImage productImage : this.images) {
-            ProductImageResponse productImageResponse = productImage.convertToDto();
-            imagesResponses.add(productImageResponse);
+        if (this.images != null) {
+            for (ProductImage productImage : this.images) {
+                ProductImageResponse productImageResponse = productImage.convertToDto();
+                imagesResponses.add(productImageResponse);
+            }
         }
         dto.setImages(imagesResponses);
         return dto;

@@ -1,4 +1,4 @@
-package com.tqk.stationeryecommercebackend.dto.product;
+package com.tqk.stationeryecommercebackend.dto.product.responses;
 
 import com.tqk.stationeryecommercebackend.dto.brand.BrandResponse;
 import com.tqk.stationeryecommercebackend.dto.category.CategoryResponse;
@@ -24,6 +24,7 @@ public class ProductResponse {
     private List<ProductVariantResponse> variants;
     private ProductVariantResponse defaultVariant;
     private ProductImageResponse defaultImage;
+    private List<ProductImageResponse> images;
 
     public Integer getId() {
         return id;
@@ -151,5 +152,13 @@ public class ProductResponse {
 
     public void setDefaultImage(ProductImageResponse defaultImage) {
         this.defaultImage = defaultImage;
+    }
+
+    public List<ProductImageResponse> getImages() {
+        return images;
+    }
+
+    public void setImages(List<ProductImageResponse> images) {
+        this.images = images;
     }
 }

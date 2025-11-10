@@ -1,8 +1,8 @@
 package com.tqk.stationeryecommercebackend.model;
 
-import com.tqk.stationeryecommercebackend.dto.product.ProductImageResponse;
-import com.tqk.stationeryecommercebackend.dto.product.ProductResponse;
-import com.tqk.stationeryecommercebackend.dto.product.ProductVariantResponse;
+import com.tqk.stationeryecommercebackend.dto.product.responses.ProductImageResponse;
+import com.tqk.stationeryecommercebackend.dto.product.responses.ProductResponse;
+import com.tqk.stationeryecommercebackend.dto.product.responses.ProductVariantResponse;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -60,10 +60,10 @@ public class Product {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "product")
-    private List<ProductVariant> variants;
+    private List<ProductVariant> variants = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")
-    private List<ProductImage> images;
+    private List<ProductImage> images = new ArrayList<>();
 
     public ProductResponse convertToDto() {
         ProductResponse dto = new ProductResponse();
@@ -81,19 +81,36 @@ public class Product {
         dto.setCreatedAt(this.createdAt);
         dto.setUpdatedAt(this.updatedAt);
         List<ProductVariantResponse> variantResponses = new ArrayList<>();
-        for (ProductVariant productVariant : this.variants) {
-            ProductVariantResponse productVariantResponse = productVariant.convertToDto();
-            variantResponses.add(productVariantResponse);
-            if (productVariant.getIsDefault()) {
-                dto.setDefaultVariant(productVariantResponse);
-            }
-        }
-        for (ProductImage productImage : this.images) {
-            if(productImage.getIsDefault()) {
-                dto.setDefaultImage(productImage.convertToDto());
+        if (this.variants != null) {
+            for (ProductVariant productVariant : this.variants) {
+                ProductVariantResponse productVariantResponse = productVariant.convertToDto();
+                variantResponses.add(productVariantResponse);
+                if (productVariant.getIsDefault()) {
+                    dto.setDefaultVariant(productVariantResponse);
+                }
             }
         }
         dto.setVariants(variantResponses);
+        List<ProductImageResponse> imagesResponses = new ArrayList<>();
+        ProductImage defaultImage = null;
+        if (this.images != null) {
+            for (ProductImage productImage : this.images) {
+                imagesResponses.add(productImage.convertToDto());
+                if(productImage.getVariant() == null && productImage.getIsDefault()) {
+                    defaultImage = productImage;
+                    dto.setDefaultImage(productImage.convertToDto());
+                }
+            }
+        }
+        if (defaultImage == null) {
+            for (ProductImage productImage : this.images) {
+                imagesResponses.add(productImage.convertToDto());
+                if(productImage.getVariant() != null && productImage.getVariant().getIsDefault() && productImage.getIsDefault()) {
+                    dto.setDefaultImage(productImage.convertToDto());
+                }
+            }
+        }
+        dto.setImages(imagesResponses);
         return dto;
     }
 

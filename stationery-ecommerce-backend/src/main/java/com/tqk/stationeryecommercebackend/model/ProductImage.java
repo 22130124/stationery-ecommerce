@@ -1,6 +1,6 @@
 package com.tqk.stationeryecommercebackend.model;
 
-import com.tqk.stationeryecommercebackend.dto.product.ProductImageResponse;
+import com.tqk.stationeryecommercebackend.dto.product.responses.ProductImageResponse;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;

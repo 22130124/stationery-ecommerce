@@ -159,7 +159,7 @@ const AddProductModal = ({visible, onClose, onSubmit}) => {
 
                 <Form.Item name="images"
                            label="Ảnh sản phẩm (chung)">
-                    <ProductImages/>
+                    <ProductImages allowSetDefault={true} />
                 </Form.Item>
 
                 <ProductVariantsForm form={form} />
