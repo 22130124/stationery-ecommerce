@@ -5,6 +5,33 @@ import ProductImages from '../product-images/ProductImages'; // Giả định đ
 import styles from './ProductVariantsForm.module.scss';
 
 const ProductVariantsForm = ({ form }) => {
+    // Hàm kiểm tra nếu giá khuyến mãi lớn hơn giá gốc
+    const validateDiscountPrice = ({ getFieldValue }) => ({
+        validator(_, value) {
+            const fieldPath = _.field.split('.');
+            if (fieldPath.length < 2) {
+                return Promise.resolve();
+            }
+            const variantIndex = fieldPath[1];
+            const basePrice = getFieldValue(['variants', variantIndex, 'basePrice']);
+
+            if (value === null || value === undefined) {
+                return Promise.resolve();
+            }
+
+            if (basePrice !== null && basePrice !== undefined && value > basePrice) {
+                return Promise.reject(new Error('Giá khuyến mãi không được lớn hơn Giá gốc'));
+            }
+
+            // Giá khuyến mãi không được nhỏ hơn 0
+            if (value < 0) {
+                return Promise.reject(new Error('Giá khuyến mãi không được nhỏ hơn 0'));
+            }
+
+            return Promise.resolve();
+        },
+    });
+
     return (
         <div className={styles.container}>
             <h3 className={styles.heading}>
@@ -39,6 +66,7 @@ const ProductVariantsForm = ({ form }) => {
                                         </Form.Item>
                                     </Col>
 
+
                                     {/* Base price */}
                                     <Col span={5}>
                                         <Form.Item
@@ -51,8 +79,6 @@ const ProductVariantsForm = ({ form }) => {
                                                 min={0}
                                                 addonAfter="VNĐ"
                                                 style={{ width: '100%' }}
-                                                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                                parser={value => value.replace(/\$\s?|(,*)/g, '')}
                                             />
                                         </Form.Item>
                                     </Col>
@@ -63,13 +89,12 @@ const ProductVariantsForm = ({ form }) => {
                                             {...restField}
                                             name={[name, 'discountPrice']}
                                             label="Giá khuyến mãi"
+                                            rules={[validateDiscountPrice]}
                                         >
                                             <InputNumber
                                                 min={0}
                                                 addonAfter="VNĐ"
                                                 style={{ width: '100%' }}
-                                                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                                parser={value => value.replace(/\$\s?|(,*)/g, '')}
                                             />
                                         </Form.Item>
                                     </Col>
