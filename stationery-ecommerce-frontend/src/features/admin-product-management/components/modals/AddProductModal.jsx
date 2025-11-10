@@ -72,7 +72,20 @@ const AddProductModal = ({visible, onClose, onSubmit}) => {
                 form={form}
                 layout="vertical"
                 onFinish={onSubmit}
-                initialValues={{name: '', slug: ''}}
+                initialValues={{
+                    name: '',
+                    slug: '',
+                    variants: [
+                        {
+                            name: '',
+                            basePrice: null,
+                            discountPrice: null,
+                            isActive: true,
+                            isDefault: true, // THAY ĐỔI: Set isDefault thành TRUE cho biến thể ban đầu
+                            images: [],
+                        },
+                    ],
+                }}
             >
                 <Form.Item
                     name="name"
@@ -149,7 +162,7 @@ const AddProductModal = ({visible, onClose, onSubmit}) => {
                     <ProductImages/>
                 </Form.Item>
 
-                <ProductVariantsForm/>
+                <ProductVariantsForm form={form} />
             </Form>
         </Modal>
     );

@@ -1,10 +1,10 @@
 import React from 'react';
-import { Form, Input, InputNumber, Checkbox, Button, Space, Row, Col } from 'antd';
+import {Form, Input, InputNumber, Checkbox, Button, Space, Row, Col, Radio} from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import ProductImages from '../product-images/ProductImages'; // Giả định đường dẫn
 import styles from './ProductVariantsForm.module.scss';
 
-const ProductVariantsForm = () => {
+const ProductVariantsForm = ({ form }) => {
     return (
         <div className={styles.container}>
             <h3 className={styles.heading}>
@@ -84,14 +84,28 @@ const ProductVariantsForm = () => {
                                                     valuePropName="checked"
                                                     noStyle
                                                 >
-                                                    <Checkbox>Mặc định</Checkbox>
+                                                    <Radio
+                                                        onChange={(e) => {
+                                                            // Logic đảm bảo chỉ 1 Radio được chọn
+                                                            if (!e.target.checked) return;
+
+                                                            const variants = form.getFieldValue('variants') || [];
+                                                            const updated = variants.map((v, i) => ({
+                                                                ...v,
+                                                                isDefault: i === name,
+                                                            }));
+                                                            form.setFieldsValue({ variants: updated });
+                                                        }}
+                                                    >
+                                                        Mặc định
+                                                    </Radio>
                                                 </Form.Item>
+
                                                 <Form.Item
                                                     {...restField}
                                                     name={[name, 'isActive']}
                                                     valuePropName="checked"
                                                     noStyle
-                                                    initialValue={true}
                                                 >
                                                     <Checkbox>Hoạt động</Checkbox>
                                                 </Form.Item>
