@@ -2,8 +2,7 @@
 import React, {useState} from 'react';
 import {login} from "../../../api/authApi";
 import AuthForm from "./AuthForm";
-import {useLocation} from "react-router";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useLocation} from "react-router-dom";
 
 const LoginPage = () => {
     const location = useLocation();

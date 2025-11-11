@@ -3,10 +3,9 @@ import React, { useState } from 'react';
 import styles from './AuthForm.module.scss';
 import { FaUser, FaLock } from 'react-icons/fa';
 import {FcGoogle} from 'react-icons/fc';
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, useLocation} from 'react-router-dom';
 import {GoogleLogin, useGoogleLogin} from '@react-oauth/google';
 import {loginWithGoogle} from '../../../api/authApi';
-import {useLocation} from "react-router";
 
 // formType: 'login' | 'signup'
 const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess, onGoogleSuccess }) => {

@@ -2,8 +2,7 @@
 import React, {useState} from 'react';
 import AuthForm from "./AuthForm";
 import {signUp} from "../../../api/authApi";
-import {useNavigate} from "react-router-dom";
-import {useLocation} from "react-router";
+import {useNavigate, useLocation} from "react-router-dom";
 
 const SignUpPage = () => {
     const navigate = useNavigate();

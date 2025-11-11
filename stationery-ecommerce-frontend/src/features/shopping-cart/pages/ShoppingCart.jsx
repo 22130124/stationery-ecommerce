@@ -3,8 +3,7 @@ import React, {useState, useEffect} from 'react';
 import styles from './ShoppingCart.module.scss';
 import {FaTrashAlt} from 'react-icons/fa';
 import {getCartItems} from "../../../api/cartApi";
-import {useNavigate} from "react-router-dom";
-import {useLocation} from "react-router";
+import {useNavigate, useLocation} from "react-router-dom";
 
 const ShoppingCart = () => {
     const navigate = useNavigate();
@@ -191,7 +190,7 @@ const ShoppingCart = () => {
                             <span>Tổng cộng</span>
                             <span>{formatCurrency(totalPrice)}</span>
                         </div>
-                        <button className={styles.checkoutButton} onClick={handleConfirm}>Tiến hành thanh toán</button>
+                        <button className={styles.checkoutButton} onClick={handleConfirm}>Xác nhận đặt hàng</button>
                     </div>
                 </div>
             ) : (
