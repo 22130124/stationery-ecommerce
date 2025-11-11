@@ -8,6 +8,7 @@ public class ProductRequest {
     private Long supplierId;
     private Long brandId;
     private Long categoryId;
+    private String origin;
     private String description;
     private List<ProductImageRequest> images;
     private List<ProductVariantRequest> variants;
@@ -50,6 +51,14 @@ public class ProductRequest {
 
     public void setCategoryId(Long categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public String getOrigin() {
+        return origin;
+    }
+
+    public void setOrigin(String origin) {
+        this.origin = origin;
     }
 
     public String getDescription() {

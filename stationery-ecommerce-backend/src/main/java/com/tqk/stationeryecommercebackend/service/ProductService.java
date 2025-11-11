@@ -101,6 +101,7 @@ public class ProductService {
         product.setBrand(brand);
         product.setIsActive(true);
         product.setRating(0);
+        product.setOrigin(productRequest.getOrigin());
         product.setDescription(productRequest.getDescription());
 
         Product savedProduct = productRepository.save(product);

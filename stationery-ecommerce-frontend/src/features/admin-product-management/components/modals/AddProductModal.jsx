@@ -2,6 +2,8 @@ import React, {useState, useEffect} from 'react';
 import {Modal, Form, Input, Select, TreeSelect, Upload} from 'antd';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import countries from 'i18n-iso-countries';
+import viLocale from 'i18n-iso-countries/langs/vi.json';
 import {getCategories} from "../../../../api/categoryApi";
 import {getSuppliers} from "../../../../api/supplierApi";
 import {getBrandsBySupplierId} from "../../../../api/brandApi";
@@ -16,6 +18,9 @@ const AddProductModal = ({visible, onClose, onSubmit}) => {
     const [categories, setCategories] = useState([])
     const [suppliers, setSuppliers] = useState([]);
     const [brands, setBrands] = useState([]);
+
+    countries.registerLocale(viLocale);
+    const countryNames = Object.values(countries.getNames('vi'));
 
     // Fetch các dữ liệu ban đầu cho form
     useEffect(() => {
@@ -157,6 +162,26 @@ const AddProductModal = ({visible, onClose, onSubmit}) => {
                         allowClear
                         treeExpandAction="click"
                     />
+                </Form.Item>
+
+                <Form.Item
+                    name="origin"
+                    label="Xuất xứ"
+                    rules={[{ required: true, message: 'Vui lòng chọn xuất xứ' }]}
+                >
+                    <Select
+                        showSearch
+                        placeholder="Chọn quốc gia"
+                        filterOption={(input, option) =>
+                            option.children.toLowerCase().includes(input.toLowerCase())
+                        }
+                    >
+                        {countryNames.map((country) => (
+                            <Option key={country} value={country}>
+                                {country}
+                            </Option>
+                        ))}
+                    </Select>
                 </Form.Item>
 
                 <Form.Item
