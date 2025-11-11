@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getProductBySlug } from "../../../api/productApi";
 import styles from "./ProductDetailsPage.module.scss";
-import ReactMarkdown from 'react-markdown';
+import DOMPurify from 'dompurify'
 import toast from "react-hot-toast";
 
 // Icon ngôi sao đơn giản để đánh giá
@@ -202,9 +202,10 @@ const ProductDetailsPage = () => {
             {/* Phần mô tả sản phẩm */}
             <div className={styles.descriptionSection}>
                 <h2>Mô tả sản phẩm</h2>
-                <ReactMarkdown>
-                    {product.description}
-                </ReactMarkdown>
+                <div
+                    className={styles.descriptionContent}
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.description) }}
+                />
             </div>
         </div>
     );

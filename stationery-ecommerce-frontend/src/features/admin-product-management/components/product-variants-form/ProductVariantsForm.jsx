@@ -79,11 +79,14 @@ const ProductVariantsForm = ({ form }) => {
                                                 min={0}
                                                 addonAfter="VNĐ"
                                                 style={{ width: '100%' }}
+                                                formatter={(value) =>
+                                                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                                                }
+                                                parser={(value) => value.replace(/,/g, '')}
                                             />
                                         </Form.Item>
                                     </Col>
 
-                                    {/* Discount price */}
                                     <Col span={5}>
                                         <Form.Item
                                             {...restField}
@@ -95,6 +98,10 @@ const ProductVariantsForm = ({ form }) => {
                                                 min={0}
                                                 addonAfter="VNĐ"
                                                 style={{ width: '100%' }}
+                                                formatter={(value) =>
+                                                    `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                                                }
+                                                parser={(value) => value.replace(/,/g, '')}
                                             />
                                         </Form.Item>
                                     </Col>

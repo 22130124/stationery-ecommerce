@@ -64,6 +64,7 @@ const ProductImages = ({value = [], onChange, allowSetDefault = false}) => {
             }
         }
     };
+    console.log(images)
 
     const setDefault = (fp) => {
         const updatedImages = images.map(i => ({...i, isDefault: i.fingerprint === fp}));

@@ -8,6 +8,7 @@ public class ProductRequest {
     private Long supplierId;
     private Long brandId;
     private Long categoryId;
+    private String description;
     private List<ProductImageRequest> images;
     private List<ProductVariantRequest> variants;
 
@@ -49,6 +50,14 @@ public class ProductRequest {
 
     public void setCategoryId(Long categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public List<ProductImageRequest> getImages() {

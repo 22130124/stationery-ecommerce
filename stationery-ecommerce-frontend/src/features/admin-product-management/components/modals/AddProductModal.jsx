@@ -1,5 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {Modal, Form, Input, Select, TreeSelect, Upload} from 'antd';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import {getCategories} from "../../../../api/categoryApi";
 import {getSuppliers} from "../../../../api/supplierApi";
 import {getBrandsBySupplierId} from "../../../../api/brandApi";
@@ -154,6 +156,17 @@ const AddProductModal = ({visible, onClose, onSubmit}) => {
                         placeholder="Chọn danh mục cho sản phẩm"
                         allowClear
                         treeExpandAction="click"
+                    />
+                </Form.Item>
+
+                <Form.Item
+                    name="description"
+                    label="Mô tả sản phẩm"
+                    rules={[{ required: true, message: 'Vui lòng nhập mô tả sản phẩm' }]}
+                >
+                    <ReactQuill
+                        theme="snow"
+                        placeholder="Nhập mô tả sản phẩm..."
                     />
                 </Form.Item>
 
