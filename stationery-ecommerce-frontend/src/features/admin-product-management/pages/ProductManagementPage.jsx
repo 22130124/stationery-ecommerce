@@ -2,92 +2,21 @@ import React, {useState, useEffect} from 'react';
 import {Table} from 'antd';
 import styles from './ProductManagementPage.module.scss';
 import AddProductModal from "../components/modals/AddProductModal";
-import {addProduct} from "../../../api/productApi";
+import {addProduct, getAllProducts} from "../../../api/productApi";
 
 const ProductManagementPage = () => {
-    const [products, setProducts] = useState([
-        {
-            "id": 1,
-            "code": "SP1001",
-            "name": "Bút bi Thiên Long TL-027",
-            "category": {"name": "Bút bi"},
-            "brand": {"name": "Thiên Long"},
-            "isActive": true,
-            "defaultVariant": {
-                "basePrice": 5000,
-                "discountPrice": 4500
-            },
-            "defaultImage": {"url": "https://placehold.co/60x60/3498db/ffffff.png?text=SP1001"}
-        },
-        {
-            "id": 2,
-            "code": "SP1002",
-            "name": "Bút bi gel Zebra Sarasa Clip 0.5mm",
-            "category": {"name": "Bút bi"},
-            "brand": {"name": "Zebra"},
-            "isActive": true,
-            "defaultVariant": {
-                "basePrice": 25000,
-                "discountPrice": 22000
-            },
-            "defaultImage": {"url": "https://placehold.co/60x60/34495e/ffffff.png?text=SP1002"}
-        },
-        {
-            "id": 3,
-            "code": "SP1003",
-            "name": "Bút bi Pilot Super Grip",
-            "category": {"name": "Bút bi"},
-            "brand": {"name": "Pilot"},
-            "isActive": false,
-            "defaultVariant": {
-                "basePrice": 14000,
-                "discountPrice": null
-            },
-            "defaultImage": {"url": "https://placehold.co/60x60/3498db/ffffff.png?text=SP1003"}
-        },
-        {
-            "id": 6,
-            "code": "SP1006",
-            "name": "Bút chì gỗ Staedtler Noris 120-2B",
-            "category": {"name": "Bút chì"},
-            "brand": {"name": "Staedtler"},
-            "isActive": true,
-            "defaultVariant": {
-                "basePrice": 8000,
-                "discountPrice": null
-            },
-            "defaultImage": {"url": "https://placehold.co/60x60/f1c40f/000000.png?text=SP1006"}
-        },
-        {
-            "id": 10,
-            "code": "SP1010",
-            "name": "Bút chì bấm Tombow Monograph 0.5mm",
-            "category": {"name": "Bút chì"},
-            "brand": {"name": "Tombow"},
-            "isActive": true,
-            "defaultVariant": {
-                "basePrice": 135000,
-                "discountPrice": null
-            },
-            "defaultImage": {"url": "https://placehold.co/60x60/7f8c8d/ffffff.png?text=SP1010"}
-        },
-        {
-            "id": 11,
-            "code": "SP1011",
-            "name": "Bút lông dầu Thiên Long PM-09",
-            "category": {"name": "Bút lông"},
-            "brand": {"name": "Thiên Long"},
-            "isActive": true,
-            "defaultVariant": {
-                "basePrice": 9000,
-                "discountPrice": null
-            },
-            "defaultImage": {"url": "https://placehold.co/60x60/2c3e50/ffffff.png?text=SP1011"}
-        }
-    ]);
+    const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            const data = await getAllProducts();
+            setProducts(data.products);
+        }
+        fetchProducts();
+    }, []);
 
     const showAddModal = () => {
         setIsModalVisible(true);

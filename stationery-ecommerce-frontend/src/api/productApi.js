@@ -4,9 +4,15 @@ const BASE_URL = `${API_URL}/api/products`;
 
 export const getAllProducts = async () => {
     let response;
+    const token = localStorage.getItem("token");
 
     try {
-        response = await fetch(`${BASE_URL}/admin`);
+        response = await fetch(`${BASE_URL}/admin`, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
     } catch (error) {
         throw new Error("Unable to connect to the server. Please check your network connection or try again later")
     }
