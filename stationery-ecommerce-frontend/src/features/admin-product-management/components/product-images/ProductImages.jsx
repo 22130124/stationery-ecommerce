@@ -64,7 +64,6 @@ const ProductImages = ({value = [], onChange, allowSetDefault = false}) => {
             }
         }
     };
-    console.log(images)
 
     const setDefault = (fp) => {
         const updatedImages = images.map(i => ({...i, isDefault: i.fingerprint === fp}));
@@ -122,7 +121,7 @@ const ProductImages = ({value = [], onChange, allowSetDefault = false}) => {
 
             <div className={styles.previewGrid}>
                 {images.map(img => (
-                    <div key={img.fingerprint} className={styles.imageCard}>
+                    <div key={img.id || img.fingerprint} className={styles.imageCard}>
                         <img src={img.url} alt=""/>
                         {img.isDefault && <span className={styles.defaultBadge}>Mặc định</span>}
 

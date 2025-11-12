@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {Table} from 'antd';
 import styles from './ProductManagementPage.module.scss';
-import AddProductModal from "../components/modals/AddProductModal";
+import ProductFormModal from "../components/modals/ProductFormModal";
 import {addProduct, getAllProducts} from "../../../api/productApi";
 
 const ProductManagementPage = () => {
@@ -9,6 +9,7 @@ const ProductManagementPage = () => {
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [editingProduct, setEditingProduct] = useState(null);
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -58,7 +59,7 @@ const ProductManagementPage = () => {
                 <div className={styles.productInfo}>
                     <img
                         className={styles.productImage}
-                        src={record.defaultImage?.url || 'https://placehold.co/60x60/cccccc/ffffff.png?text=N/A'}
+                        src={record.defaultImage?.url}
                         alt={text}
                     />
                     <span className={styles.productName}>{text}</span>
@@ -125,64 +126,76 @@ const ProductManagementPage = () => {
             key: 'action',
             render: (_, record) => (
                 <div className={styles.actions}>
-                    <button className={styles.actionButton} onClick={() => console.log('Edit', record.id)}>Sửa</button>
-                    <button className={`${styles.actionButton} ${styles.deleteButton}`}
-                            onClick={() => console.log('Delete', record.id)}>Xóa
+                    <button
+                        className={`${styles.actionBtn} ${styles.editBtn}`}
+                        onClick={() => {
+                            setEditingProduct(record);
+                            setIsModalVisible(true);
+                        }}
+                    >
+                        Sửa
                     </button>
+                        <button className={`${styles.actionButton} ${styles.deleteBtn}`}
+                                onClick={() => console.log('Delete', record.id)}>Xóa
+                        </button>
                 </div>
-            ),
-        },
-    ];
+),
+},
+];
 
-    const filteredData = products.filter(item =>
-        item.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        item.code.toLowerCase().includes(searchText.toLowerCase())
-    );
+const filteredData = products.filter(item =>
+item.name.toLowerCase().includes(searchText.toLowerCase()) ||
+item.code.toLowerCase().includes(searchText.toLowerCase())
+);
 
-    return (
-        <div className={styles.pageContainer}>
-            <header className={styles.header}>
-                <h1>Quản lý Sản phẩm</h1>
-                <p>Quản lý, thêm mới và cập nhật thông tin sản phẩm của bạn.</p>
-            </header>
+return (
+    <div className={styles.pageContainer}>
+        <header className={styles.header}>
+            <h1>Quản lý Sản phẩm</h1>
+            <p>Quản lý, thêm mới và cập nhật thông tin sản phẩm của bạn.</p>
+        </header>
 
-            <div className={styles.actionBar}>
-                <input
-                    type="text"
-                    className={styles.searchInput}
-                    placeholder="Tìm kiếm theo tên, mã sản phẩm..."
-                    onChange={e => setSearchText(e.target.value)}
-                />
-                <button className={styles.addButton} onClick={showAddModal}>
-                    + Thêm sản phẩm
-                </button>
-            </div>
-
-            <div className={styles.tableWrapper}>
-                <Table
-                    columns={columns}
-                    dataSource={filteredData}
-                    rowKey="id"
-                    loading={loading}
-                    pagination={{
-                        pageSize: 10,
-                        showSizeChanger: true,
-                        pageSizeOptions: ['10', '20', '50'],
-                        showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} sản phẩm`
-                    }}
-                    scroll={{x: 1300}}
-                    bordered
-                />
-            </div>
-            {isModalVisible && (
-                <AddProductModal
-                    visible={isModalVisible}
-                    onClose={handleModalClose}
-                    onSubmit={handleModalSubmit}
-                />
-            )}
+        <div className={styles.actionBar}>
+            <input
+                type="text"
+                className={styles.searchInput}
+                placeholder="Tìm kiếm theo tên, mã sản phẩm..."
+                onChange={e => setSearchText(e.target.value)}
+            />
+            <button className={styles.addButton} onClick={showAddModal}>
+                + Thêm sản phẩm
+            </button>
         </div>
-    );
+
+        <div className={styles.tableWrapper}>
+            <Table
+                columns={columns}
+                dataSource={filteredData}
+                rowKey="id"
+                loading={loading}
+                pagination={{
+                    pageSize: 10,
+                    showSizeChanger: true,
+                    pageSizeOptions: ['10', '20', '50'],
+                    showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} sản phẩm`
+                }}
+                scroll={{x: 1300}}
+                bordered
+            />
+        </div>
+        {isModalVisible && (
+            <ProductFormModal
+                visible={isModalVisible}
+                editingProduct={editingProduct}
+                onClose={() => {
+                    setIsModalVisible(false);
+                    setEditingProduct(null);
+                }}
+                onSubmit={handleModalSubmit}
+            />
+        )}
+    </div>
+);
 };
 
 export default ProductManagementPage;

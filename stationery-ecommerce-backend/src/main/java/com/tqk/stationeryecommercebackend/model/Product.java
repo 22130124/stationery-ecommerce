@@ -94,22 +94,20 @@ public class Product {
         }
         dto.setVariants(variantResponses);
         List<ProductImageResponse> imagesResponses = new ArrayList<>();
-        ProductImage defaultImage = null;
+        ProductImageResponse defaultImage = null;
         if (this.images != null) {
             for (ProductImage productImage : this.images) {
-                imagesResponses.add(productImage.convertToDto());
-                if(productImage.getVariant() == null && productImage.getIsDefault()) {
-                    defaultImage = productImage;
-                    dto.setDefaultImage(productImage.convertToDto());
+                if (productImage.getVariant() == null) {
+                    imagesResponses.add(productImage.convertToDto());
+                    if (productImage.getIsDefault()) {
+                        defaultImage = productImage.convertToDto();
+                        dto.setDefaultImage(defaultImage);
+                    }
                 }
             }
-        }
-        if (defaultImage == null) {
-            for (ProductImage productImage : this.images) {
-                imagesResponses.add(productImage.convertToDto());
-                if(productImage.getVariant() != null && productImage.getVariant().getIsDefault() && productImage.getIsDefault()) {
-                    dto.setDefaultImage(productImage.convertToDto());
-                }
+            if (defaultImage == null) {
+                defaultImage = this.images.getFirst().convertToDto();
+                dto.setDefaultImage(defaultImage);
             }
         }
         dto.setImages(imagesResponses);

@@ -9,10 +9,11 @@ import {getSuppliers} from "../../../../api/supplierApi";
 import {getBrandsBySupplierId} from "../../../../api/brandApi";
 import ProductImages from "../product-images/ProductImages";
 import ProductVariantsForm from "../product-variants-form/ProductVariantsForm";
+import styles from './ProductFormModal.module.scss'
 
 const {Option} = Select;
 
-const AddProductModal = ({visible, onClose, onSubmit}) => {
+const ProductFormModal = ({visible, onClose, onSubmit, editingProduct}) => {
     const [form] = Form.useForm();
     const [selectedSupplierId, setSelectedSupplierId] = useState(null);
     const [categories, setCategories] = useState([])
@@ -21,6 +22,22 @@ const AddProductModal = ({visible, onClose, onSubmit}) => {
 
     countries.registerLocale(viLocale);
     const countryNames = Object.values(countries.getNames('vi'));
+
+    // Nếu là chế độ chỉnh sửa thông tin sản phẩm thì gán editingProduct là sản phẩm hiện tại
+    useEffect(() => {
+        if (editingProduct) {
+            form.setFieldsValue(editingProduct);
+            setSelectedSupplierId(editingProduct.supplier.id);
+            form.setFieldsValue({
+                brandId: editingProduct.brand.id,
+                supplierId: editingProduct.supplier.id,
+            categoryId: editingProduct.category.id,
+            origin: editingProduct.origin,});
+        } else {
+            form.resetFields();
+            setSelectedSupplierId(null);
+        }
+    }, [editingProduct]);
 
     // Fetch các dữ liệu ban đầu cho form
     useEffect(() => {
@@ -65,14 +82,17 @@ const AddProductModal = ({visible, onClose, onSubmit}) => {
 
     const categoryTreeData = transformCategories(categories);
 
+    const handleClose = () => {
+        onClose?.();
+        form.resetFields();
+    };
+
     return (
         <Modal
-            title="Thêm sản phẩm mới"
+            title={editingProduct ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới"}
             open={visible}
-            onCancel={onClose}
-            onOk={() => form.submit()}
-            okText="Tạo sản phẩm"
-            cancelText="Hủy"
+            onCancel={handleClose}
+            footer={null} // tắt footer mặc định
             width={800}
         >
             <Form
@@ -88,7 +108,7 @@ const AddProductModal = ({visible, onClose, onSubmit}) => {
                             basePrice: null,
                             discountPrice: null,
                             isActive: true,
-                            isDefault: true, // THAY ĐỔI: Set isDefault thành TRUE cho biến thể ban đầu
+                            isDefault: true,
                             images: [],
                         },
                     ],
@@ -201,9 +221,16 @@ const AddProductModal = ({visible, onClose, onSubmit}) => {
                 </Form.Item>
 
                 <ProductVariantsForm form={form} />
+
+                <Form.Item>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                        <button id={styles.cancelBtn} type="button" onClick={handleClose}>Hủy</button>
+                        <button id={styles.submitBtn} type="submit">{editingProduct ? "Lưu thay đổi" : "Tạo sản phẩm"}</button>
+                    </div>
+                </Form.Item>
             </Form>
         </Modal>
     );
 };
 
-export default AddProductModal;
+export default ProductFormModal;

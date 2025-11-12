@@ -1,0 +1,18 @@
+@import "../../../../styles/variables";
+
+#submitBtn {
+  background-color: $primary-color !important;
+  color: $white-color !important;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+#cancelBtn {
+  background-color: $dark-gray-color !important;
+  color: $white-color !important;
+  &:hover {
+    opacity: 0.8;
+  }
+}

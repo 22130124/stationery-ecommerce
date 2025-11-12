@@ -144,8 +144,19 @@ $border-color: #dee2e6;
   }
 }
 
-.deleteButton:hover {
-  border-color: $danger-color;
-  color: $danger-color;
-  background-color: rgba($danger-color, 0.05);
+.editBtn {
+  background-color: $primary-color !important;
+  color: $white-color !important;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.deleteBtn {
+  background-color: $danger-color !important;
+  color: $white-color !important;
+  &:hover {
+    opacity: 0.8;
+  }
 }
