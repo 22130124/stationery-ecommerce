@@ -3,11 +3,13 @@ import styles from "./Header.module.scss";
 import {FaBars, FaBell, FaShoppingCart, FaUser, FaBoxOpen} from "react-icons/fa";
 import {IoIosArrowForward} from "react-icons/io";
 import {getCategories} from "../../api/categoryApi";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 
 const Header = () => {
     const [hoveredMenu, setHoveredMenu] = useState(null);
     const [categories, setCategories] = useState([]);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const navigate = useNavigate();
 
     const handleMouseEnter = (menu) => setHoveredMenu(menu);
     const handleMouseLeave = () => setHoveredMenu(null);
@@ -18,6 +20,10 @@ const Header = () => {
             setCategories(data.categories);
         }
         fetchCategories();
+
+        // Check trạng thái đăng nhập
+        const token = localStorage.getItem("token");
+        setIsLoggedIn(!!token);
     }, [])
 
     const renderCategories = (categories) => {
@@ -25,17 +31,31 @@ const Header = () => {
             <ul className={styles.categoryList}>
                 {categories.map((cat) => (
                     <li key={cat.id} className={styles.categoryItem}>
-            <span>
-              {cat.name}
-                {cat.children?.length > 0 && <IoIosArrowForward/>}
-            </span>
+                        <Link
+                            to={`/product-list?category=${cat.slug}`}
+                            className={styles.categoryLink}
+                        >
+                        <span>
+                            {cat.name}
+                            {cat.children?.length > 0 && <IoIosArrowForward />}
+                        </span>
+                        </Link>
+
                         {cat.children?.length > 0 && (
-                            <div className={styles.submenu}>{renderCategories(cat.children)}</div>
+                            <div className={styles.submenu}>
+                                {renderCategories(cat.children)}
+                            </div>
                         )}
                     </li>
                 ))}
             </ul>
         );
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem("token"); // xóa token
+        setIsLoggedIn(false);
+        navigate("/login");
     };
 
     return (
@@ -79,11 +99,21 @@ const Header = () => {
                 {hoveredMenu === "notification" && (
                     <div className={styles.dropdownEmpty}>
                         <FaBoxOpen className={styles.emptyIcon}/>
-                        <p>Đăng nhập để xem thông báo</p>
-                        <div className={styles.actions}>
-                            <button>Đăng nhập</button>
-                            <button className={styles.registerBtn}>Đăng ký</button>
-                        </div>
+                        {isLoggedIn ? (<p>Chưa có thông báo nào</p>) :
+                            (
+                                <>
+                                    <p>Đăng nhập để xem thông báo</p>
+                                    <div className={styles.actions}>
+                                        <Link to="/login" className={styles.actionLink}>
+                                            <button>Đăng nhập</button>
+                                        </Link>
+                                        <Link to="/sign-up" className={styles.actionLink}>
+                                            <button className={styles.registerBtn}>Đăng ký</button>
+                                        </Link>
+                                    </div>
+                                </>
+                            )
+                        }
                     </div>
                 )}
             </div>
@@ -104,8 +134,14 @@ const Header = () => {
                 <span>Tài khoản</span>
                 {hoveredMenu === "user" && (
                     <div className={styles.dropdownUser}>
-                        <button>Đăng nhập</button>
-                        <button className={styles.registerBtn}>Đăng ký</button>
+                        {isLoggedIn ? (<button onClick={handleLogout}>Đăng xuất</button>) :
+                            (
+                                <>
+                                    <button onClick={() => navigate("/login")}>Đăng nhập</button>
+                                    <button onClick={() => navigate("/sign-up")}>Đăng ký</button>
+                                </>
+                            )
+                        }
                     </div>
                 )}
             </div>

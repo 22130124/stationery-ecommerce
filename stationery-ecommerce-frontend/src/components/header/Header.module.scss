@@ -1,3 +1,5 @@
+@import "../../styles/variables";
+
 .header {
   display: flex;
   align-items: center;
@@ -115,14 +117,15 @@
   align-items: center;
   transition: background 0.2s ease;
 
+  .categoryLink {
+    text-decoration: none;
+    color: $text-color;
+  }
+
   span {
     display: flex;
     align-items: center;
     gap: 4px;
-  }
-
-  &:hover {
-    background: #f8f9fa;
   }
 
   .submenu {
@@ -135,6 +138,15 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
     padding: 8px 0;
     display: none;
+  }
+
+  &:hover {
+    background: $light-gray-color;
+   color: $primary-color;
+
+    .categoryLink {
+      color: inherit;
+    }
   }
 
   &:hover .submenu {
@@ -169,20 +181,23 @@
 
   .actions {
     display: flex;
-    justify-content: space-around;
     gap: 8px;
 
-    button {
+    .actionLink {
       flex: 1;
-      padding: 8px 0;
-      border: none;
-      border-radius: 6px;
-      font-size: 13px;
-      cursor: pointer;
-      transition: 0.25s ease;
-      color: #fff;
 
-      &:first-child {
+      button {
+        width: 100%;
+        padding: 8px 0;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: 0.25s ease;
+        color: #fff;
+      }
+
+      &:first-child button {
         background: #007bff;
 
         &:hover {
@@ -190,7 +205,7 @@
         }
       }
 
-      &:last-child {
+      &:last-child button {
         background: #28a745;
 
         &:hover {
@@ -253,6 +268,7 @@
 
   .menuItem {
     font-size: 12px;
+
     svg {
       font-size: 18px;
     }
