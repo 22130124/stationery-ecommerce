@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/categories", "/api/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/suppliers", "/api/suppliers/**").permitAll()
                         .requestMatchers("/api/upload", "/api/upload/**").authenticated()
+                        .requestMatchers("/api/orders", "/api/orders/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
