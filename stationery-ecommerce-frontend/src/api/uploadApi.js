@@ -3,6 +3,11 @@ import {API_URL} from "../config/apiConfig";
 
 const BASE_URL = `${API_URL}/api/upload`;
 
+const getAuthHeader = () => {
+    const token = localStorage.getItem('token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export const uploadImage = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
@@ -10,6 +15,7 @@ export const uploadImage = async (file) => {
     const res = await fetch(`${BASE_URL}/image`, {
         method: 'POST',
         body: formData,
+        headers: getAuthHeader(),
     });
 
     if (!res.ok) {
@@ -22,6 +28,7 @@ export const uploadImage = async (file) => {
 export const deleteImage = async (publicId) => {
     const res = await fetch(`${BASE_URL}/image?publicId=${encodeURIComponent(publicId)}`, {
         method: 'DELETE',
+        headers: getAuthHeader(),
     });
 
     if (!res.ok) {

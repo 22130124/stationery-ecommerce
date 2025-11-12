@@ -23,16 +23,20 @@ const ProductFormModal = ({visible, onClose, onSubmit, editingProduct}) => {
     countries.registerLocale(viLocale);
     const countryNames = Object.values(countries.getNames('vi'));
 
+    const [imagesUploading, setImagesUploading] = useState(false);
+
     // Nếu là chế độ chỉnh sửa thông tin sản phẩm thì gán editingProduct là sản phẩm hiện tại
     useEffect(() => {
         if (editingProduct) {
+            form.resetFields();
             form.setFieldsValue(editingProduct);
             setSelectedSupplierId(editingProduct.supplier.id);
             form.setFieldsValue({
                 brandId: editingProduct.brand.id,
                 supplierId: editingProduct.supplier.id,
-            categoryId: editingProduct.category.id,
-            origin: editingProduct.origin,});
+                categoryId: editingProduct.category.id,
+                origin: editingProduct.origin,
+            });
         } else {
             form.resetFields();
             setSelectedSupplierId(null);
@@ -87,12 +91,17 @@ const ProductFormModal = ({visible, onClose, onSubmit, editingProduct}) => {
         form.resetFields();
     };
 
+    // Hàm xử lý callback từ ProductImages
+    const handleImagesUploadingChange = (uploading) => {
+        setImagesUploading(uploading);
+    };
+
     return (
         <Modal
             title={editingProduct ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới"}
             open={visible}
             onCancel={handleClose}
-            footer={null} // tắt footer mặc định
+            footer={null}
             width={800}
         >
             <Form
@@ -187,7 +196,7 @@ const ProductFormModal = ({visible, onClose, onSubmit, editingProduct}) => {
                 <Form.Item
                     name="origin"
                     label="Xuất xứ"
-                    rules={[{ required: true, message: 'Vui lòng chọn xuất xứ' }]}
+                    rules={[{required: true, message: 'Vui lòng chọn xuất xứ'}]}
                 >
                     <Select
                         showSearch
@@ -207,7 +216,6 @@ const ProductFormModal = ({visible, onClose, onSubmit, editingProduct}) => {
                 <Form.Item
                     name="description"
                     label="Mô tả sản phẩm"
-                    rules={[{ required: true, message: 'Vui lòng nhập mô tả sản phẩm' }]}
                 >
                     <ReactQuill
                         theme="snow"
@@ -217,15 +225,25 @@ const ProductFormModal = ({visible, onClose, onSubmit, editingProduct}) => {
 
                 <Form.Item name="images"
                            label="Ảnh sản phẩm (chung)">
-                    <ProductImages allowSetDefault={true} />
+                    <ProductImages
+                        value={form.getFieldValue('images')}
+                        onChange={(imgs) => form.setFieldsValue({images: imgs})}
+                        onUploadingChange={handleImagesUploadingChange}
+                        allowSetDefault={true}
+                    />
                 </Form.Item>
 
-                <ProductVariantsForm form={form} />
+                <ProductVariantsForm form={form} handleImagesUploadingChange={handleImagesUploadingChange}/>
 
                 <Form.Item>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                    <div style={{display: 'flex', justifyContent: 'flex-end', gap: '8px'}}>
                         <button id={styles.cancelBtn} type="button" onClick={handleClose}>Hủy</button>
-                        <button id={styles.submitBtn} type="submit">{editingProduct ? "Lưu thay đổi" : "Tạo sản phẩm"}</button>
+                        <button id={styles.submitBtn}
+                                type="submit"
+                                disabled={imagesUploading}
+                        >
+                            {imagesUploading ? "Đang tải ảnh..." : (editingProduct ? "Lưu thay đổi" : "Tạo sản phẩm")}
+                        </button>
                     </div>
                 </Form.Item>
             </Form>

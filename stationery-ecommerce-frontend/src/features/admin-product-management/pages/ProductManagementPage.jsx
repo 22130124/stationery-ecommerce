@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {Table} from 'antd';
 import styles from './ProductManagementPage.module.scss';
 import ProductFormModal from "../components/modals/ProductFormModal";
-import {addProduct, getAllProducts} from "../../../api/productApi";
+import {addProduct, getAllProducts, updateProduct} from "../../../api/productApi";
 
 const ProductManagementPage = () => {
     const [products, setProducts] = useState([]);
@@ -24,13 +24,6 @@ const ProductManagementPage = () => {
     };
 
     const handleModalClose = () => {
-        setIsModalVisible(false);
-    };
-
-    const handleModalSubmit = async (values) => {
-        console.log('Form values submitted:', values);
-        const newProductData = await addProduct(values);
-        console.log("Sản phẩm đã được tạo:", newProductData);
         setIsModalVisible(false);
     };
 
@@ -135,67 +128,98 @@ const ProductManagementPage = () => {
                     >
                         Sửa
                     </button>
-                        <button className={`${styles.actionButton} ${styles.deleteBtn}`}
-                                onClick={() => console.log('Delete', record.id)}>Xóa
-                        </button>
+                    <button className={`${styles.actionButton} ${styles.deleteBtn}`}
+                            onClick={() => console.log('Delete', record.id)}>Xóa
+                    </button>
                 </div>
-),
-},
-];
+            ),
+        },
+    ];
 
-const filteredData = products.filter(item =>
-item.name.toLowerCase().includes(searchText.toLowerCase()) ||
-item.code.toLowerCase().includes(searchText.toLowerCase())
-);
+    const filteredData = products.filter(item =>
+        item.name.toLowerCase().includes(searchText.toLowerCase()) ||
+        item.code.toLowerCase().includes(searchText.toLowerCase())
+    );
 
-return (
-    <div className={styles.pageContainer}>
-        <header className={styles.header}>
-            <h1>Quản lý Sản phẩm</h1>
-            <p>Quản lý, thêm mới và cập nhật thông tin sản phẩm của bạn.</p>
-        </header>
+    // Thêm sản phẩm mới
+    const handleAddProduct = async (values) => {
+        console.log(values);
+        try {
+            const data = await addProduct(values);
+            setProducts(prev => [...prev, data.product]);
+            setIsModalVisible(false);
+            console.log('Sản phẩm mới đã được tạo:', data.product);
+        } catch (error) {
+            console.error('Thêm sản phẩm thất bại:', error);
+        }
+    };
 
-        <div className={styles.actionBar}>
-            <input
-                type="text"
-                className={styles.searchInput}
-                placeholder="Tìm kiếm theo tên, mã sản phẩm..."
-                onChange={e => setSearchText(e.target.value)}
-            />
-            <button className={styles.addButton} onClick={showAddModal}>
-                + Thêm sản phẩm
-            </button>
+    // Cập nhật sản phẩm
+    const handleEditProduct = async (values) => {
+        if (!editingProduct) return;
+        try {
+            const data = await updateProduct(editingProduct.id, values);
+            const updatedProduct = data.product;
+            console.log("Updated product:", updatedProduct);
+            setProducts(prev =>
+                prev.map(p => (p.id === updatedProduct.id ? updatedProduct : p))
+            );
+            setIsModalVisible(false);
+            setEditingProduct(null);
+            console.log('Sản phẩm đã được cập nhật:', updatedProduct);
+        } catch (error) {
+            console.error('Cập nhật sản phẩm thất bại:', error);
+        }
+    };
+
+    return (
+        <div className={styles.pageContainer}>
+            <header className={styles.header}>
+                <h1>Quản lý Sản phẩm</h1>
+                <p>Quản lý, thêm mới và cập nhật thông tin sản phẩm của bạn.</p>
+            </header>
+
+            <div className={styles.actionBar}>
+                <input
+                    type="text"
+                    className={styles.searchInput}
+                    placeholder="Tìm kiếm theo tên, mã sản phẩm..."
+                    onChange={e => setSearchText(e.target.value)}
+                />
+                <button className={styles.addButton} onClick={showAddModal}>
+                    + Thêm sản phẩm
+                </button>
+            </div>
+
+            <div className={styles.tableWrapper}>
+                <Table
+                    columns={columns}
+                    dataSource={filteredData}
+                    rowKey="id"
+                    loading={loading}
+                    pagination={{
+                        pageSize: 10,
+                        showSizeChanger: true,
+                        pageSizeOptions: ['10', '20', '50'],
+                        showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} sản phẩm`
+                    }}
+                    scroll={{x: 1300}}
+                    bordered
+                />
+            </div>
+            {isModalVisible && (
+                <ProductFormModal
+                    visible={isModalVisible}
+                    editingProduct={editingProduct}
+                    onClose={() => {
+                        setIsModalVisible(false);
+                        setEditingProduct(null);
+                    }}
+                    onSubmit={editingProduct ? handleEditProduct : handleAddProduct}
+                />
+            )}
         </div>
-
-        <div className={styles.tableWrapper}>
-            <Table
-                columns={columns}
-                dataSource={filteredData}
-                rowKey="id"
-                loading={loading}
-                pagination={{
-                    pageSize: 10,
-                    showSizeChanger: true,
-                    pageSizeOptions: ['10', '20', '50'],
-                    showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} sản phẩm`
-                }}
-                scroll={{x: 1300}}
-                bordered
-            />
-        </div>
-        {isModalVisible && (
-            <ProductFormModal
-                visible={isModalVisible}
-                editingProduct={editingProduct}
-                onClose={() => {
-                    setIsModalVisible(false);
-                    setEditingProduct(null);
-                }}
-                onSubmit={handleModalSubmit}
-            />
-        )}
-    </div>
-);
+    );
 };
 
 export default ProductManagementPage;

@@ -25,7 +25,7 @@ public class ProductController {
     public ResponseEntity<?> getAll() {
         List<ProductResponse> products = productService.getProducts();
         Map<String, Object> response = Map.of("products", products);
-        return ResponseEntity.ok(response); 
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/admin")
@@ -40,10 +40,25 @@ public class ProductController {
         }
     }
 
+    @PutMapping("/admin/{id}")
+    public ResponseEntity<?> updateProduct(@PathVariable("id") Integer id, @RequestBody ProductRequest productRequest) {
+        try {
+            ProductResponse updatedProduct = productService.updateProduct(id, productRequest);
+            Map<String, Object> response = Map.of(
+                    "product", updatedProduct,
+                    "message", "Product updated successfully"
+            );
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            Map<String, Object> errorResponse = Map.of("error", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @GetMapping
     public ResponseEntity<?> getProductsByCategoryAndPagination(@RequestParam(name = "categorySlug", required = false, defaultValue = "all") String categorySlug,
-                                                              @RequestParam(name = "page", required = false, defaultValue = "1") int page,
-                                                              @RequestParam(name = "limit", required = false, defaultValue = "12") int size) {
+                                                                @RequestParam(name = "page", required = false, defaultValue = "1") int page,
+                                                                @RequestParam(name = "limit", required = false, defaultValue = "12") int size) {
         ProductListResponse result = productService.getProductsByCategoryAndPagination(categorySlug, page, size);
         Map<String, Object> response = Map.of(
                 "products", result.getProducts(),

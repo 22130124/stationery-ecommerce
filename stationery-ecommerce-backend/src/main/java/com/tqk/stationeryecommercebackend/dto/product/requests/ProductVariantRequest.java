@@ -3,12 +3,21 @@ package com.tqk.stationeryecommercebackend.dto.product.requests;
 import java.util.List;
 
 public class ProductVariantRequest {
+    private Integer id;
     private String name;
     private Double basePrice;
     private Double discountPrice;
     private Boolean isActive;
     private Boolean isDefault;
     private List<ProductImageRequest> images;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;

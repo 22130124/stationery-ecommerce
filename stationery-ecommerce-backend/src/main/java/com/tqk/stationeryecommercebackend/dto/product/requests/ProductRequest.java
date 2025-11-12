@@ -1,5 +1,6 @@
 package com.tqk.stationeryecommercebackend.dto.product.requests;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProductRequest {
@@ -10,8 +11,8 @@ public class ProductRequest {
     private Long categoryId;
     private String origin;
     private String description;
-    private List<ProductImageRequest> images;
-    private List<ProductVariantRequest> variants;
+    private List<ProductImageRequest> images = new ArrayList<>();
+    private List<ProductVariantRequest> variants = new ArrayList<>();
 
     public String getName() {
         return name;

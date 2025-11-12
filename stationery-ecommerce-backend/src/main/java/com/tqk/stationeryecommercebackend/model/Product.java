@@ -82,34 +82,42 @@ public class Product {
         dto.setIsActive(this.isActive);
         dto.setCreatedAt(this.createdAt);
         dto.setUpdatedAt(this.updatedAt);
+
+        List<ProductImageResponse> imagesResponses = new ArrayList<>();
+        boolean isSetDefaultImage = false;
+        if (this.images != null && !this.images.isEmpty()) {
+            for (ProductImage productImage : this.images) {
+                if (productImage.getVariant() == null) {
+                    imagesResponses.add(productImage.convertToDto());
+                    if (productImage.getIsDefault()) {
+                        isSetDefaultImage = true;
+                        dto.setDefaultImage(productImage.convertToDto());
+                    }
+                }
+            }
+        }
+
         List<ProductVariantResponse> variantResponses = new ArrayList<>();
-        if (this.variants != null) {
+        if (this.variants != null && !this.variants.isEmpty()) {
             for (ProductVariant productVariant : this.variants) {
                 ProductVariantResponse productVariantResponse = productVariant.convertToDto();
                 variantResponses.add(productVariantResponse);
                 if (productVariant.getIsDefault()) {
                     dto.setDefaultVariant(productVariantResponse);
+                    if (!isSetDefaultImage) {
+                        for (ProductImage productImage : productVariant.getImages()) {
+                            if (productImage.getIsDefault()) {
+                                isSetDefaultImage = true;
+                                dto.setDefaultImage(productImage.convertToDto());
+                                break;
+                            }
+                        }
+                    }
                 }
             }
         }
         dto.setVariants(variantResponses);
-        List<ProductImageResponse> imagesResponses = new ArrayList<>();
-        ProductImageResponse defaultImage = null;
-        if (this.images != null) {
-            for (ProductImage productImage : this.images) {
-                if (productImage.getVariant() == null) {
-                    imagesResponses.add(productImage.convertToDto());
-                    if (productImage.getIsDefault()) {
-                        defaultImage = productImage.convertToDto();
-                        dto.setDefaultImage(defaultImage);
-                    }
-                }
-            }
-            if (defaultImage == null) {
-                defaultImage = this.images.getFirst().convertToDto();
-                dto.setDefaultImage(defaultImage);
-            }
-        }
+
         dto.setImages(imagesResponses);
         return dto;
     }

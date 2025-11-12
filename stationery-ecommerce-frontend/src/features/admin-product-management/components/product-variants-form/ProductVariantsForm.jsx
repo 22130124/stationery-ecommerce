@@ -1,10 +1,10 @@
 import React from 'react';
 import {Form, Input, InputNumber, Checkbox, Button, Space, Row, Col, Radio} from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import ProductImages from '../product-images/ProductImages'; // Giả định đường dẫn
+import ProductImages from '../product-images/ProductImages';
 import styles from './ProductVariantsForm.module.scss';
 
-const ProductVariantsForm = ({ form }) => {
+const ProductVariantsForm = ({ form, handleImagesUploadingChange }) => {
     // Hàm kiểm tra nếu giá khuyến mãi lớn hơn giá gốc
     const validateDiscountPrice = ({ getFieldValue }) => ({
         validator(_, value) {
@@ -153,7 +153,7 @@ const ProductVariantsForm = ({ form }) => {
                                     style={{ marginTop: '10px' }}
                                 >
                                     {/* ProductImages */}
-                                    <ProductImages />
+                                    <ProductImages onUploadingChange={handleImagesUploadingChange}/>
                                 </Form.Item>
                             </div>
                         ))}

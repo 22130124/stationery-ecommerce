@@ -68,12 +68,14 @@ export const getProductBySlug = async (slug) => {
 
 export const addProduct = async (productData) => {
     let response;
+    const token = localStorage.getItem("token");
 
     try {
         response = await fetch(`${BASE_URL}/admin`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify(productData),
         });
@@ -92,3 +94,32 @@ export const addProduct = async (productData) => {
 
     return data;
 }
+
+export const updateProduct = async (productId, productData) => {
+    let response;
+    const token = localStorage.getItem("token");
+
+    try {
+        response = await fetch(`${BASE_URL}/admin/${productId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(productData),
+        });
+    } catch (error) {
+        console.error(`Update product failed:`, error);
+        throw new Error(
+            "Unable to connect to the server. Please check your network connection or try again later"
+        );
+    }
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to update product");
+    }
+
+    return data;
+};

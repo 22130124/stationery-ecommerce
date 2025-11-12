@@ -3,11 +3,21 @@ import styles from "./ProductImages.module.scss";
 import {deleteImage, uploadImage} from "../../../../api/uploadApi";
 import {MoreOutlined} from "@ant-design/icons";
 
-const ProductImages = ({value = [], onChange, allowSetDefault = false}) => {
+const ProductImages = ({value = [], onChange, onUploadingChange, allowSetDefault = false}) => {
     const images = value || [];
     const [opened, setOpened] = useState(null);
     const inputId = useId();
     const dropdownRef = useRef(null);
+    const normalizedImages = images.map(img => ({
+        ...img,
+        fingerprint: img.fingerprint || `server_${img.id}`,
+    }));
+
+    // Xử lý việc truyền trạng thái upload ảnh cho modal
+    useEffect(() => {
+        const uploading = images.some(img => img.uploading);
+        onUploadingChange?.(uploading);
+    }, [images]);
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -18,6 +28,10 @@ const ProductImages = ({value = [], onChange, allowSetDefault = false}) => {
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
+
+    useEffect(() => {
+        setOpened(null);
+    }, [value])
 
     const handleFiles = async (files) => {
         const fileArray = Array.from(files);
@@ -64,6 +78,7 @@ const ProductImages = ({value = [], onChange, allowSetDefault = false}) => {
             }
         }
     };
+    console.log("images", images);
 
     const setDefault = (fp) => {
         const updatedImages = images.map(i => ({...i, isDefault: i.fingerprint === fp}));
@@ -71,20 +86,18 @@ const ProductImages = ({value = [], onChange, allowSetDefault = false}) => {
         setOpened(null);
     };
 
-    const removeImage = async (fp) => {
-        const target = images.find(i => i.fingerprint === fp);
-        const updatedImages = images.filter(i => i.fingerprint !== fp);
+    const removeImage = async (img) => {
+        // Cập nhật mảng tạm thời ngay lập tức để UI phản hồi
+        const updatedImages = normalizedImages
+            .filter(i => i.fingerprint !== img.fingerprint)
         onChange?.(updatedImages);
         setOpened(null);
 
-        if (target?.public_id) {
-            try {
-                await deleteImage(target.public_id);
-            } catch (err) {
-                console.error("Xóa ảnh thất bại:", err);
-            }
+        if (!img.file) {
+            await deleteImage(img.public_id);
         }
     };
+
 
     const preview = (img) => {
         window.open(img.url, "_blank");
@@ -120,10 +133,17 @@ const ProductImages = ({value = [], onChange, allowSetDefault = false}) => {
             />
 
             <div className={styles.previewGrid}>
-                {images.map(img => (
-                    <div key={img.id || img.fingerprint} className={styles.imageCard}>
+                {normalizedImages.map(img => (
+                    <div key={img.fingerprint} className={styles.imageCard}>
                         <img src={img.url} alt=""/>
                         {img.isDefault && <span className={styles.defaultBadge}>Mặc định</span>}
+
+                        {/* Overlay khi đang upload */}
+                        {img.uploading && (
+                            <div className={styles.uploadingOverlay}>
+                                Đang tải ảnh...
+                            </div>
+                        )}
 
                         <div
                             className={styles.menuIcon}
@@ -135,15 +155,12 @@ const ProductImages = ({value = [], onChange, allowSetDefault = false}) => {
                             <MoreOutlined/>
                         </div>
 
-                        {opened === img.fingerprint && (
-                            <div className={styles.menuDropdown}
-                                 ref={dropdownRef}
-                                 onClick={(e) => e.stopPropagation()}
-                            >
+                        {opened === img.fingerprint && !img.uploading && (
+                            <div className={styles.menuDropdown} ref={dropdownRef} onClick={(e) => e.stopPropagation()}>
                                 {allowSetDefault && !img.isDefault &&
-                                    <button onClick={() => setDefault(img.fingerprint)}>Đặt làm mặc định</button>}
+                                    <button onClick={() => setDefault(img)}>Đặt làm mặc định</button>}
                                 <button onClick={() => preview(img)}>Xem ảnh</button>
-                                <button onClick={() => removeImage(img.fingerprint)}>Xóa</button>
+                                <button onClick={() => removeImage(img)}>Xóa</button>
                             </div>
                         )}
                     </div>
