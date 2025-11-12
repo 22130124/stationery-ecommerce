@@ -16,12 +16,12 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @PostMapping("/login")
-    private ResponseEntity<?> login(@Valid @RequestBody AuthRequest request) {
-        String token = authService.login(request);
-        Map<String, Object> response = Map.of("token", token);
-        return ResponseEntity.ok(response);
-    }
+//    @PostMapping("/login")
+//    private ResponseEntity<?> login(@Valid @RequestBody AuthRequest request) {
+//        String token = authService.login(request);
+//        Map<String, Object> response = Map.of("token", token);
+//        return ResponseEntity.ok(response);
+//    }
 
     @PostMapping("/google-login")
     public ResponseEntity<?> googleLogin(@Valid @RequestBody GoogleAuthRequest request) {
