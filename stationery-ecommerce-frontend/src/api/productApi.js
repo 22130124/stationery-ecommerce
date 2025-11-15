@@ -1,6 +1,6 @@
 // src/api/productApi.js
-import {API_URL} from "../config/apiConfig";
-const BASE_URL = `${API_URL}/api/products`;
+import {API_URLS} from "../config/apiConfig";
+const BASE_URL = `${API_URLS.product}/api/products`;
 
 export const getAllProducts = async () => {
     let response;
@@ -51,7 +51,7 @@ export const getProductBySlug = async (slug) => {
     let response;
 
     try {
-        response = await fetch(`${BASE_URL}/${slug}`);
+        response = await fetch(`${BASE_URL}/slug/${slug}`);
     } catch (error) {
         console.error(`Fetch product failed:`, error);
         throw new Error(

@@ -22,7 +22,7 @@ public class CategoryClient {
 
     public CategoryResponse getBySlug(String slug) {
         return webClient.get()
-                .uri("/{slug}", slug)
+                .uri("/slug/{slug}", slug)
                 .retrieve()
                 .bodyToMono(CategoryResponse.class)
                 .block();

@@ -17,7 +17,7 @@ const Header = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             const data = await getCategories();
-            setCategories(data.categories);
+            setCategories(data);
         }
         fetchCategories();
 

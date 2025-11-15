@@ -1,7 +1,7 @@
 // src/api/supplierApi.js
-import {API_URL} from "../config/apiConfig";
+import {API_URLS} from "../config/apiConfig";
 
-const BASE_URL = `${API_URL}/api/brands`;
+const BASE_URL = `${API_URLS.brand}/api/brands`;
 
 export const getBrandsBySupplierId = async (supplierId) => {
     let response;

@@ -24,6 +24,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
     depends_on:
       - mysql
+    entrypoint: ["./wait-for-it.sh", "mysql:3306", "--", "java", "-jar", "app.jar"]
 
   category-service:
     build: ./category-service
@@ -35,6 +36,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
     depends_on:
       - mysql
+    entrypoint: ["./wait-for-it.sh", "mysql:3306", "--", "java", "-jar", "app.jar"]
 
   supplier-service:
     build: ./supplier-service
@@ -46,6 +48,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
     depends_on:
       - mysql
+    entrypoint: ["./wait-for-it.sh", "mysql:3306", "--", "java", "-jar", "app.jar"]
 
   brand-service:
     build: ./brand-service
@@ -57,3 +60,4 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
     depends_on:
       - mysql
+    entrypoint: ["./wait-for-it.sh", "mysql:3306", "--", "java", "-jar", "app.jar"]

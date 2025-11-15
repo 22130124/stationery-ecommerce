@@ -1,7 +1,7 @@
 // src/api/categoryApi.js
-import {API_URL} from "../config/apiConfig";
+import {API_URLS} from "../config/apiConfig";
 
-const BASE_URL = `${API_URL}/api/categories`;
+const BASE_URL = `${API_URLS.category}/api/categories`;
 
 export const getCategories = async () => {
     let response;

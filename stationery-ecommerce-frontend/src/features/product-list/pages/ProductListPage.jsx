@@ -34,6 +34,7 @@ const ProductListPage = () => {
         totalPages: 1
     });
 
+    // Fetch categories
     useEffect(() => {
         const newParams = new URLSearchParams(searchParams)
         const categoryParam = searchParams.get("category")
@@ -48,17 +49,12 @@ const ProductListPage = () => {
 
         const fetchCategories = async () => {
             const data = await getCategories()
-            setCategories(data.categories)
+            setCategories(data)
         }
 
         fetchCategories()
     }, [])
-
-    useEffect(() => {
-
-    }, [searchParams])
-
-    console.log("Categories:", categories)
+    console.log("categories", categories)
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -73,7 +69,7 @@ const ProductListPage = () => {
         }
         fetchProducts()
     }, [searchParams, setSearchParams])
-    console.log("Products:", products)
+    console.log("products", products)
 
     const handlePageChange = (page) => {
         const newParams = new URLSearchParams(searchParams);
