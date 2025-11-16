@@ -1,7 +1,7 @@
 // LoginPage.jsx
 import React, {useState} from 'react';
 import {login} from "../../../api/authApi";
-import AuthForm from "./AuthForm";
+import AuthForm from "../components/AuthForm";
 import {useNavigate, useLocation} from "react-router-dom";
 
 const LoginPage = () => {
@@ -29,8 +29,14 @@ const LoginPage = () => {
     };
 
     const handleSubmit = async (formData) => {
+        if (formData.error) {
+            setMessage(formData.error)
+            setIsSuccess(false)
+            return
+        }
+
         try {
-            const data = await login(formData.username, formData.password);
+            const data = await login(formData.email, formData.password);
             handleSubmitSuccess(data.token);
         } catch (error) {
             setMessage(error.message);

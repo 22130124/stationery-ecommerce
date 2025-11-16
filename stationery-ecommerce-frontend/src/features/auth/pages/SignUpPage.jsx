@@ -1,6 +1,6 @@
 // LoginPage.jsx
 import React, {useState} from 'react';
-import AuthForm from "./AuthForm";
+import AuthForm from "../components/AuthForm";
 import {signUp} from "../../../api/authApi";
 import {useNavigate, useLocation} from "react-router-dom";
 
@@ -11,44 +11,27 @@ const SignUpPage = () => {
     const [message, setMessage] = useState('')
     const [isSuccess, setIsSuccess] = useState(false)
 
-    const validateInput = (formData) => {
-        const minUsernameLength = 6
-        const minPasswordLength = 8
-        const usernameRegex = /^[a-zA-Z0-9]+$/ // Chỉ cho phép chữ cái (hoa, thường) và số
-        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).+$/;
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).+$/;
+    const minPasswordLength = 8
 
-        const username = formData.username
-        const password = formData.password
-
-        // Kiểm tra username
-        if (username.length < minUsernameLength) {
-            setMessage(`Username must be at least ${minUsernameLength} characters`)
-            setIsSuccess(false)
-            return false;
-        }
-
-        if (!usernameRegex.test(username)) {
-            setMessage("Username must not contains special characters")
-            setIsSuccess(false)
-            return false;
-        }
-
-        // Kiểm tra password
+    // Hàm kiểm tra mật khẩu hợp lệ
+    const isValidPassword = (password) => {
         if (password.length < minPasswordLength) {
-            setMessage(`Password must be at least ${minPasswordLength} characters`)
+            setMessage(`Mật khẩu cần tối thiểu ${minPasswordLength} ký tự`)
             setIsSuccess(false)
-            return false;
+            return false
         }
 
         if (!passwordRegex.test(password)) {
-            setMessage(`Password must contain both letters and numbers`)
+            setMessage('Mật khẩu cần kết hợp giữa các chữ cái và số')
             setIsSuccess(false)
-            return false;
+            return false
         }
 
-        return true;
+        return true
     }
 
+    // Hàm xử lý nếu đăng ký tài khoản thành công
     const handleSubmitSuccess = () => {
         setIsSuccess(true)
         setMessage("Đăng ký thành công");
@@ -65,7 +48,7 @@ const SignUpPage = () => {
         }, 1000);
     };
 
-
+    // Hàm xử lý nhấn submit
     const handleSubmit = async (formData) => {
         if (formData.error) {
             setMessage(formData.error)
@@ -73,12 +56,14 @@ const SignUpPage = () => {
             return
         }
 
-        if(!validateInput(formData)) {
+        if (!isValidPassword(formData.password)) {
             return
         }
 
+        console.log(formData)
+
         try {
-            const data = await signUp(formData.username, formData.password)
+            const data = await signUp(formData.email, formData.password)
             handleSubmitSuccess()
         } catch (error) {
             setMessage(error.message)

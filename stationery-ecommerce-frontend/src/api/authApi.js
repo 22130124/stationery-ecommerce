@@ -1,7 +1,7 @@
 // authApi.js
-import {API_URL} from "../config/apiConfig";
+import {API_URLS} from "../config/apiConfig";
 
-const BASE_URL = `${API_URL}/api/auth`;
+const BASE_URL = `${API_URLS.auth}/api/auth`;
 
 const postAuthRequest = async (endpoint, payload) => {
     let response;
@@ -28,11 +28,12 @@ const postAuthRequest = async (endpoint, payload) => {
     return data;
 };
 
-export const login = (username, password) =>
-    postAuthRequest("login", { username, password });
+export const signUp = (email, password) =>
+    postAuthRequest("signup", { email, password });
 
-export const signUp = (username, password) =>
-    postAuthRequest("sign-up", { username, password });
+export const login = (email, password) =>
+    postAuthRequest("login", { email, password });
+
 
 export const loginWithGoogle = (googleAccessToken) =>
-    postAuthRequest("google-login", { token: googleAccessToken });
+    postAuthRequest("google", { token: googleAccessToken });

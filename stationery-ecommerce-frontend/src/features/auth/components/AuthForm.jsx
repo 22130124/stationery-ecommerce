@@ -2,9 +2,8 @@
 import React, { useState } from 'react';
 import styles from './AuthForm.module.scss';
 import { FaUser, FaLock } from 'react-icons/fa';
-import {FcGoogle} from 'react-icons/fc';
 import {useNavigate, useLocation} from 'react-router-dom';
-import {GoogleLogin, useGoogleLogin} from '@react-oauth/google';
+import {GoogleLogin} from '@react-oauth/google';
 import {loginWithGoogle} from '../../../api/authApi';
 
 // formType: 'login' | 'signup'
@@ -12,19 +11,31 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess, o
     const navigate = useNavigate();
     const location = useLocation();
 
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (formType === 'signup' && password !== confirmPassword) {
-            onSubmit({ error: 'Mật khẩu không khớp' });
-            return;
+            onSubmit({ error: 'Mật khẩu không khớp' })
+            return
+        }
+
+        if (!isValidEmail(email)) {
+            onSubmit({ error: 'Vui lòng nhập email hợp lệ' })
+            return
         }
         
-        onSubmit({ username, password });
+        onSubmit({ email, password })
     };
+
+    // Hàm kiểm tra định dạng email
+    function isValidEmail(email) {
+        return emailRegex.test(email);
+    }
 
     // Hàm xử lý đăng nhập Google
     const handleGoogleSuccess = async (credentialResponse) => {
@@ -40,11 +51,13 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess, o
         }
     };
 
+    // Hàm xử lý đăng nhập Google thất bại
     const handleGoogleError = () => {
         console.log('Google Login Failed');
         alert('Đăng nhập thất bại hãy thử lại sau');
     };
 
+    // Hàm xử lý chuyển đổi giữa 2 trang login và signup
     const handleSwitchPage = () => {
         const nextPage = formType === 'signup' ? 'login' : 'signup';
         const searchParams = new URLSearchParams(location.search);
@@ -62,14 +75,15 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess, o
             <div className={styles.authCard}>
                 <h2>{title}</h2>
                 <form onSubmit={handleSubmit}>
-                    {/* Input Username */}
+                    {/* Input Email */}
                     <div className={styles.inputGroup}>
                         <FaUser className={styles.inputIcon} />
                         <input
+                            id='email'
                             type='text'
-                            placeholder='Tài khoản'
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            placeholder='Email'
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             required
                         />
                     </div>
@@ -78,6 +92,7 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess, o
                     <div className={styles.inputGroup}>
                         <FaLock className={styles.inputIcon} />
                         <input
+                            id='password'
                             type='password'
                             placeholder='Mật khẩu'
                             value={password}

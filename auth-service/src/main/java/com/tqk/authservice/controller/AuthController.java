@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -24,13 +27,15 @@ public class AuthController {
     @PostMapping("/login")
     private ResponseEntity<?> login(@RequestBody AuthRequest request) {
         String token = authService.login(request);
-        return ResponseEntity.ok(token);
+        Map<String, String> response = Map.of("token", token);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/google")
     public ResponseEntity<?> loginGoogle(@RequestBody GoogleAuthRequest request) {
         String token = authService.loginGoogle(request.getToken());
-        return ResponseEntity.ok(token);
+        Map<String, String> response = Map.of("token", token);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/signup")
