@@ -1,8 +1,9 @@
-// LoginPage.jsx
+// SignupPage.jsx
 import React, {useState} from 'react';
 import AuthForm from "../components/AuthForm";
 import {signUp} from "../../../api/authApi";
 import {useNavigate, useLocation} from "react-router-dom";
+import toast from "react-hot-toast";
 
 const SignUpPage = () => {
     const navigate = useNavigate();
@@ -10,6 +11,7 @@ const SignUpPage = () => {
 
     const [message, setMessage] = useState('')
     const [isSuccess, setIsSuccess] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).+$/;
     const minPasswordLength = 8
@@ -31,23 +33,6 @@ const SignUpPage = () => {
         return true
     }
 
-    // Hàm xử lý nếu đăng ký tài khoản thành công
-    const handleSubmitSuccess = () => {
-        setIsSuccess(true)
-        setMessage("Đăng ký thành công");
-
-        const searchParams = new URLSearchParams(location.search);
-        const redirectPath = searchParams.get("redirect");
-
-        setTimeout(() => {
-            if (redirectPath) {
-                navigate(`/login?redirect=${redirectPath}`);
-            } else {
-                navigate("/login");
-            }
-        }, 1000);
-    };
-
     // Hàm xử lý nhấn submit
     const handleSubmit = async (formData) => {
         if (formData.error) {
@@ -60,14 +45,39 @@ const SignUpPage = () => {
             return
         }
 
-        console.log(formData)
+        setIsSubmitting(true)
+        setMessage('')
+
+        toast.dismiss()
+        const toastId = toast.loading("Đang đăng ký...");
 
         try {
-            const data = await signUp(formData.email, formData.password)
-            handleSubmitSuccess()
+            await signUp(formData.email, formData.password)
+            // cập nhật toast thành success
+            toast.success(
+                'Đăng ký thành công. Vui lòng kiểm tra email để xác minh tài khoản',
+                { id: toastId, duration: 10000 }
+            );
+
+            const searchParams = new URLSearchParams(location.search);
+            const redirectPath = searchParams.get("redirect");
+
+            setTimeout(() => {
+                if (redirectPath) {
+                    navigate(`/login?redirect=${redirectPath}`);
+                } else {
+                    navigate("/login");
+                }
+            }, 1000);
+
         } catch (error) {
-            setMessage(error.message)
-            setIsSuccess(false)
+            setIsSuccess(false);
+            setMessage(error.message);
+
+            // cập nhật toast thành error
+            toast.error(error.message, { id: toastId, duration: 5000 });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -79,6 +89,7 @@ const SignUpPage = () => {
             onSubmit={handleSubmit}
             message={message}
             isSuccess={isSuccess}
+            isSubmitting={isSubmitting}
         />
     );
 };

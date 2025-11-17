@@ -12,6 +12,7 @@ import ProductListPage from "../features/product-list/pages/ProductListPage";
 import ProductDetailsPage from "../features/product-details/pages/ProductDetailsPage";
 import ShoppingCart from "../features/shopping-cart/pages/ShoppingCart";
 import ProductManagementPage from "../features/admin-product-management/pages/ProductManagementPage";
+import VerifyPage from "../features/auth/pages/VerifyPage";
 
 const AppRoutes = () => {
     return (
@@ -19,6 +20,7 @@ const AppRoutes = () => {
             {/* Các Route không có header */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/verify" element={<VerifyPage />} />
             <Route path="/admin/product-management" element={<ProductManagementPage />} />
 
             {/* Các Route có header */}

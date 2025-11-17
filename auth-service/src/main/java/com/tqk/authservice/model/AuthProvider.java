@@ -3,6 +3,8 @@ package com.tqk.authservice.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -22,6 +24,7 @@ public class AuthProvider {
 
     @ManyToOne
     @JoinColumn(name = "account_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Account account;
 
     @Column(name = "provider")

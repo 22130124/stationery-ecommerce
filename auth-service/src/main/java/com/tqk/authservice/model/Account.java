@@ -29,6 +29,8 @@ public class Account {
     @Column(name = "active_status")
     private boolean activeStatus;
 
+    private boolean verified;
+
     @Column(name = "created_at")
     @CreatedDate
     private LocalDateTime createdAt;

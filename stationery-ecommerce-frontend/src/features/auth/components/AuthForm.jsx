@@ -5,9 +5,10 @@ import { FaUser, FaLock } from 'react-icons/fa';
 import {useNavigate, useLocation} from 'react-router-dom';
 import {GoogleLogin} from '@react-oauth/google';
 import {loginWithGoogle} from '../../../api/authApi';
+import toast from "react-hot-toast";
 
 // formType: 'login' | 'signup'
-const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess, onGoogleSuccess }) => {
+const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess, isSubmitting}) => {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -37,24 +38,37 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess, o
         return emailRegex.test(email);
     }
 
-    // Hàm xử lý đăng nhập Google
+    // Hàm xử lý đăng nhập Google thành công
     const handleGoogleSuccess = async (credentialResponse) => {
         try {
             // credentialResponse.credential là ID Token để backend xác thực
-            const data = await loginWithGoogle(credentialResponse.credential);
-            if (onGoogleSuccess) {
-                onGoogleSuccess(data.token);
-            }
+            const token = await loginWithGoogle(credentialResponse.credential);
+            localStorage.setItem('token', token);
+
+            const toastId = toast.success(
+                'Đăng nhập thành công. Đang chuyển hướng tới trang mua hàng...',
+                { duration: 2000 }
+            );
+
+            const searchParams = new URLSearchParams(location.search);
+            const redirectPath = searchParams.get("redirect");
+
+            setTimeout(() => {
+                if (redirectPath) {
+                    navigate(redirectPath);
+                } else {
+                    navigate("/product-list");
+                }
+            }, 2000);
         } catch (error) {
-            console.error('Lỗi xác thực với backend:', error);
-            alert('Xác thực với backend thất bại.');
+            toast.dismiss()
+            toast.error(error.message, { duration: 5000 });
         }
     };
 
     // Hàm xử lý đăng nhập Google thất bại
     const handleGoogleError = () => {
-        console.log('Google Login Failed');
-        alert('Đăng nhập thất bại hãy thử lại sau');
+        toast.error("Đăng nhập Google thất bại. Vui lòng thử lại!");
     };
 
     // Hàm xử lý chuyển đổi giữa 2 trang login và signup
@@ -115,14 +129,9 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess, o
                         </div>
                     )}
 
-                    {/* Hiển thị thông báo lỗi hoặc thành công */}
-                    {message && (
-                        <p className={isSuccess ? styles.successMessage : styles.errorMessage}>
-                            {message}
-                        </p>
-                    )}
-
-                    <button type='submit' className={styles.submitBtn}>
+                    <button type='submit'
+                            className={styles.submitBtn}
+                            disabled={isSubmitting}>
                         {buttonText}
                     </button>
                 </form>
@@ -141,7 +150,10 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess, o
                     </div>
                 </div>
 
-                <button className={styles.switchBtn} onClick={handleSwitchPage}>
+                <button className={styles.switchBtn}
+                        onClick={handleSwitchPage}
+                        disabled={isSubmitting}
+                >
                     {formType === 'login' ? 'Create New Account' : 'Back To Login'}
                 </button>
             </div>

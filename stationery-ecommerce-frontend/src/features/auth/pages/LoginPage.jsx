@@ -3,6 +3,7 @@ import React, {useState} from 'react';
 import {login} from "../../../api/authApi";
 import AuthForm from "../components/AuthForm";
 import {useNavigate, useLocation} from "react-router-dom";
+import toast from "react-hot-toast";
 
 const LoginPage = () => {
     const location = useLocation();
@@ -10,23 +11,7 @@ const LoginPage = () => {
 
     const [message, setMessage] = useState('');
     const [isSuccess, setIsSuccess] = useState(false);
-
-    const handleSubmitSuccess = (token) => {
-        localStorage.setItem('token', token);
-        setMessage("Đăng nhập thành công");
-        setIsSuccess(true);
-
-        const searchParams = new URLSearchParams(location.search);
-        const redirectPath = searchParams.get("redirect");
-
-        setTimeout(() => {
-            if (redirectPath) {
-                navigate(redirectPath);
-            } else {
-                navigate("/product-list");
-            }
-        }, 1000);
-    };
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (formData) => {
         if (formData.error) {
@@ -35,12 +20,35 @@ const LoginPage = () => {
             return
         }
 
+        setIsSubmitting(true)
+        setMessage('')
+
+        toast.dismiss()
+        const toastId = toast.loading("Đang xử lý đăng nhập...");
+
         try {
-            const data = await login(formData.email, formData.password);
-            handleSubmitSuccess(data.token);
+            await login(formData.email, formData.password);
+
+            toast.success(
+                'Đăng nhập thành công. Đang chuyển hướng tới trang mua hàng...',
+                { id: toastId, duration: 2000 }
+            );
+
+            const searchParams = new URLSearchParams(location.search);
+            const redirectPath = searchParams.get("redirect");
+
+            setTimeout(() => {
+                if (redirectPath) {
+                    navigate(redirectPath);
+                } else {
+                    navigate("/product-list");
+                }
+            }, 2000);
         } catch (error) {
-            setMessage(error.message);
             setIsSuccess(false);
+            toast.error(error.message, { id: toastId, duration: 5000 });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -52,7 +60,7 @@ const LoginPage = () => {
             onSubmit={handleSubmit}
             message={message}
             isSuccess={isSuccess}
-            onGoogleSuccess={handleSubmitSuccess}
+            isSubmitting={isSubmitting}
         />
     );
 };

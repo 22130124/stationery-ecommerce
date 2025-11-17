@@ -1,5 +1,5 @@
 // authApi.js
-import {API_URLS} from "../config/apiConfig";
+import {API_URLS} from '../config/apiConfig';
 
 const BASE_URL = `${API_URLS.auth}/api/auth`;
 
@@ -8,32 +8,50 @@ const postAuthRequest = async (endpoint, payload) => {
 
     try {
         response = await fetch(`${BASE_URL}/${endpoint}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
         });
     } catch (error) {
         console.error(`${endpoint} failed:`, error);
         throw new Error(
-            "Unable to connect to the server. Please check your network connection or try again later"
+            'Unable to connect to the server. Please check your network connection or try again later'
         );
     }
 
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(data.message || "Something went wrong");
+        throw new Error(data.message || 'Something went wrong');
     }
 
     return data;
-};
+}
+
+export const verifyAccount = async (token) => {
+    let response;
+
+    try {
+        response = await fetch(`${BASE_URL}/verify?token=${token}`)
+    } catch (error) {
+        console.error(`Xác minh thất bại:`, error);
+        throw new Error(
+            'Không thể kết nối tới máy chủ. Vui lòng kiểm tra lại kết nối hoặc thử lại sau'
+        );
+    }
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Có lỗi xảy ra');
+
+    return data
+}
 
 export const signUp = (email, password) =>
-    postAuthRequest("signup", { email, password });
+    postAuthRequest('signup', { email, password })
 
 export const login = (email, password) =>
-    postAuthRequest("login", { email, password });
+    postAuthRequest('login', { email, password })
 
 
 export const loginWithGoogle = (googleAccessToken) =>
-    postAuthRequest("google", { token: googleAccessToken });
+    postAuthRequest('google', { token: googleAccessToken })

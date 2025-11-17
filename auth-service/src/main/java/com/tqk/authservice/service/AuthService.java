@@ -15,6 +15,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +33,10 @@ public class AuthService {
     private final AccountRepository accountRepository;
     private final AuthProviderRepository authProviderRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailVerificationService emailVerificationService;
+
+    @Autowired
+    private JavaMailSender mailSender;
 
     @Value("${JWT_SECRET}")
     private String jwtSecret;
@@ -43,10 +48,12 @@ public class AuthService {
     private String googleClientId;
 
     @Autowired
-    public AuthService(AccountRepository accountRepository, AuthProviderRepository authProviderRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(AccountRepository accountRepository, AuthProviderRepository authProviderRepository,
+                       PasswordEncoder passwordEncoder, EmailVerificationService emailVerificationService) {
         this.accountRepository = accountRepository;
         this.authProviderRepository = authProviderRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailVerificationService = emailVerificationService;
     }
 
     public String login(AuthRequest request) {
@@ -59,6 +66,14 @@ public class AuthService {
 
         if (!passwordEncoder.matches(password, authProvider.getPassword())) {
             throw new AuthException("Thông tin đăng nhập không chính xác");
+        }
+
+        if (!account.isVerified()) {
+            throw new AuthException("Vui lòng vào hộp thư email để kích hoạt tài khoản");
+        }
+
+        if (!account.isActiveStatus()) {
+            throw new AuthException("Tài khoản đã bị khóa. Vui lòng liên hệ qua gmail 22130124@st.hcmuaf.edu.vn để được hỗ trợ");
         }
 
         UserDetails userDetails = buildUserDetails(account);
@@ -126,6 +141,7 @@ public class AuthService {
         account.setEmail(email);
         account.setRole("USER");
         account.setActiveStatus(true);
+        account.setVerified(false);
         accountRepository.save(account);
 
         AuthProvider authProvider = new AuthProvider();
@@ -133,6 +149,8 @@ public class AuthService {
         authProvider.setProvider("email");
         authProvider.setPassword(passwordEncoder.encode(password));
         authProviderRepository.save(authProvider);
+
+        emailVerificationService.sendVerificationEmail(account);
 
         return account.getId();
     }

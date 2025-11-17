@@ -3,24 +3,23 @@ package com.tqk.authservice.controller;
 import com.tqk.authservice.dto.request.AuthRequest;
 import com.tqk.authservice.dto.request.GoogleAuthRequest;
 import com.tqk.authservice.service.AuthService;
+import com.tqk.authservice.service.EmailVerificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthService authService;
+    private final EmailVerificationService emailVerificationService;
 
     @Autowired
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, EmailVerificationService emailVerificationService) {
         this.authService = authService;
+        this.emailVerificationService = emailVerificationService;
     }
 
 
@@ -42,5 +41,11 @@ public class AuthController {
     private ResponseEntity<?> signUp(@RequestBody AuthRequest request) {
         Integer accountId = authService.signUp(request);
         return ResponseEntity.ok(accountId);
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<?> verifyAccount(@RequestParam("token") String token) {
+        emailVerificationService.verifyAccount(token);
+        return ResponseEntity.ok(Map.of("message", "Xác minh tài khoản thành công"));
     }
 }
