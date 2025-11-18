@@ -4,15 +4,15 @@ import com.tqk.categoryservice.dto.response.CategoryResponse;
 import com.tqk.categoryservice.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Controller
-@RequestMapping("/api/categories")
+@RestController
+@RequestMapping("/categories")
 public class CategoryController {
     private final CategoryService categoryService;
 
@@ -33,7 +33,7 @@ public class CategoryController {
         return ResponseEntity.ok(category);
     }
 
-    @GetMapping("/slug/{slug}")
+    @GetMapping("/by-slug/{slug}")
     public ResponseEntity<CategoryResponse> getCategoryBySlug(@PathVariable String slug) {
         CategoryResponse category = categoryService.getCategoryBySlug(slug);
         return ResponseEntity.ok(category);

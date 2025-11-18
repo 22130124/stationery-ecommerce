@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      routes:
+
+        - id: auth_route
+          uri: http://auth-service:8080
+          predicates:
+            - Path=/auth/**
+
+        - id: product_route
+          uri: http://product-service:8080
+          predicates:
+            - Path=/products/**
+
+        - id: category_route
+          uri: http://category-service:8080
+          predicates:
+            - Path=/categories/**
+
+        - id: supplier_route
+          uri: http://supplier-service:8080
+          predicates:
+            - Path=/suppliers/**
+
+        - id: brand_route
+          uri: http://brand-service:8080
+          predicates:
+            - Path=/brands/**

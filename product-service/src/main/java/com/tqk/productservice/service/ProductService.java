@@ -1,17 +1,16 @@
 package com.tqk.productservice.service;
 
-import com.tqk.productservice.dto.response.*;
 import com.tqk.productservice.dto.request.ProductImageRequest;
 import com.tqk.productservice.dto.request.ProductRequest;
 import com.tqk.productservice.dto.request.ProductVariantRequest;
+import com.tqk.productservice.dto.response.*;
 import com.tqk.productservice.exception.ProductNotFoundException;
-import com.tqk.productservice.model.*;
+import com.tqk.productservice.model.Product;
+import com.tqk.productservice.model.ProductImage;
+import com.tqk.productservice.model.ProductVariant;
 import com.tqk.productservice.repository.product.ProductImageRepository;
 import com.tqk.productservice.repository.product.ProductRepository;
 import com.tqk.productservice.repository.product.ProductVariantRepository;
-import com.tqk.productservice.service.client.BrandClient;
-import com.tqk.productservice.service.client.CategoryClient;
-import com.tqk.productservice.service.client.SupplierClient;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,51 +26,54 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductVariantRepository productVariantRepository;
     private final ProductImageRepository productImageRepository;
-    private final CategoryClient categoryClient;
-    private final BrandClient brandClient;
-    private final SupplierClient supplierClient;
 
     private static final String CODE_PREFIX = "SP";
     private static final int INITIAL_CODE_NUMBER = 1000;
 
     @Autowired
-    public ProductService(ProductRepository productRepository, ProductVariantRepository productVariantRepository, ProductImageRepository productImageRepository, CategoryClient categoryClient, BrandClient brandClient, SupplierClient supplierClient) {
+    public ProductService(ProductRepository productRepository, ProductVariantRepository productVariantRepository, ProductImageRepository productImageRepository) {
         this.productRepository = productRepository;
         this.productVariantRepository = productVariantRepository;
         this.productImageRepository = productImageRepository;
-        this.supplierClient = supplierClient;
-        this.categoryClient = categoryClient;
-        this.brandClient = brandClient;
     }
 
     // Hàm lấy ra danh sách sản phẩm đang hoạt động (activeStatus = true)
-    public List<ProductResponse> getProducts() {
-        List<Product> products = productRepository.findByActiveStatusTrue();
+    public List<ProductResponse> getAllForAdmin() {
+        List<Product> products = productRepository.findAll();
         List<ProductResponse> productResponseList = new ArrayList<>();
         if (!products.isEmpty()) {
-            products.forEach(product -> productResponseList.add(convert(product)));
+            products.forEach(product -> productResponseList.add(product.convertToDto()));
         }
         return productResponseList;
     }
 
     // Hàm lấy ra danh sách sản phẩm theo danh mục (có phân trang)
-    public ProductListResponse getByCategorySlugAndPagination(String categorySlug, int page, int size) {
+    public ProductListResponse getByCategory(Integer categoryId, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Product> productPage;
-        if(categorySlug.equalsIgnoreCase("all")) {
-            productPage = productRepository.findAll(pageable);
-        } else {
-            CategoryResponse category = categoryClient.getBySlug(categorySlug);
-            productPage = productRepository.findByCategoryId(category.getId(), pageable);
-        }
+        productPage = productRepository.findByCategoryIdAndActiveStatusTrue(categoryId, pageable);
 
         ProductListResponse productListResponse = new ProductListResponse();
-        List<ProductResponse> productResponses = productPage.getContent().stream().map(this::convert).toList();
+        List<ProductResponse> productResponses = productPage.getContent().stream().map(Product::convertToDto).toList();
         productListResponse.setProducts(productResponses);
         productListResponse.setTotalPages(productPage.getTotalPages());
         productListResponse.setTotalItems(productPage.getTotalElements());
         productListResponse.setCurrentPage(productPage.getNumber() + 1);
 
+        return productListResponse;
+    }
+
+    public ProductListResponse getAllForUser(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Product> productPage;
+        productPage = productRepository.findByActiveStatusTrue(pageable);
+
+        ProductListResponse productListResponse = new ProductListResponse();
+        List<ProductResponse> productResponses = productPage.getContent().stream().map(Product::convertToDto).toList();
+        productListResponse.setProducts(productResponses);
+        productListResponse.setTotalPages(productPage.getTotalPages());
+        productListResponse.setTotalItems(productPage.getTotalElements());
+        productListResponse.setCurrentPage(productPage.getNumber() + 1);
 
         return productListResponse;
     }
@@ -79,7 +81,7 @@ public class ProductService {
     // Hàm lấy ra sản phẩm theo slug
     public ProductResponse getBySlug(String slug) {
         Product product = productRepository.findBySlug(slug).orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm với slug: " + slug));
-        return convert(product);
+        return product.convertToDto();
     }
 
     // Hàm tạo sản phẩm mới
@@ -131,7 +133,7 @@ public class ProductService {
         savedProduct.setVariants(savedVariants);
 
         // Trả về DTO
-        return convert(savedProduct);
+        return savedProduct.convertToDto();
     }
 
     // Hàm cập nhật thông tin mới cho sản phẩm
@@ -207,7 +209,7 @@ public class ProductService {
             saveProductImages(productRequest.getImages(), updatedProduct, null);
         }
 
-        return convert(updatedProduct);
+        return updatedProduct.convertToDto();
     }
 
     // Hàm hỗ trợ lưu ảnh
@@ -252,21 +254,5 @@ public class ProductService {
 
         // Định dạng lại thành chuỗi code sản phẩm
         return CODE_PREFIX + nextNumber;
-    }
-
-    // Hàm chuyển đổi Product thành Dto
-    public ProductResponse convert(Product product) {
-        ProductResponse dto = product.convertToDto();
-
-        CategoryResponse category = categoryClient.getById(product.getCategoryId());
-        dto.setCategory(category);
-
-        BrandResponse brand = brandClient.getById(product.getBrandId());
-        dto.setBrand(brand);
-
-        SupplierResponse supplier = supplierClient.getById(product.getSupplierId());
-        dto.setSupplier(supplier);
-
-        return dto;
     }
 }

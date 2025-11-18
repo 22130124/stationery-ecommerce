@@ -4,7 +4,7 @@ services:
     ports:
       - "3307:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./mysql-init:/docker-entrypoint-initdb.d
@@ -17,17 +17,42 @@ services:
     networks:
       - backend
 
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "${API_GATEWAY_HOST_PORT}:8080"
+    environment:
+      JWT_SECRET: "${JWT_SECRET}" 
+    networks:
+      - backend
+    entrypoint: ["java", "-jar", "app.jar"]
+
+  auth-service:
+    build: ./auth-service
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${AUTH_DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
+      SPRING_DATASOURCE_USERNAME: "${DB_USERNAME}"
+      SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
+      GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID}"
+      JWT_SECRET: "${JWT_SECRET}"
+      JWT_EXPIRATION: "${JWT_EXPIRATION}"
+      SPRING_MAIL_HOST: "smtp.gmail.com"
+      SPRING_MAIL_PORT: "587"
+      SPRING_MAIL_USERNAME: "${MAIL_USERNAME}"
+      SPRING_MAIL_PASSWORD: "${MAIL_PASSWORD}"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - backend
+    entrypoint: ["./wait-for-it.sh", "mysql:3306", "--", "java", "-jar", "app.jar"]
+
   product-service:
     build: ./product-service
-    ports:
-      - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/product_service_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
-      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${PRODUCT_DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
+      SPRING_DATASOURCE_USERNAME: "${DB_USERNAME}"
       SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
-      SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
-      SPRING_LOGGING_PATTERN_CONSOLE: "%d{HH:mm:ss} %-5level %logger{36} %msg%n"
-      SERVER_PORT: "8080"
     depends_on:
       mysql:
         condition: service_healthy
@@ -37,15 +62,10 @@ services:
 
   category-service:
     build: ./category-service
-    ports:
-      - "8081:8081"
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/category_service_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
-      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${CATEGORY_DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
+      SPRING_DATASOURCE_USERNAME: "${DB_USERNAME}"
       SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
-      SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
-      SPRING_LOGGING_PATTERN_CONSOLE: "%d{HH:mm:ss} %-5level %logger{36} %msg%n"
-      SERVER_PORT: "8081"
     depends_on:
       mysql:
         condition: service_healthy
@@ -55,15 +75,10 @@ services:
 
   supplier-service:
     build: ./supplier-service
-    ports:
-      - "8082:8082"
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/supplier_service_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
-      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${SUPPLIER_DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
+      SPRING_DATASOURCE_USERNAME: "${DB_USERNAME}"
       SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
-      SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
-      SPRING_LOGGING_PATTERN_CONSOLE: "%d{HH:mm:ss} %-5level %logger{36} %msg%n"
-      SERVER_PORT: "8082"
     depends_on:
       mysql:
         condition: service_healthy
@@ -73,40 +88,10 @@ services:
 
   brand-service:
     build: ./brand-service
-    ports:
-      - "8083:8083"
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/brand_service_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
-      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${BRAND_DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
+      SPRING_DATASOURCE_USERNAME: "${DB_USERNAME}"
       SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
-      SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
-      SPRING_LOGGING_PATTERN_CONSOLE: "%d{HH:mm:ss} %-5level %logger{36} %msg%n"
-      SERVER_PORT: "8083"
-    depends_on:
-      mysql:
-        condition: service_healthy
-    networks:
-      - backend
-    entrypoint: ["./wait-for-it.sh", "mysql:3306", "--", "java", "-jar", "app.jar"]
-
-  auth-service:
-    build: ./auth-service
-    ports:
-      - "8084:8084"
-    environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/auth_service_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
-      SPRING_DATASOURCE_USERNAME: "root"
-      SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
-      SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
-      SPRING_LOGGING_PATTERN_CONSOLE: "%d{HH:mm:ss} %-5level %logger{36} %msg%n"
-      SERVER_PORT: "8084"
-      GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID}"
-      JWT_SECRET: "${JWT_SECRET}"
-      JWT_EXPIRATION: "${JWT_EXPIRATION}"
-      SPRING_MAIL_HOSTHOST: "smtp.gmail.com"
-      SPRING_MAIL_PORT: "587"
-      SPRING_MAIL_USERNAME: "${MAIL_USERNAME}"
-      SPRING_MAIL_PASSWORD: "${MAIL_PASSWORD}"
     depends_on:
       mysql:
         condition: service_healthy

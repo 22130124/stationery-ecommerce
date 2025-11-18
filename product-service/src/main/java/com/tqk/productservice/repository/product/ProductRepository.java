@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
-    List<Product> findByActiveStatusTrue();
-
-    Page<Product> findByCategoryId(Integer categoryId, Pageable pageable);
-
     Optional<Product> findBySlug(String slug);
 
     Product findTopByOrderByIdDesc();
+
+    Page<Product> findByCategoryIdAndActiveStatusTrue(Integer categoryId, Pageable pageable);
+
+    Page<Product> findByActiveStatusTrue(Pageable pageable);
 }

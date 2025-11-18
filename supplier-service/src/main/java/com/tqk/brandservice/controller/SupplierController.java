@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/suppliers")
+@RequestMapping("/suppliers")
 public class SupplierController {
     private final SupplierService supplierService;
 

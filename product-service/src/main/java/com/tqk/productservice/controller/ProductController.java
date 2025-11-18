@@ -15,15 +15,17 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/products")
 @EntityListeners(AuditingEntityListener.class)
 public class ProductController {
     @Autowired
     private ProductService productService;
 
+    // ============ ADMIN =============
+
     @GetMapping("/admin")
-    public ResponseEntity<?> getAll() {
-        List<ProductResponse> products = productService.getProducts();
+    public ResponseEntity<?> getAllForAdmin() {
+        List<ProductResponse> products = productService.getAllForAdmin();
         Map<String, Object> response = Map.of("products", products);
         return ResponseEntity.ok(response);
     }
@@ -48,11 +50,12 @@ public class ProductController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity<?> getProductsByCategorySlugAndPagination(@RequestParam(name = "categorySlug", required = false, defaultValue = "all") String categorySlug,
-                                                                @RequestParam(name = "page", required = false, defaultValue = "1") int page,
-                                                                @RequestParam(name = "limit", required = false, defaultValue = "12") int size) {
-        ProductListResponse result = productService.getByCategorySlugAndPagination(categorySlug, page, size);
+    // ========== USER ===========
+
+    @GetMapping()
+    public ResponseEntity<?> getAllForUser(@RequestParam(name = "page", required = false, defaultValue = "1") int page,
+                                           @RequestParam(name = "limit", required = false, defaultValue = "12") int size) {
+        ProductListResponse result = productService.getAllForUser(page, size);
         Map<String, Object> response = Map.of(
                 "products", result.getProducts(),
                 "currentPage", result.getCurrentPage(),
@@ -62,7 +65,21 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/slug/{slug}")
+    @GetMapping("/by-category")
+    public ResponseEntity<?> getProductsByCategory(@RequestParam(name = "categoryId", required = false, defaultValue = "all") Integer categoryId,
+                                                   @RequestParam(name = "page", required = false, defaultValue = "1") int page,
+                                                   @RequestParam(name = "limit", required = false, defaultValue = "12") int size) {
+        ProductListResponse result = productService.getByCategory(categoryId, page, size);
+        Map<String, Object> response = Map.of(
+                "products", result.getProducts(),
+                "currentPage", result.getCurrentPage(),
+                "totalPages", result.getTotalPages(),
+                "totalItems", result.getTotalItems()
+        );
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/by-slug/{slug}")
     public ResponseEntity<?> getProductBySlug(@PathVariable("slug") String slug) {
         ProductResponse product = productService.getBySlug(slug);
         Map<String, Object> response = Map.of("product", product);

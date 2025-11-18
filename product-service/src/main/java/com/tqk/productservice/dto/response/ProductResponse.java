@@ -11,9 +11,6 @@ public class ProductResponse {
     private String code;
     private String name;
     private String description;
-    private CategoryResponse category;
-    private SupplierResponse supplier;
-    private BrandResponse brand;
     private String origin;
     private String slug;
     private double rating;
