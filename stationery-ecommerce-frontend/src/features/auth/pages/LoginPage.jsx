@@ -4,6 +4,7 @@ import {login} from "../../../api/authApi";
 import AuthForm from "../components/AuthForm";
 import {useNavigate, useLocation} from "react-router-dom";
 import toast from "react-hot-toast";
+import { jwtDecode } from "jwt-decode";
 
 const LoginPage = () => {
     const location = useLocation();
@@ -29,21 +30,26 @@ const LoginPage = () => {
         try {
             const data = await login(formData.email, formData.password);
 
+            localStorage.setItem("token", data.token);
+
+            const decoded = jwtDecode(data.token);
+            const role = decoded.role || decoded.roles;
+
             toast.success(
-                'Đăng nhập thành công. Đang chuyển hướng tới trang mua hàng...',
+                'Đăng nhập thành công. Đang chuyển hướng...',
                 { id: toastId, duration: 2000 }
             );
-
-            localStorage.setItem("token", data.token);
 
             const searchParams = new URLSearchParams(location.search);
             const redirectPath = searchParams.get("redirect");
 
             setTimeout(() => {
-                if (redirectPath) {
-                    navigate(redirectPath);
+                if (role === "ADMIN") {
+                    navigate("/admin/product-management");
                 } else {
-                    navigate("/product-list");
+                    const searchParams = new URLSearchParams(location.search);
+                    const redirectPath = searchParams.get("redirect");
+                    navigate(redirectPath || "/product-list");
                 }
             }, 2000);
         } catch (error) {
