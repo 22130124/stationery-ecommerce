@@ -44,6 +44,14 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping("/admin/{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable("id") Integer id) {
+        productService.deleteProduct(id);
+        Map<String, Object> response = Map.of("message", "Sản phẩm đã được xóa thành công");
+        return ResponseEntity.ok(response);
+    }
+
+
     // ========== USER ===========
 
     @GetMapping()

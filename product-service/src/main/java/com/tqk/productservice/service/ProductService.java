@@ -255,4 +255,21 @@ public class ProductService {
         // Định dạng lại thành chuỗi code sản phẩm
         return CODE_PREFIX + nextNumber;
     }
+
+    @Transactional
+    public void deleteProduct(Integer productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm với id: " + productId));
+
+        // Xóa tất cả biến thể và ảnh liên quan
+        List<ProductVariant> variants = productVariantRepository.findByProduct(product);
+        for (ProductVariant variant : variants) {
+            List<ProductImage> variantImages = productImageRepository.findByVariant(variant);
+            productImageRepository.deleteAll(variantImages);
+        }
+        productVariantRepository.deleteAll(variants);
+
+        // Xóa sản phẩm
+        productRepository.delete(product);
+    }
 }

@@ -119,3 +119,31 @@ export const updateProduct = async (productId, productData) => {
 
     return data;
 };
+
+export const deleteProduct = async (productId) => {
+    let response;
+    const token = localStorage.getItem('token');
+
+    try {
+        response = await fetch(`${BASE_URL}/admin/${productId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+        });
+    } catch (error) {
+        throw new Error(
+            'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối hoặc thử lại sau'
+        );
+    }
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Xóa sản phẩm thất bại');
+    }
+
+    return data;
+};
+

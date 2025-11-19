@@ -1,8 +1,9 @@
 import React, {useState, useEffect} from 'react';
-import {Table} from 'antd';
+import {Table, Modal} from 'antd';
 import styles from './ProductManagementPage.module.scss';
 import ProductFormModal from "../components/modals/ProductFormModal";
-import {addProduct, getAllProducts, updateProduct} from "../../../api/productApi";
+import {addProduct, deleteProduct, getAllProducts, updateProduct} from "../../../api/productApi";
+import toast from "react-hot-toast";
 
 const ProductManagementPage = () => {
     const [products, setProducts] = useState([]);
@@ -10,6 +11,8 @@ const ProductManagementPage = () => {
     const [searchText, setSearchText] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
+
+    const {confirm} = Modal;
 
     // Hàm fetch products khi mới vào trang
     useEffect(() => {
@@ -55,6 +58,26 @@ const ProductManagementPage = () => {
         } catch (error) {
             console.error('Cập nhật sản phẩm thất bại:', error);
         }
+    };
+
+    const handleDeleteProduct = async (id) => {
+        const response = await deleteProduct(id)
+        toast.dismiss()
+        setProducts(prev =>
+            prev.filter(p => p.id !== id)
+        );
+        toast.success('Xóa sản phẩm thành công', {duration: 3000})
+    }
+
+    const showDeleteConfirm = (product, onOk) => {
+        confirm({
+            title: 'Xóa sản phẩm',
+            content: `Bạn có chắc chắn muốn xóa sản phẩm "${product.name}" không?`,
+            okText: 'Xác nhận',
+            okType: 'danger',
+            cancelText: 'Hủy',
+            onOk,
+        });
     };
 
     // Hàm chỉnh định dạng tiền VND
@@ -164,8 +187,11 @@ const ProductManagementPage = () => {
                     >
                         Sửa
                     </button>
-                    <button className={`${styles.actionButton} ${styles.deleteBtn}`}
-                            onClick={() => console.log('Delete', record.id)}>Xóa
+                    <button
+                        className={`${styles.actionButton} ${styles.deleteBtn}`}
+                        onClick={() => showDeleteConfirm(record, () => handleDeleteProduct(record.id))}
+                    >
+                        Xóa
                     </button>
                 </div>
             ),
