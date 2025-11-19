@@ -8,6 +8,8 @@ const Sidebar = ({ categories }) => {
 
     const selectedCategorySlug = searchParams.get("category") || 'all';
 
+    console.log("categories", categories);
+
     const displayCategories = [
         {
             id: 'all',
@@ -16,6 +18,7 @@ const Sidebar = ({ categories }) => {
         },
         ...categories,
     ];
+    console.log("categories", categories);
 
     const toggleCategory = (id) => {
         setOpeningCategories(prev => ({

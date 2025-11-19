@@ -30,3 +30,8 @@ spring:
           uri: http://brand-service:8080
           predicates:
             - Path=/brands/**
+
+        - id: upload_route
+          uri: http://upload-service:8080
+          predicates:
+            - Path=/upload/**

@@ -225,15 +225,15 @@ const ProductFormModal = ({visible, onClose, onSubmit, editingProduct}) => {
                     />
                 </Form.Item>
 
-                <Form.Item name="images"
-                           label="Ảnh sản phẩm (chung)">
-                    <ProductImages
-                        value={form.getFieldValue('images')}
-                        onChange={(imgs) => form.setFieldsValue({images: imgs})}
-                        onUploadingChange={handleImagesUploadingChange}
-                        allowSetDefault={true}
-                    />
-                </Form.Item>
+                {/*<Form.Item name="images"*/}
+                {/*           label="Ảnh sản phẩm (chung)">*/}
+                {/*    <ProductImages*/}
+                {/*        value={form.getFieldValue('images')}*/}
+                {/*        onChange={(imgs) => form.setFieldsValue({images: imgs})}*/}
+                {/*        onUploadingChange={handleImagesUploadingChange}*/}
+                {/*        allowSetDefault={true}*/}
+                {/*    />*/}
+                {/*</Form.Item>*/}
 
                 <ProductVariantsForm form={form} handleImagesUploadingChange={handleImagesUploadingChange}/>
 

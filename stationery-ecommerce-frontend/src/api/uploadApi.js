@@ -1,7 +1,7 @@
 // src/api/uploadApi.js
-import {API_URL} from "../config/apiConfig";
+import {API_URLS} from "../config/apiConfig"
 
-const BASE_URL = `${API_URL}/api/upload`;
+const BASE_URL = `${API_URLS.upload}`
 
 const getAuthHeader = () => {
     const token = localStorage.getItem('token');

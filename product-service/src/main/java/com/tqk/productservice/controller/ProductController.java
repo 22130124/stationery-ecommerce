@@ -33,7 +33,8 @@ public class ProductController {
     @PostMapping("/admin")
     public ResponseEntity<?> createProduct(@RequestBody ProductRequest productRequest) {
         ProductResponse product = productService.createProduct(productRequest);
-        return new ResponseEntity<>(product, HttpStatus.CREATED);
+        Map<String, Object> response = Map.of("product", product);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PutMapping("/admin/{id}")

@@ -14,7 +14,7 @@ export const getAllProducts = async () => {
             },
         });
     } catch (error) {
-        throw new Error('Unable to connect to the server. Please check your network connection or try again later')
+        throw new Error('Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối hoặc thử lại sau')
     }
 
     const data = await response.json();
@@ -32,9 +32,8 @@ export const getProductsByCategory = async (requestParams) => {
     try {
         response = await fetch(`${BASE_URL}/by-category?${queryString}`);
     } catch (error) {
-        console.error(`Get products failed:`, error);
         throw new Error(
-            'Không thể kết nối đến máy chủ. Vui lòng thử lại sau'
+            'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối hoặc thử lại sau'
         );
     }
 
@@ -53,9 +52,8 @@ export const getProductBySlug = async (slug) => {
     try {
         response = await fetch(`${BASE_URL}/by-slug/${slug}`);
     } catch (error) {
-        console.error(`Fetch product failed:`, error);
         throw new Error(
-            'Unable to connect to the server. Please check your network connection or try again later'
+            'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối hoặc thử lại sau'
         );
     }
     const data = await response.json();
@@ -80,16 +78,15 @@ export const addProduct = async (productData) => {
             body: JSON.stringify(productData),
         });
     } catch (error) {
-        console.error(`Add product failed:`, error);
         throw new Error(
-            'Unable to connect to the server. Please check your network connection or try again later'
+            'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối hoặc thử lại sau'
         );
     }
 
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(data.message || 'Failed to add product');
+        throw new Error(data.message || 'Thêm sản phẩm mới thất bại')
     }
 
     return data;
@@ -109,16 +106,15 @@ export const updateProduct = async (productId, productData) => {
             body: JSON.stringify(productData),
         });
     } catch (error) {
-        console.error(`Update product failed:`, error);
         throw new Error(
-            'Unable to connect to the server. Please check your network connection or try again later'
+            'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối hoặc thử lại sau'
         );
     }
 
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(data.message || 'Failed to update product');
+        throw new Error(data.message || 'Cập nhật sản phẩm thất bại');
     }
 
     return data;

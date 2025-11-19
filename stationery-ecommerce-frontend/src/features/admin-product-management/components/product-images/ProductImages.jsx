@@ -51,7 +51,7 @@ const ProductImages = ({value = [], onChange, onUploadingChange, allowSetDefault
 
         let updatedImages;
         if (images.length === 0 && newImages.length > 0) {
-            newImages[0].isDefault = true;
+            newImages[0].defaultStatus = true;
             updatedImages = [...images, ...newImages];
         } else {
             updatedImages = [...images, ...newImages];
@@ -78,9 +78,10 @@ const ProductImages = ({value = [], onChange, onUploadingChange, allowSetDefault
             }
         }
     };
+    console.log("images", images);
 
     const setDefault = (fp) => {
-        const updatedImages = images.map(i => ({...i, isDefault: i.fingerprint === fp}));
+        const updatedImages = images.map(i => ({...i, defaultStatus: i.fingerprint === fp}));
         onChange?.(updatedImages);
         setOpened(null);
     };
@@ -135,7 +136,7 @@ const ProductImages = ({value = [], onChange, onUploadingChange, allowSetDefault
                 {normalizedImages.map(img => (
                     <div key={img.fingerprint} className={styles.imageCard}>
                         <img src={img.url} alt=""/>
-                        {img.isDefault && <span className={styles.defaultBadge}>Mặc định</span>}
+                        {img.defaultStatus && <span className={styles.defaultBadge}>Mặc định</span>}
 
                         {/* Overlay khi đang upload */}
                         {img.uploading && (
@@ -156,7 +157,7 @@ const ProductImages = ({value = [], onChange, onUploadingChange, allowSetDefault
 
                         {opened === img.fingerprint && !img.uploading && (
                             <div className={styles.menuDropdown} ref={dropdownRef} onClick={(e) => e.stopPropagation()}>
-                                {allowSetDefault && !img.isDefault &&
+                                {allowSetDefault && !img.defaultStatus &&
                                     <button onClick={() => setDefault(img)}>Đặt làm mặc định</button>}
                                 <button onClick={() => preview(img)}>Xem ảnh</button>
                                 <button onClick={() => removeImage(img)}>Xóa</button>

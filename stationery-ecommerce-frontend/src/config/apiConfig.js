@@ -7,4 +7,5 @@ export const API_URLS = {
     supplier: `${API_URL}/suppliers`,
     brand: `${API_URL}/brands`,
     auth: `${API_URL}/auth`,
+    upload: `${API_URL}/upload`,
 };

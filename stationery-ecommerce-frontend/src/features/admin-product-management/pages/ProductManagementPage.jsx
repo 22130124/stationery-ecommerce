@@ -31,6 +31,7 @@ const ProductManagementPage = () => {
         console.log(values);
         try {
             const data = await addProduct(values);
+            console.log("createdProduct:", data.product)
             setProducts(prev => [...prev, data.product]);
             setIsModalVisible(false);
             console.log('Sản phẩm mới đã được tạo:', data.product);
@@ -65,7 +66,7 @@ const ProductManagementPage = () => {
     // Helper function để tạo options cho bộ lọc từ dữ liệu
     const getColumnFilterOptions = (dataIndex) => {
         if (!products) return [];
-        const uniqueValues = [...new Set(products.map(p => p[dataIndex]?.name))];
+        const uniqueValues = [...new Set(products.map(p => p[dataIndex]?.name).filter(Boolean))];
         return uniqueValues.map(value => ({
             text: value,
             value: value,
@@ -73,8 +74,8 @@ const ProductManagementPage = () => {
     };
 
     const filteredData = products.filter(item =>
-        item.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        item.code.toLowerCase().includes(searchText.toLowerCase())
+        (item.name?.toLowerCase().includes(searchText.toLowerCase()) || false) ||
+        (item.code?.toLowerCase().includes(searchText.toLowerCase()) || false)
     );
 
     // Định nghĩa các cột cho bảng

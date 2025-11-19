@@ -85,18 +85,18 @@ public class Product {
         dto.setUpdatedAt(this.updatedAt);
 
         List<ProductImageResponse> imagesResponses = new ArrayList<>();
-        boolean isSetDefaultImage = false;
-        if (this.images != null && !this.images.isEmpty()) {
-            for (ProductImage productImage : this.images) {
-                if (productImage.getVariant() == null) {
-                    imagesResponses.add(productImage.convertToDto());
-                    if (productImage.isDefaultStatus()) {
-                        isSetDefaultImage = true;
-                        dto.setDefaultImage(productImage.convertToDto());
-                    }
-                }
-            }
-        }
+//        boolean isSetDefaultImage = false;
+//        if (this.images != null && !this.images.isEmpty()) {
+//            for (ProductImage productImage : this.images) {
+//                if (productImage.getVariant() == null) {
+//                    imagesResponses.add(productImage.convertToDto());
+//                    if (productImage.isDefaultStatus()) {
+//                        isSetDefaultImage = true;
+//                        dto.setDefaultImage(productImage.convertToDto());
+//                    }
+//                }
+//            }
+//        }
 
         List<ProductVariantResponse> variantResponses = new ArrayList<>();
         if (this.variants != null && !this.variants.isEmpty()) {
@@ -105,15 +105,15 @@ public class Product {
                 variantResponses.add(productVariantResponse);
                 if (productVariant.isDefaultStatus()) {
                     dto.setDefaultVariant(productVariantResponse);
-                    if (!isSetDefaultImage) {
-                        for (ProductImage productImage : productVariant.getImages()) {
-                            if (productImage.isDefaultStatus()) {
-                                isSetDefaultImage = true;
-                                dto.setDefaultImage(productImage.convertToDto());
-                                break;
-                            }
+//                    if (!isSetDefaultImage) {
+                    for (ProductImage productImage : productVariant.getImages()) {
+                        if (productImage.isDefaultStatus()) {
+//                            isSetDefaultImage = true;
+                            dto.setDefaultImage(productImage.convertToDto());
+                            break;
                         }
                     }
+//                    }
                 }
             }
         }

@@ -57,9 +57,9 @@ public class CategorySlugFilter implements GlobalFilter, Ordered {
                 .uri("http://category-service:8080/categories/by-slug/" + categorySlug)
                 .retrieve()
                 .bodyToMono(JsonNode.class)
-                .flatMap(categoryObj -> {
+                .flatMap(categoryData -> {
 
-                    Integer categoryId = categoryObj.get("id").asInt();
+                    Integer categoryId = categoryData.get("category").get("id").asInt();
 
                     // Build lại request URL, thay categorySlug bằng categoryId
                     URI newUri = UriComponentsBuilder

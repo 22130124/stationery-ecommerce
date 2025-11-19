@@ -99,6 +99,14 @@ services:
       - backend
     entrypoint: ["./wait-for-it.sh", "mysql:3306", "--", "java", "-jar", "app.jar"]
 
+  upload-service:
+    build: ./upload-service
+    environment:
+      CLOUDINARY_URL: "${CLOUDINARY_URL}"
+    networks:
+      - backend
+    entrypoint: ["java", "-jar", "app.jar"]
+
 volumes:
   mysql_data:
 
