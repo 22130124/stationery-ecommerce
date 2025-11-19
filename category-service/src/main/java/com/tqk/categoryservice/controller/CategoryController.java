@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/categories")
@@ -24,18 +25,21 @@ public class CategoryController {
     @GetMapping
     public ResponseEntity<?> getCategories() {
         List<CategoryResponse> categories = categoryService.getCategories();
-        return ResponseEntity.ok(categories);
+        Map<String, Object> response = Map.of("categories", categories);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable Integer id) {
+    public ResponseEntity<?> getCategoryById(@PathVariable Integer id) {
         CategoryResponse category = categoryService.getCategoryById(id);
-        return ResponseEntity.ok(category);
+        Map<String, Object> response = Map.of("category", category);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/by-slug/{slug}")
-    public ResponseEntity<CategoryResponse> getCategoryBySlug(@PathVariable String slug) {
+    public ResponseEntity<?> getCategoryBySlug(@PathVariable String slug) {
         CategoryResponse category = categoryService.getCategoryBySlug(slug);
-        return ResponseEntity.ok(category);
+        Map<String, Object> response = Map.of("category", category);
+        return ResponseEntity.ok(response);
     }
 }

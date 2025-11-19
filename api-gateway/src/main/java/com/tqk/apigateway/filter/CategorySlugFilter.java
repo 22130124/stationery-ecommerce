@@ -3,6 +3,7 @@ package com.tqk.apigateway.filter;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,7 +14,7 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 
 @Component
-public class CategorySlugFilter implements GlobalFilter {
+public class CategorySlugFilter implements GlobalFilter, Ordered {
 
     private final WebClient webClient;
 
@@ -23,62 +24,59 @@ public class CategorySlugFilter implements GlobalFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        String path = exchange.getRequest().getURI().getPath();
-        if (!path.startsWith("/products")) {
+        ServerHttpRequest request = exchange.getRequest();
+
+        // Chỉ xử lý path /products/by-category
+        if (!request.getURI().getPath().contains("/products/by-category")) {
             return chain.filter(exchange);
         }
-        // Lấy param category=<slug> từ request
-        String categorySlug = exchange.getRequest().getQueryParams().getFirst("category");
+
+        // Lấy query param categorySlug
+        String categorySlug = request.getQueryParams().getFirst("categorySlug");
+
+        // Nếu không có slug thì đi tiếp như bình thường
         if (categorySlug == null || categorySlug.isEmpty()) {
-            return chain.filter(exchange); // bỏ qua filter
+            return chain.filter(exchange);
         }
-        if ("all".equalsIgnoreCase(categorySlug)) {
-            // forward đến endpoint lấy tất cả sản phẩm
+
+        if (categorySlug.equalsIgnoreCase("all")) {
+            // Build request mới trỏ tới /products (getAllForUser)
             URI newUri = UriComponentsBuilder
-                    .fromUri(exchange.getRequest().getURI())
+                    .fromUri(request.getURI())
                     .replacePath("/products")
-                    .replaceQueryParam("category")
-                    .build()
+                    .replaceQueryParam("categorySlug")
+                    .build(true)
                     .toUri();
 
-            ServerHttpRequest newRequest = exchange.getRequest().mutate().uri(newUri).build();
+            ServerHttpRequest newRequest = request.mutate().uri(newUri).build();
             return chain.filter(exchange.mutate().request(newRequest).build());
-
-        } else {
-            // gọi category-service để lấy id
-            return webClient.get()
-                    .uri("http://category-service:8080/categories/by-slug/" + categorySlug)
-                    .retrieve()
-                    .onStatus(
-                            status -> status.value() == 404, // nếu 404 Not Found
-                            response -> Mono.empty() // trả về empty Mono để tiếp tục
-                    )
-                    .bodyToMono(JsonNode.class)
-                    .onErrorResume(e -> Mono.empty()) // bắt tất cả lỗi khác
-                    .flatMap(json -> {
-                        URI newUri;
-                        if (json == null || json.get("id") == null) {
-                            // slug không tồn tại, bỏ categoryId
-                            newUri = UriComponentsBuilder
-                                    .fromUri(exchange.getRequest().getURI())
-                                    .replaceQueryParam("categoryId")
-                                    .replaceQueryParam("category")
-                                    .build()
-                                    .toUri();
-                        } else {
-                            // slug hợp lệ, thêm categoryId
-                            String categoryId = json.get("id").asText();
-                            newUri = UriComponentsBuilder
-                                    .fromUri(exchange.getRequest().getURI())
-                                    .replaceQueryParam("categoryId", categoryId)
-                                    .replaceQueryParam("category")
-                                    .build()
-                                    .toUri();
-                        }
-                        ServerHttpRequest newRequest = exchange.getRequest().mutate().uri(newUri).build();
-                        return chain.filter(exchange.mutate().request(newRequest).build());
-                    });
         }
+
+        // Gọi category-service để lấy categoryId
+        return webClient.get()
+                .uri("http://category-service:8080/categories/by-slug/" + categorySlug)
+                .retrieve()
+                .bodyToMono(JsonNode.class)
+                .flatMap(categoryObj -> {
+
+                    Integer categoryId = categoryObj.get("id").asInt();
+
+                    // Build lại request URL, thay categorySlug bằng categoryId
+                    URI newUri = UriComponentsBuilder
+                            .fromUri(request.getURI())
+                            .replaceQueryParam("categorySlug")
+                            .replaceQueryParam("categoryId", categoryId)
+                            .build(true)
+                            .toUri();
+
+                    ServerHttpRequest newRequest = request.mutate().uri(newUri).build();
+
+                    return chain.filter(exchange.mutate().request(newRequest).build());
+                });
+    }
+
+    @Override
+    public int getOrder() {
+        return -1;
     }
 }
-

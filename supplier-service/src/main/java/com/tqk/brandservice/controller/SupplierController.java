@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,12 +26,14 @@ public class SupplierController {
     @GetMapping
     public ResponseEntity<?> getSuppliers() {
         List<SupplierResponse> suppliers = supplierService.getSuppliers();
-        return ResponseEntity.ok(suppliers);
+        Map<String, Object> response = Map.of("suppliers", suppliers);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Integer id) {
         SupplierResponse supplier = supplierService.getById(id);
-        return ResponseEntity.ok(supplier);
+        Map<String, Object> response = Map.of("supplier", supplier);
+        return ResponseEntity.ok(response);
     }
 }

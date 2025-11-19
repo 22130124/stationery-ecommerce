@@ -25,16 +25,18 @@ const ProductFormModal = ({visible, onClose, onSubmit, editingProduct}) => {
 
     const [imagesUploading, setImagesUploading] = useState(false);
 
-    // Nếu là chế độ chỉnh sửa thông tin sản phẩm thì gán editingProduct là sản phẩm hiện tại
+    // Nếu là chế độ chỉnh sửa thông tin sản phẩm thì gán thông tin editingProduct cho form
     useEffect(() => {
         if (editingProduct) {
             form.resetFields();
             form.setFieldsValue(editingProduct);
-            setSelectedSupplierId(editingProduct.supplier.id);
+
+            setSelectedSupplierId(editingProduct.supplierId);
+
             form.setFieldsValue({
-                brandId: editingProduct.brand.id,
-                supplierId: editingProduct.supplier.id,
-                categoryId: editingProduct.category.id,
+                brandId: editingProduct.brandId,
+                supplierId: editingProduct.supplierId,
+                categoryId: editingProduct.categoryId,
                 origin: editingProduct.origin,
             });
         } else {
@@ -116,8 +118,8 @@ const ProductFormModal = ({visible, onClose, onSubmit, editingProduct}) => {
                             name: '',
                             basePrice: null,
                             discountPrice: null,
-                            isActive: true,
-                            isDefault: true,
+                            activeStatus: true,
+                            defaultStatus: true,
                             images: [],
                         },
                     ],

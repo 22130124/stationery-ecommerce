@@ -1,47 +1,47 @@
 // src/api/productApi.js
-import {API_URLS} from "../config/apiConfig";
-const BASE_URL = `${API_URLS.product}/api/products`;
+import {API_URLS} from '../config/apiConfig';
+const BASE_URL = API_URLS.product
 
 export const getAllProducts = async () => {
     let response;
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
 
     try {
         response = await fetch(`${BASE_URL}/admin`, {
             headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
             },
         });
     } catch (error) {
-        throw new Error("Unable to connect to the server. Please check your network connection or try again later")
+        throw new Error('Unable to connect to the server. Please check your network connection or try again later')
     }
 
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(data.message || "Something went wrong")
+        throw new Error(data.message || 'Đã xảy ra lỗi')
     }
 
     return data;
 }
 
-export const getProductsByCategoryAndPagination = async (requestParams) => {
+export const getProductsByCategory = async (requestParams) => {
     const queryString = new URLSearchParams(requestParams).toString();
     let response;
     try {
-        response = await fetch(`${BASE_URL}?${queryString}`);
+        response = await fetch(`${BASE_URL}/by-category?${queryString}`);
     } catch (error) {
         console.error(`Get products failed:`, error);
         throw new Error(
-            "Unable to connect to the server. Please check your network connection or try again later"
+            'Không thể kết nối đến máy chủ. Vui lòng thử lại sau'
         );
     }
 
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(data.message || "Something went wrong");
+        throw new Error(data.message || 'Đã xảy ra lỗi');
     }
 
     return data;
@@ -51,16 +51,16 @@ export const getProductBySlug = async (slug) => {
     let response;
 
     try {
-        response = await fetch(`${BASE_URL}/slug/${slug}`);
+        response = await fetch(`${BASE_URL}/by-slug/${slug}`);
     } catch (error) {
         console.error(`Fetch product failed:`, error);
         throw new Error(
-            "Unable to connect to the server. Please check your network connection or try again later"
+            'Unable to connect to the server. Please check your network connection or try again later'
         );
     }
     const data = await response.json();
     if (!response.ok) {
-        throw new Error(data.message || "Something went wrong");
+        throw new Error(data.message || 'Đã xảy ra lỗi');
     }
 
     return data;
@@ -68,7 +68,7 @@ export const getProductBySlug = async (slug) => {
 
 export const addProduct = async (productData) => {
     let response;
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
 
     try {
         response = await fetch(`${BASE_URL}/admin`, {
@@ -82,14 +82,14 @@ export const addProduct = async (productData) => {
     } catch (error) {
         console.error(`Add product failed:`, error);
         throw new Error(
-            "Unable to connect to the server. Please check your network connection or try again later"
+            'Unable to connect to the server. Please check your network connection or try again later'
         );
     }
 
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(data.message || "Failed to add product");
+        throw new Error(data.message || 'Failed to add product');
     }
 
     return data;
@@ -97,7 +97,7 @@ export const addProduct = async (productData) => {
 
 export const updateProduct = async (productId, productData) => {
     let response;
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
 
     try {
         response = await fetch(`${BASE_URL}/admin/${productId}`, {
@@ -111,14 +111,14 @@ export const updateProduct = async (productId, productData) => {
     } catch (error) {
         console.error(`Update product failed:`, error);
         throw new Error(
-            "Unable to connect to the server. Please check your network connection or try again later"
+            'Unable to connect to the server. Please check your network connection or try again later'
         );
     }
 
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(data.message || "Failed to update product");
+        throw new Error(data.message || 'Failed to update product');
     }
 
     return data;

@@ -22,7 +22,7 @@ public class BrandController {
         this.brandService = brandService;
     }
 
-    @GetMapping("/supplier/{supplierId}")
+    @GetMapping("/by-supplier/{supplierId}")
     public ResponseEntity<?> getBrandsBySupplierId(@PathVariable Integer supplierId) {
         List<BrandResponse> brands = brandService.getBySupplierId(supplierId);
         Map<String, Object> response = Map.of("brands", brands);
@@ -32,6 +32,7 @@ public class BrandController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Integer id) {
         BrandResponse brand = brandService.getById(id);
-        return ResponseEntity.ok(brand);
+        Map<String, Object> response = Map.of("brand", brand);
+        return ResponseEntity.ok(response);
     }
 }

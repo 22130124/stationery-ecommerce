@@ -106,13 +106,13 @@ const ProductVariantsForm = ({ form, handleImagesUploadingChange }) => {
                                         </Form.Item>
                                     </Col>
 
-                                    {/* isDefault và isActive */}
+                                    {/* defaultStatus và activeStatus */}
                                     <Col span={8}>
                                         <Form.Item label="Trạng thái">
                                             <Space>
                                                 <Form.Item
                                                     {...restField}
-                                                    name={[name, 'isDefault']}
+                                                    name={[name, 'defaultStatus']}
                                                     valuePropName="checked"
                                                     noStyle
                                                 >
@@ -124,7 +124,7 @@ const ProductVariantsForm = ({ form, handleImagesUploadingChange }) => {
                                                             const variants = form.getFieldValue('variants') || [];
                                                             const updated = variants.map((v, i) => ({
                                                                 ...v,
-                                                                isDefault: i === name,
+                                                                defaultStatus: i === name,
                                                             }));
                                                             form.setFieldsValue({ variants: updated });
                                                         }}
@@ -135,7 +135,7 @@ const ProductVariantsForm = ({ form, handleImagesUploadingChange }) => {
 
                                                 <Form.Item
                                                     {...restField}
-                                                    name={[name, 'isActive']}
+                                                    name={[name, 'activeStatus']}
                                                     valuePropName="checked"
                                                     noStyle
                                                 >
@@ -160,7 +160,7 @@ const ProductVariantsForm = ({ form, handleImagesUploadingChange }) => {
                         <Form.Item>
                             <Button
                                 type="dashed"
-                                onClick={() => add({ name: '', basePrice: null, discountPrice: null, isActive: true, isDefault: false, images: [] })}
+                                onClick={() => add({ name: '', basePrice: null, discountPrice: null, activeStatus: true, defaultStatus: false, images: [] })}
                                 block
                                 icon={<PlusOutlined />}
                             >

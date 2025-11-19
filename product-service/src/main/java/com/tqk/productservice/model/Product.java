@@ -74,6 +74,9 @@ public class Product {
         dto.setCode(this.code);
         dto.setName(this.name);
         dto.setDescription(this.description);
+        dto.setCategoryId(this.categoryId);
+        dto.setSupplierId(this.supplierId);
+        dto.setBrandId(this.brandId);
         dto.setOrigin(this.origin);
         dto.setSlug(this.slug);
         dto.setRating(this.rating);

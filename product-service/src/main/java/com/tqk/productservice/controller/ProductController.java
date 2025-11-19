@@ -32,22 +32,15 @@ public class ProductController {
 
     @PostMapping("/admin")
     public ResponseEntity<?> createProduct(@RequestBody ProductRequest productRequest) {
-        try {
-            ProductResponse product = productService.createProduct(productRequest);
-            return new ResponseEntity<>(product, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        ProductResponse product = productService.createProduct(productRequest);
+        return new ResponseEntity<>(product, HttpStatus.CREATED);
     }
 
     @PutMapping("/admin/{id}")
     public ResponseEntity<?> updateProduct(@PathVariable("id") Integer id, @RequestBody ProductRequest productRequest) {
-        try {
-            ProductResponse updatedProduct = productService.updateProduct(id, productRequest);
-            return ResponseEntity.ok(updatedProduct);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        ProductResponse updatedProduct = productService.updateProduct(id, productRequest);
+        Map<String, Object> response = Map.of("updatedProduct", updatedProduct);
+        return ResponseEntity.ok(response);
     }
 
     // ========== USER ===========
@@ -66,7 +59,7 @@ public class ProductController {
     }
 
     @GetMapping("/by-category")
-    public ResponseEntity<?> getProductsByCategory(@RequestParam(name = "categoryId", required = false, defaultValue = "all") Integer categoryId,
+    public ResponseEntity<?> getProductsByCategory(@RequestParam(name = "categoryId", required = false) Integer categoryId,
                                                    @RequestParam(name = "page", required = false, defaultValue = "1") int page,
                                                    @RequestParam(name = "limit", required = false, defaultValue = "12") int size) {
         ProductListResponse result = productService.getByCategory(categoryId, page, size);

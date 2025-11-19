@@ -11,6 +11,7 @@ const ProductManagementPage = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
 
+    // Hàm fetch products khi mới vào trang
     useEffect(() => {
         const fetchProducts = async () => {
             const data = await getAllProducts();
@@ -19,14 +20,43 @@ const ProductManagementPage = () => {
         fetchProducts();
     }, []);
 
+    console.log(products)
+
     const showAddModal = () => {
         setIsModalVisible(true);
     };
 
-    const handleModalClose = () => {
-        setIsModalVisible(false);
+    // Hàm xử lý thêm sản phẩm mới
+    const handleAddProduct = async (values) => {
+        console.log(values);
+        try {
+            const data = await addProduct(values);
+            setProducts(prev => [...prev, data.product]);
+            setIsModalVisible(false);
+            console.log('Sản phẩm mới đã được tạo:', data.product);
+        } catch (error) {
+            console.error('Thêm sản phẩm thất bại:', error);
+        }
     };
 
+    // Hàm xử lý sửa thông tin sản phẩm
+    const handleEditProduct = async (values) => {
+        if (!editingProduct) return;
+        try {
+            const data = await updateProduct(editingProduct.id, values);
+            const updatedProduct = data.updatedProduct;
+            setProducts(prev =>
+                prev.map(p => (p.id === updatedProduct.id ? updatedProduct : p))
+            );
+            setIsModalVisible(false);
+            setEditingProduct(null);
+            console.log('Sản phẩm đã được cập nhật:', updatedProduct);
+        } catch (error) {
+            console.error('Cập nhật sản phẩm thất bại:', error);
+        }
+    };
+
+    // Hàm chỉnh định dạng tiền VND
     const formatCurrency = (value) => {
         if (!value) return '';
         return value.toLocaleString('vi-VN', {style: 'currency', currency: 'VND'});
@@ -41,6 +71,11 @@ const ProductManagementPage = () => {
             value: value,
         }));
     };
+
+    const filteredData = products.filter(item =>
+        item.name.toLowerCase().includes(searchText.toLowerCase()) ||
+        item.code.toLowerCase().includes(searchText.toLowerCase())
+    );
 
     // Định nghĩa các cột cho bảng
     const columns = [
@@ -101,16 +136,16 @@ const ProductManagementPage = () => {
         },
         {
             title: 'Trạng thái',
-            dataIndex: 'isActive',
+            dataIndex: 'activeStatus',
             key: 'status',
             filters: [
                 {text: 'Đang bán', value: true},
                 {text: 'Ngừng bán', value: false},
             ],
-            onFilter: (value, record) => record.isActive === value,
-            render: (isActive) => (
-                <span className={isActive ? styles.activeStatus : styles.inactiveStatus}>
-                    {isActive ? 'Đang bán' : 'Ngừng bán'}
+            onFilter: (value, record) => record.activeStatus === value,
+            render: (activeStatus) => (
+                <span className={activeStatus ? styles.activeStatus : styles.inactiveStatus}>
+                    {activeStatus ? 'Đang bán' : 'Ngừng bán'}
                 </span>
             ),
         },
@@ -135,42 +170,6 @@ const ProductManagementPage = () => {
             ),
         },
     ];
-
-    const filteredData = products.filter(item =>
-        item.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        item.code.toLowerCase().includes(searchText.toLowerCase())
-    );
-
-    // Thêm sản phẩm mới
-    const handleAddProduct = async (values) => {
-        console.log(values);
-        try {
-            const data = await addProduct(values);
-            setProducts(prev => [...prev, data.product]);
-            setIsModalVisible(false);
-            console.log('Sản phẩm mới đã được tạo:', data.product);
-        } catch (error) {
-            console.error('Thêm sản phẩm thất bại:', error);
-        }
-    };
-
-    // Cập nhật sản phẩm
-    const handleEditProduct = async (values) => {
-        if (!editingProduct) return;
-        try {
-            const data = await updateProduct(editingProduct.id, values);
-            const updatedProduct = data.product;
-            console.log("Updated product:", updatedProduct);
-            setProducts(prev =>
-                prev.map(p => (p.id === updatedProduct.id ? updatedProduct : p))
-            );
-            setIsModalVisible(false);
-            setEditingProduct(null);
-            console.log('Sản phẩm đã được cập nhật:', updatedProduct);
-        } catch (error) {
-            console.error('Cập nhật sản phẩm thất bại:', error);
-        }
-    };
 
     return (
         <div className={styles.pageContainer}>

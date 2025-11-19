@@ -27,12 +27,14 @@ const LoginPage = () => {
         const toastId = toast.loading("Đang xử lý đăng nhập...");
 
         try {
-            await login(formData.email, formData.password);
+            const data = await login(formData.email, formData.password);
 
             toast.success(
                 'Đăng nhập thành công. Đang chuyển hướng tới trang mua hàng...',
                 { id: toastId, duration: 2000 }
             );
+
+            localStorage.setItem("token", data.token);
 
             const searchParams = new URLSearchParams(location.search);
             const redirectPath = searchParams.get("redirect");

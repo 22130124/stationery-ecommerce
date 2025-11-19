@@ -15,7 +15,7 @@ import styles from "./ProductListPage.module.scss";
 
 // APIs
 import {getCategories} from "../../../api/categoryApi";
-import {getProductsByCategoryAndPagination} from "../../../api/productApi";
+import {getProductsByCategory, getProductsByCategoryAndPagination} from "../../../api/productApi";
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -57,15 +57,17 @@ const ProductListPage = () => {
     console.log("categories", categories)
 
     useEffect(() => {
+        console.log(categoryParam, pageParam, PRODUCTS_PER_PAGE)
         const fetchProducts = async () => {
-            const data = await getProductsByCategoryAndPagination({
+            const data = await getProductsByCategory({
                 categorySlug: categoryParam,
                 page: pageParam,
                 limit: PRODUCTS_PER_PAGE,
             })
+            console.log("Data products: ", data.products)
             setProducts(data.products)
             setTotalPages(data.totalPages)
-            setTotalItems(data.items)
+            setTotalItems(data.totalItems)
         }
         fetchProducts()
     }, [searchParams, setSearchParams])

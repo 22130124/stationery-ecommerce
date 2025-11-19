@@ -1,7 +1,7 @@
 // authApi.js
 import {API_URLS} from '../config/apiConfig';
 
-const BASE_URL = `${API_URLS.auth}/api/auth`;
+const BASE_URL = API_URLS.auth
 
 const postAuthRequest = async (endpoint, payload) => {
     let response;
@@ -15,14 +15,14 @@ const postAuthRequest = async (endpoint, payload) => {
     } catch (error) {
         console.error(`${endpoint} failed:`, error);
         throw new Error(
-            'Unable to connect to the server. Please check your network connection or try again later'
+            'Không thể kết nối đến máy chủ. Vui lòng thử lại sau'
         );
     }
 
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(data.message || 'Something went wrong');
+        throw new Error(data.message || 'Đã xảy ra lỗi');
     }
 
     return data;
@@ -41,7 +41,7 @@ export const verifyAccount = async (token) => {
     }
 
     const data = await response.json();
-    if (!response.ok) throw new Error(data.message || 'Có lỗi xảy ra');
+    if (!response.ok) throw new Error(data.message || 'Đã xảy ra lỗi');
 
     return data
 }
