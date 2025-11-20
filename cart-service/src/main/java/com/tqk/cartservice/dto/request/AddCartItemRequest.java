@@ -1,9 +1,9 @@
-package com.tqk.brandservice.dto.request;
+package com.tqk.cartservice.dto.request;
 
 import lombok.Data;
 
 @Data
-public class UpdateCartItemRequest {
+public class AddCartItemRequest {
     private Long productId;
     private Long variantId;
     private Integer quantity;

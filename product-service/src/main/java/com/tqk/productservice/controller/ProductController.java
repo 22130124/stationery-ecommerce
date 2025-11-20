@@ -87,4 +87,10 @@ public class ProductController {
         Map<String, Object> response = Map.of("product", product);
         return ResponseEntity.ok(response);
     }
+
+    // ============ INTERNAL =============
+    @PostMapping("/internal/by-variant-ids")
+    public ResponseEntity<List<ProductResponse>> getProductsByVariantIds(@RequestBody List<Integer> variantIds) {
+        return ResponseEntity.ok(productService.getProductsByVariantIds(variantIds));
+    }
 }

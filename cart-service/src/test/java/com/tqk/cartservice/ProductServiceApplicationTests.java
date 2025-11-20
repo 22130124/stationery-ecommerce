@@ -1,4 +1,4 @@
-package com.tqk.brandservice;
+package com.tqk.cartservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

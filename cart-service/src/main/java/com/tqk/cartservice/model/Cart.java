@@ -1,7 +1,7 @@
-package com.tqk.brandservice.model;
+package com.tqk.cartservice.model;
 
-import com.tqk.brandservice.dto.response.CartItemResponse;
-import com.tqk.brandservice.dto.response.CartResponse;
+import com.tqk.cartservice.dto.response.cart.CartItemResponse;
+import com.tqk.cartservice.dto.response.cart.CartResponse;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,15 +37,11 @@ public class Cart {
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<CartItem> items = new ArrayList<>();
 
-    public CartResponse convertToDto() {
+    public CartResponse convertToDto(List<CartItemResponse> items) {
         CartResponse dto = new CartResponse();
         dto.setId(this.id);
         dto.setAccountId(this.accountId);
-        List<CartItemResponse> itemsResponse = new ArrayList<>();
-        for (CartItem item : this.items) {
-            itemsResponse.add(item.convertToDto());
-        }
-        dto.setItems(itemsResponse);
+        dto.setItems(items);
         return dto;
     }
 }

@@ -272,4 +272,16 @@ public class ProductService {
         // Xóa sản phẩm
         productRepository.delete(product);
     }
+
+    public List<ProductResponse> getProductsByVariantIds(List<Integer> variantIds) {
+        List<ProductResponse> products = new ArrayList<>();
+        Product product;
+        ProductVariant variant;
+        for(Integer variantId : variantIds) {
+            variant = productVariantRepository.findById(variantId).orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm có id biến thể là: " + variantId));
+            product = variant.getProduct();
+            products.add(product.convertToDtoWithSpecificVariant(variant.convertToDto()));
+        }
+        return products;
+    }
 }

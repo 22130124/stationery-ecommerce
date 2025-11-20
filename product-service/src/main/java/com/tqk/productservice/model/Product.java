@@ -84,7 +84,7 @@ public class Product {
         dto.setCreatedAt(this.createdAt);
         dto.setUpdatedAt(this.updatedAt);
 
-        List<ProductImageResponse> imagesResponses = new ArrayList<>();
+//        List<ProductImageResponse> imagesResponses = new ArrayList<>();
 //        boolean isSetDefaultImage = false;
 //        if (this.images != null && !this.images.isEmpty()) {
 //            for (ProductImage productImage : this.images) {
@@ -118,8 +118,27 @@ public class Product {
             }
         }
         dto.setVariants(variantResponses);
+//        dto.setImages(imagesResponses);
+        return dto;
+    }
 
-        dto.setImages(imagesResponses);
+
+    public ProductResponse convertToDtoWithSpecificVariant(ProductVariantResponse productVariantResponse) {
+        ProductResponse dto = new ProductResponse();
+        dto.setId(this.id);
+        dto.setCode(this.code);
+        dto.setName(this.name);
+        dto.setDescription(this.description);
+        dto.setCategoryId(this.categoryId);
+        dto.setSupplierId(this.supplierId);
+        dto.setBrandId(this.brandId);
+        dto.setOrigin(this.origin);
+        dto.setSlug(this.slug);
+        dto.setRating(this.rating);
+        dto.setActiveStatus(this.activeStatus);
+        dto.setCreatedAt(this.createdAt);
+        dto.setUpdatedAt(this.updatedAt);
+        dto.getVariants().add(productVariantResponse);
         return dto;
     }
 }

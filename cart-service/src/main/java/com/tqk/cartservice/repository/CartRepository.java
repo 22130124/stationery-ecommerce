@@ -1,6 +1,6 @@
-package com.tqk.brandservice.repository;
+package com.tqk.cartservice.repository;
 
-import com.tqk.brandservice.model.Cart;
+import com.tqk.cartservice.model.Cart;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

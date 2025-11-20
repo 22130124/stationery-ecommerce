@@ -1,7 +1,7 @@
-package com.tqk.brandservice.controller;
+package com.tqk.cartservice.controller;
 
-import com.tqk.brandservice.dto.response.CartResponse;
-import com.tqk.brandservice.service.CartService;
+import com.tqk.cartservice.dto.response.cart.CartResponse;
+import com.tqk.cartservice.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

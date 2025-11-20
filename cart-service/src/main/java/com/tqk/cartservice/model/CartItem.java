@@ -1,7 +1,6 @@
-package com.tqk.brandservice.model;
+package com.tqk.cartservice.model;
 
 
-import com.tqk.brandservice.dto.response.CartItemResponse;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,13 +33,5 @@ public class CartItem {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id")
     private Cart cart;
-
-    public CartItemResponse convertToDto() {
-        CartItemResponse dto = new CartItemResponse();
-        dto.setProductId(this.productId);
-        dto.setVariantId(this.variantId);
-        dto.setQuantity(this.quantity);
-        return dto;
-    }
 }
 

@@ -23,7 +23,7 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers(HttpMethod.OPTIONS).permitAll() // thêm dòng này
-                        .pathMatchers("/products/admin","/products/admin/**").hasRole("ADMIN")
+                        .pathMatchers("/products/admin","/products/admin/**", "/products/internal/**").hasRole("ADMIN")
                         .pathMatchers("/auth", "/auth/**").permitAll()
                         .pathMatchers("/products", "/products/**").permitAll()
                         .pathMatchers("/categories", "/categories/**").permitAll()
