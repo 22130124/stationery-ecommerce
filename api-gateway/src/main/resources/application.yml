@@ -35,3 +35,8 @@ spring:
           uri: http://upload-service:8080
           predicates:
             - Path=/upload/**
+
+        - id: cart_route
+          uri: http://cart-service:8080
+          predicates:
+            - Path=/cart/**

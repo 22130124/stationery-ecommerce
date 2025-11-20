@@ -42,12 +42,17 @@ public class JwtAuthenticationFilter implements WebFilter {
 
             String email = claims.getSubject();
             String role = claims.get("role", String.class);
+            Integer accountId = claims.get("account_id", Integer.class);
+
+            ServerWebExchange modifiedExchange = exchange.mutate()
+                    .request(r -> r.header("X-Account-Id", accountId.toString()))
+                    .build();
 
             UsernamePasswordAuthenticationToken auth =
                     new UsernamePasswordAuthenticationToken(email, null,
                             List.of(new SimpleGrantedAuthority("ROLE_" + role)));
 
-            return chain.filter(exchange)
+            return chain.filter(modifiedExchange)
                     .contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth));
 
         } catch (Exception e) {

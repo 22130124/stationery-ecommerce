@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -76,9 +77,7 @@ public class AuthService {
             throw new AuthException("Tài khoản đã bị khóa. Vui lòng liên hệ qua gmail 22130124@st.hcmuaf.edu.vn để được hỗ trợ");
         }
 
-        UserDetails userDetails = buildUserDetails(account);
-
-        return generateToken(Map.of("role", account.getRole()), userDetails);
+        return generateToken(account);
     }
 
     @Transactional
@@ -101,9 +100,7 @@ public class AuthService {
             Account account = accountRepository.findByEmail(email)
                     .orElseGet(() -> createNewGoogleAccount(email, googleUserId));
 
-            UserDetails userDetails = buildUserDetails(account);
-
-            return generateToken(Map.of("role", account.getRole()), userDetails);
+            return generateToken(account);
 
         } catch (GeneralSecurityException | IOException e) {
             throw new AuthException("Lỗi khi xác thực Google token: " + e.getMessage());
@@ -155,24 +152,21 @@ public class AuthService {
         return account.getId();
     }
 
-    public String generateToken(Map<String, Object> claims, UserDetails userDetails) {
+    public String generateToken(Account account) {
         SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
         long now = System.currentTimeMillis();
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", account.getRole());
+        claims.put("account_id", account.getId());
+
         return Jwts
                 .builder()
                 .claims(claims)
-                .subject(userDetails.getUsername())
+                .subject(account.getEmail())
                 .issuedAt(new Date(now))
                 .expiration(new Date(now + jwtExpiration))
                 .signWith(key)
                 .compact();
-    }
-
-    private UserDetails buildUserDetails(Account account) {
-        return User.builder()
-                .username(account.getEmail())
-                .password("")
-                .roles(account.getRole())
-                .build();
     }
 }

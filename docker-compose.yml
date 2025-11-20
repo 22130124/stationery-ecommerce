@@ -107,6 +107,19 @@ services:
       - backend
     entrypoint: ["java", "-jar", "app.jar"]
 
+  cart-service:
+    build: ./cart-service
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${CART_DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
+      SPRING_DATASOURCE_USERNAME: "${DB_USERNAME}"
+      SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - backend
+    entrypoint: ["./wait-for-it.sh", "mysql:3306", "--", "java", "-jar", "app.jar"]
+
 volumes:
   mysql_data:
 
