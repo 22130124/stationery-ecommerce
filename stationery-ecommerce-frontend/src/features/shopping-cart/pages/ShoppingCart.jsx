@@ -2,95 +2,101 @@
 import React, {useState, useEffect} from 'react';
 import styles from './ShoppingCart.module.scss';
 import {FaTrashAlt} from 'react-icons/fa';
-import {getCartItems} from "../../../api/cartApi";
+import {getCart, removeCartItem, removeItem, updateCartItem} from "../../../api/cartApi";
 import {useNavigate, useLocation} from "react-router-dom";
+import {Modal} from 'antd';
 
 const ShoppingCart = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const [cart, setCart] = useState({});
     const [cartItems, setCartItems] = useState([]);
-    const [totalPrice, setTotalPrice] = useState(0);
-    const [storedCart, setStoredCart] = useState(() => {
-        try {
-            const storedCart = localStorage.getItem("cart");
-            return storedCart ? JSON.parse(storedCart) : [];
-        } catch (error) {
-            console.error("Lỗi khi đọc giỏ hàng từ localStorage:", error);
-            return [];
-        }
-    });
+    const [totalPrice, setTotalPrice] = useState(0)
+    const {confirm} = Modal;
 
     useEffect(() => {
-        if (storedCart.length < 0) return;
-        const variantIds = storedCart.map((item) => item.variantId);
-        const fetchCartItems = async () => {
-            const data = await getCartItems(variantIds);
-
-            const cartItemsData = data.cartItems.map(item => {
-                const storedItem = storedCart.find(
-                    localItem => localItem.variantId === item.variant.id
-                );
-
-                return {
-                    ...item,
-                    quantity: storedItem ? storedItem.quantity : 1
-                };
-            });
-
-            setCartItems(cartItemsData);
+        const fetchCart = async () => {
+            const data = await getCart();
+            setCart(data.cart)
+            setCartItems(data.cart.items)
         }
-        fetchCartItems();
+        fetchCart()
     }, [])
-    console.log("Cart Items:", cartItems);
 
-    useEffect(() => {
-        localStorage.setItem("cart", JSON.stringify(storedCart));
-    }, [storedCart]);
-
+    // Hàm tính tổng tiền
     useEffect(() => {
         const calculateTotal = () => {
             return cartItems.reduce((total, item) => {
-                const variant = item.variant
-                if (!variant) return total;
-                const price = variant.discountPrice ?? variant.basePrice;
+                const price = item.discountPrice ?? item.basePrice;
                 return total + (price * item.quantity);
             }, 0);
         };
         setTotalPrice(calculateTotal());
     }, [cartItems]);
 
-    const handleQuantityChange = (variantId, newQuantity) => {
+    // Hàm xử lý thay đổi số lượng
+    const handleQuantityChange = (itemId, newQuantity) => {
         if (newQuantity < 1) return;
 
-        setStoredCart((prev) =>
+        // Update UI ngay lập tức
+        setCartItems(prev =>
             prev.map(item =>
-                (item.variantId === variantId)
-                    ? {...item, quantity: newQuantity}
+                item.id === itemId
+                    ? { ...item, quantity: newQuantity }
                     : item
             )
-        )
+        );
 
-        setCartItems((prev) =>
-            prev.map(item =>
-                (item.variant.id === variantId)
-                    ? {...item, quantity: newQuantity}
-                    : item
-            ));
+        // Gọi API sau 400ms nếu user ngừng thao tác
+        debouncedUpdate(itemId, newQuantity);
     };
 
-    const handleRemoveItem = (variantId) => {
-        setCartItems(prevItems =>
-            prevItems.filter(item =>
-                !(item.variant.id === variantId)
-            )
-        );
+    const handleUpdateQuantityApi = async (itemId, quantity) => {
+        try {
+            const result = await updateCartItem(itemId, quantity);
+            setCart(result.cart);
+            setCartItems(result.cart.items);
+        } catch (err) {
+            console.error("Update failed", err);
+        }
+    }
 
-        setStoredCart(prevItems =>
-            prevItems.filter(item =>
-                !(item.variantId === variantId)
-            )
-        );
+
+    // debounce hook cho việc cập nhật số lượng
+    function useDebounce(callback, delay) {
+        const timeoutRef = React.useRef(null);
+
+        function debouncedFunction(...args) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = setTimeout(() => {
+                callback(...args);
+            }, delay);
+        }
+
+        return debouncedFunction;
+    }
+    const debouncedUpdate = useDebounce(handleUpdateQuantityApi, 400);
+
+    const handleRemoveItem = async (itemId) => {
+        try {
+            const newCartData = await removeCartItem(itemId);
+            setCart(newCartData.cart);
+            setCartItems(newCartData.cart.items);
+        } catch (error) {
+            console.error("Remove failed:", error);
+        }
+    };
+
+    const showDeleteConfirm = (cartItem, onOk) => {
+        confirm({
+            title: 'Xóa sản phẩm',
+            content: `Bạn có chắc chắn muốn xóa sản phẩm "${cartItem.productName}" ra khỏi giỏ hàng không?`,
+            okText: 'Xác nhận',
+            okType: 'danger',
+            cancelText: 'Hủy',
+            onOk,
+        });
     };
 
     const handleConfirm = () => {
@@ -106,41 +112,41 @@ const ShoppingCart = () => {
     };
 
     const CartItem = ({item}) => {
-        const variant = item.variant;
-        if (!variant) return null;
-
-        const finalPrice = variant.discountPrice ?? variant.basePrice;
+        const finalPrice = item.discountPrice ?? item.basePrice;
 
         return (
             <div className={styles.cartItem}>
+                {/*Hiển thị thông tin chung*/}
                 <div className={styles.productInfo}>
                     <div className={styles.itemImage}>
-                        <img src={variant.images[0].url} alt={item.name}/>
+                        <img src={item.defaultImage.url} alt={item.name}/>
                     </div>
                     <div className={styles.itemDetails}>
-                        <h3 className={styles.itemName}>{item.name}</h3>
-                        <p className={styles.itemVariant}>Phân loại: {variant.name}</p>
-                        <p className={styles.itemBrand}>Thương hiệu: {item.brandName}</p>
+                        <h3 className={styles.itemName}>{item.productName}</h3>
+                        <p className={styles.itemVariant}>Phân loại: {item.variantName}</p>
                     </div>
                 </div>
 
+                {/*Hiển thị giá gốc*/}
                 <div className={styles.itemPrice}>
-                    {variant.discountPrice && (
-                        <span className={styles.originalPrice}>{formatCurrency(variant.basePrice)}</span>
+                    {item.discountPrice && (
+                        <span className={styles.originalPrice}>{formatCurrency(item.basePrice)}</span>
                     )}
                     <span className={styles.finalPrice}>{formatCurrency(finalPrice)}</span>
                 </div>
 
+                {/*Hiển thị khu vực tăng/giảm số lượng*/}
                 <div className={styles.itemQuantity}>
-                    <button onClick={() => handleQuantityChange(variant.id, item.quantity - 1)}>-</button>
+                    <button onClick={() => handleQuantityChange(item.id, item.quantity - 1)}>-</button>
 
                     <input
                         type="number"
                         value={item.quantity}
-                        onChange={(e) => handleQuantityChange(item.id, variant.id, parseInt(e.target.value, 10) || 1)}
+                        onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 1)}
                         min="1"
                     />
-                    <button onClick={() => handleQuantityChange(variant.id, item.quantity + 1)}>+</button>
+
+                    <button onClick={() => handleQuantityChange(item.id, item.quantity + 1)}>+</button>
                 </div>
 
                 <div className={styles.itemTotal}>
@@ -148,7 +154,7 @@ const ShoppingCart = () => {
                 </div>
 
                 <div className={styles.itemActions}>
-                    <button onClick={() => handleRemoveItem(variant.id)} className={styles.removeButton}>
+                    <button onClick={() => showDeleteConfirm(item, () => handleRemoveItem(item.id))}>
                         <FaTrashAlt/>
                     </button>
                 </div>
@@ -171,7 +177,7 @@ const ShoppingCart = () => {
                             <div className={styles.headerActions}></div>
                         </div>
                         {cartItems.map(item => (
-                            <CartItem key={`${item.variant.id}-${item.selectedVariantId}`} item={item}/>
+                            <CartItem key={`${item.variantId}`} item={item}/>
                         ))}
                     </div>
 

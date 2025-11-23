@@ -8,4 +8,5 @@ export const API_URLS = {
     brand: `${API_URL}/brands`,
     auth: `${API_URL}/auth`,
     upload: `${API_URL}/upload`,
+    cart: `${API_URL}/cart`,
 };

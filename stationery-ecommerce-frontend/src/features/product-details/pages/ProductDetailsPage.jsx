@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import {getSupplierById} from "../../../api/supplierApi";
 import {getBrandById} from "../../../api/brandApi";
 import {getCategoryById} from "../../../api/categoryApi";
+import {addToCart} from "../../../api/cartApi";
 
 // Icon ngôi sao đơn giản để đánh giá
 const StarIcon = () => <>⭐</>;
@@ -22,15 +23,6 @@ const ProductDetailsPage = () => {
     const [selectedVariant, setSelectedVariant] = useState(null);
     const [mainImage, setMainImage] = useState('');
     const [quantity, setQuantity] = useState(1);
-    const [cart, setCart] = useState(() => {
-        try {
-            const storedCart = localStorage.getItem("cart");
-            return storedCart ? JSON.parse(storedCart) : [];
-        } catch (error) {
-            console.error("Lỗi khi đọc giỏ hàng từ localStorage:", error);
-            return [];
-        }
-    });
 
     // Hàm fetch thông tin sản phẩm
     useEffect(() => {
@@ -92,10 +84,6 @@ const ProductDetailsPage = () => {
 
     console.log(product);
 
-    useEffect(() => {
-        localStorage.setItem("cart", JSON.stringify(cart));
-    }, [cart])
-
     const formatPrice = (price) =>
         price?.toLocaleString("vi-VN", {style: "currency", currency: "VND"}) || "";
 
@@ -116,43 +104,22 @@ const ProductDetailsPage = () => {
         setQuantity(prev => Math.max(1, prev + amount));
     };
 
-    const handleAddToCartButtonClick = () => {
-        setCart((prev) => {
-            // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
-            const existingItemIndex = prev.findIndex(
-                (item) =>
-                    item.productId === product.id &&
-                    item.variantId === selectedVariant.id
-            );
-
-            // Nếu đã có, cập nhật quantity
-            if (existingItemIndex !== -1) {
-                const updatedCart = [...prev];
-                updatedCart[existingItemIndex] = {
-                    ...updatedCart[existingItemIndex],
-                    quantity: updatedCart[existingItemIndex].quantity + quantity,
-                };
-                return updatedCart;
-            }
-
-            // Nếu chưa có, thêm mới vào giỏ
-            return [
-                ...prev,
-                {
-                    productId: product.id,
-                    variantId: selectedVariant.id,
-                    quantity: quantity,
-                },
-            ];
-        });
+    const handleAddToCartButtonClick = async () => {
+        try {
+            await addToCart({
+                productId: product.id,
+                variantId: selectedVariant.id,
+                quantity: quantity,
+            });
+        } catch (error) {
+            console.error(error);
+        }
 
         toast.dismiss();
         toast.success(
             `Đã thêm ${quantity} ${product.name} ${selectedVariant.name} vào giỏ hàng`
         );
     };
-
-    console.log("Cart", cart)
 
     const handleBuyNowButtonClick = () => {
         alert("Buy now");

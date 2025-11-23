@@ -5,6 +5,8 @@ import lombok.Data;
 
 @Data
 public class CartItemResponse {
+    private Integer id;
+    private Integer variantId;
     private String productName;
     private String variantName;
     private Double basePrice;

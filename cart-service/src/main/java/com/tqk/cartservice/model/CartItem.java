@@ -1,6 +1,8 @@
 package com.tqk.cartservice.model;
 
 
+import com.tqk.cartservice.dto.response.cart.CartItemResponse;
+import com.tqk.cartservice.dto.response.product.ProductVariantResponse;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
