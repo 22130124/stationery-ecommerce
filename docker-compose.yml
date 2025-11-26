@@ -30,7 +30,7 @@ services:
   auth-service:
     build: ./auth-service
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${AUTH_DB_NAME}?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${AUTH_DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
       SPRING_DATASOURCE_USERNAME: "${DB_USERNAME}"
       SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
       GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID}"
@@ -50,7 +50,7 @@ services:
   product-service:
     build: ./product-service
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${PRODUCT_DB_NAME}?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${PRODUCT_DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
       SPRING_DATASOURCE_USERNAME: "${DB_USERNAME}"
       SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
     depends_on:
@@ -63,7 +63,7 @@ services:
   category-service:
     build: ./category-service
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${CATEGORY_DB_NAME}?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${CATEGORY_DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
       SPRING_DATASOURCE_USERNAME: "${DB_USERNAME}"
       SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
     depends_on:
@@ -76,7 +76,7 @@ services:
   supplier-service:
     build: ./supplier-service
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${SUPPLIER_DB_NAME}?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${SUPPLIER_DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
       SPRING_DATASOURCE_USERNAME: "${DB_USERNAME}"
       SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
     depends_on:
@@ -89,7 +89,7 @@ services:
   brand-service:
     build: ./brand-service
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${BRAND_DB_NAME}?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${BRAND_DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
       SPRING_DATASOURCE_USERNAME: "${DB_USERNAME}"
       SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
     depends_on:
@@ -110,7 +110,7 @@ services:
   cart-service:
     build: ./cart-service
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${CART_DB_NAME}?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${CART_DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
       SPRING_DATASOURCE_USERNAME: "${DB_USERNAME}"
       SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
     depends_on:
@@ -123,7 +123,7 @@ services:
   profile-service:
     build: ./profile-service
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${PROFILE_DB_NAME}?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${PROFILE_DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
       SPRING_DATASOURCE_USERNAME: "${DB_USERNAME}"
       SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
     depends_on:
@@ -136,7 +136,7 @@ services:
   order-service:
     build: ./order-service
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${ORDER_DB_NAME}?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${ORDER_DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
       SPRING_DATASOURCE_USERNAME: "${DB_USERNAME}"
       SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
     depends_on:

@@ -1,8 +1,8 @@
-package com.tqk.categoryservice.controller;
+package com.tqk.orderservice.controller;
 
-import com.tqk.categoryservice.dto.request.OrderRequest;
-import com.tqk.categoryservice.dto.response.OrderResponse;
-import com.tqk.categoryservice.service.OrderService;
+import com.tqk.orderservice.dto.request.OrderRequest;
+import com.tqk.orderservice.dto.response.OrderResponse;
+import com.tqk.orderservice.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

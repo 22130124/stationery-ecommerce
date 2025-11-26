@@ -1,6 +1,5 @@
-package com.tqk.categoryservice.dto.response;
+package com.tqk.orderservice.dto.response;
 
-import com.tqk.categoryservice.model.OrderItem;
 import lombok.Data;
 
 import java.time.LocalDateTime;

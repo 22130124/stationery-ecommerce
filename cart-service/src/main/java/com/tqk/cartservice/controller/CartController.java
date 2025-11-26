@@ -4,6 +4,7 @@ import com.tqk.cartservice.dto.request.AddCartItemRequest;
 import com.tqk.cartservice.dto.response.cart.CartResponse;
 import com.tqk.cartservice.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,5 +57,12 @@ public class CartController {
         CartResponse cart = cartService.removeCartItem(accountId, itemId);
         Map<String, Object> response = Map.of("cart", cart);
         return ResponseEntity.ok(response);
+    }
+
+    // Xóa toàn bộ items trong giỏ hàng
+    @DeleteMapping("/reset-cart")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void resetCart(@RequestHeader("X-Account-Id") Integer accountId) {
+        cartService.resetCart(accountId);
     }
 }

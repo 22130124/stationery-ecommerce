@@ -93,3 +93,22 @@ export const addToCart = async ({productId, variantId, quantity}) => {
 
     return data;
 };
+
+export const resetCart = async () => {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(`${BASE_URL}`, {
+        method: "DELETE",
+        headers: {
+            Authorization: `Bearer ${token}`
+        },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Lỗi khi reset giỏ hàng");
+    }
+
+    return data;
+};

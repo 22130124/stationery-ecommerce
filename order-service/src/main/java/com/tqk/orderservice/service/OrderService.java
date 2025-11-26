@@ -1,12 +1,13 @@
-package com.tqk.categoryservice.service;
+package com.tqk.orderservice.service;
 
-import com.tqk.categoryservice.dto.request.OrderRequest;
-import com.tqk.categoryservice.dto.response.OrderItemResponse;
-import com.tqk.categoryservice.dto.response.OrderResponse;
-import com.tqk.categoryservice.model.Order;
-import com.tqk.categoryservice.model.OrderItem;
-import com.tqk.categoryservice.repository.OrderItemRepository;
-import com.tqk.categoryservice.repository.OrderRepository;
+import com.tqk.orderservice.dto.request.OrderRequest;
+import com.tqk.orderservice.dto.response.OrderItemResponse;
+import com.tqk.orderservice.dto.response.OrderResponse;
+import com.tqk.orderservice.model.Order;
+import com.tqk.orderservice.model.OrderItem;
+import com.tqk.orderservice.repository.OrderItemRepository;
+import com.tqk.orderservice.repository.OrderRepository;
+import com.tqk.orderservice.repository.client.CartClient;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
+    private final CartClient cartClient;
 
     public List<OrderResponse> getOrders(Integer accountId) {
         List<Order> orders = orderRepository.findByAccountIdOrderByCreatedAtDesc(accountId);
@@ -53,7 +55,10 @@ public class OrderService {
             orderItemRepository.save(orderItem);
         }
 
-        // 4. Trả về response
+        // 4. Reset lại giỏ hàng
+        cartClient.resetCart(accountId);
+
+        // 5. Trả về response
         return order.convertToDto();
     }
 

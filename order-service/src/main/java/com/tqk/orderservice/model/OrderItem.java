@@ -1,6 +1,6 @@
-package com.tqk.categoryservice.model;
+package com.tqk.orderservice.model;
 
-import com.tqk.categoryservice.dto.response.OrderItemResponse;
+import com.tqk.orderservice.dto.response.OrderItemResponse;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

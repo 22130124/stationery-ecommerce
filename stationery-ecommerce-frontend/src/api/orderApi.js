@@ -21,3 +21,21 @@ export const getOrders = async () => {
     }
     return data;
 }
+
+export const createOrders = async (payload) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(BASE_URL, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.message || 'Đã có lỗi xảy ra');
+    }
+    return data;
+}

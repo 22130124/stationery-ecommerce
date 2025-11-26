@@ -15,9 +15,12 @@ const OrderHistoryPage = () => {
 
     const formatDateVN = (isoString) => {
         if (!isoString) return "";
-        const normalized = isoString.replace(/\.(\d{3})\d+/, '.$1');
+
+        const normalized = isoString.endsWith("Z") ? isoString : isoString + "Z";
+
         const date = new Date(normalized);
-        const options = {
+
+        return new Intl.DateTimeFormat("vi-VN", {
             timeZone: "Asia/Ho_Chi_Minh",
             year: "numeric",
             month: "2-digit",
@@ -25,9 +28,9 @@ const OrderHistoryPage = () => {
             hour: "2-digit",
             minute: "2-digit",
             second: "2-digit",
-        };
-        return new Intl.DateTimeFormat("vi-VN", options).format(date);
+        }).format(date);
     };
+
 
     return (
         <div className={styles.container}>

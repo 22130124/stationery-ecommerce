@@ -136,11 +136,22 @@ public class CartService {
         return getCartByAccountId(accountId);
     }
 
+    @Transactional
+    public void resetCart(Integer accountId) {
+        // 1. Lấy cart của user
+        Cart cart = cartRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new CartNotFoundException("Không tìm thấy giỏ hàng của tài khoản với id: " + accountId));
+
+        // 2. Xóa toàn bộ cart items
+        cart.getItems().clear();
+    }
+
     private CartItemResponse convertCartItemToDto(CartItem cartItem, ProductResponse product) {
         CartItemResponse dto = new CartItemResponse();
 
         // Gán id
         dto.setId(cartItem.getId());
+        dto.setProductId(product.getId());
 
         // Tên sản phẩm
         dto.setProductName(product.getName());
@@ -157,8 +168,15 @@ public class CartService {
         }
 
         // Giá biến thể
-        dto.setBasePrice(variant.getBasePrice());
-        dto.setDiscountPrice(variant.getDiscountPrice());
+        Double basePrice = variant.getBasePrice();
+        Double discountPrice = variant.getDiscountPrice();
+
+        // Nếu discountPrice khác null thì price = discountPrice, ngược lại = basePrice
+        Double price = (discountPrice != null) ? discountPrice : basePrice;
+
+        dto.setBasePrice(basePrice);
+        dto.setDiscountPrice(discountPrice);
+        dto.setPrice(price);
 
         // Số lượng
         dto.setQuantity(cartItem.getQuantity());

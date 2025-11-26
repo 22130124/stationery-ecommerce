@@ -2,9 +2,11 @@
 import React, {useState, useEffect} from 'react';
 import styles from './ShoppingCart.module.scss';
 import {FaTrashAlt} from 'react-icons/fa';
-import {getCart, removeCartItem, removeItem, updateCartItem} from "../../../api/cartApi";
-import {useNavigate, useLocation} from "react-router-dom";
+import {getCart, removeCartItem, removeItem, updateCartItem} from '../../../api/cartApi';
+import {useNavigate, useLocation} from 'react-router-dom';
 import {Modal} from 'antd';
+import toast from 'react-hot-toast';
+import {createOrders} from '../../../api/orderApi';
 
 const ShoppingCart = () => {
     const navigate = useNavigate();
@@ -58,7 +60,7 @@ const ShoppingCart = () => {
             setCart(result.cart);
             setCartItems(result.cart.items);
         } catch (err) {
-            console.error("Update failed", err);
+            console.error('Update failed', err);
         }
     }
 
@@ -84,14 +86,14 @@ const ShoppingCart = () => {
             setCart(newCartData.cart);
             setCartItems(newCartData.cart.items);
         } catch (error) {
-            console.error("Remove failed:", error);
+            console.error('Remove failed:', error);
         }
     };
 
     const showDeleteConfirm = (cartItem, onOk) => {
         confirm({
             title: 'Xóa sản phẩm',
-            content: `Bạn có chắc chắn muốn xóa sản phẩm "${cartItem.productName}" ra khỏi giỏ hàng không?`,
+            content: `Bạn có chắc chắn muốn xóa sản phẩm '${cartItem.productName}' ra khỏi giỏ hàng không?`,
             okText: 'Xác nhận',
             okType: 'danger',
             cancelText: 'Hủy',
@@ -99,11 +101,28 @@ const ShoppingCart = () => {
         });
     };
 
-    const handleConfirm = () => {
-        if(!localStorage.getItem("token")) {
-            const currentPath = location.pathname;
-            navigate(`/login?redirect=${currentPath}`);
+    const handleConfirm = async () => {
+        if (!localStorage.getItem('token')) {
+            navigate(`/login?redirect=${location.pathname}`);
+        } else {
+            const toastId = toast.loading('Đang xử lý tạo đơn hàng...');
+
+            // Chỉ lấy các trường cần thiết
+            const orderItems = cartItems.map(item => ({
+                productId: item.productId.toString(),
+                variantId: item.variantId.toString(),
+                price: (item.discountPrice ?? item.basePrice).toString(),
+                quantity: item.quantity.toString()
+            }));
+
+            try {
+                await createOrders({ orderItems });
+                toast.success('Tạo đơn hàng thành công', { id: toastId, duration: 2000 });
+                navigate('/order-history');
+            } catch (error) {
+                toast.error('Tạo đơn hàng thất bại', { id: toastId, duration: 5000 });
             }
+        }
     }
 
     const formatCurrency = (amount) => {
@@ -140,10 +159,10 @@ const ShoppingCart = () => {
                     <button onClick={() => handleQuantityChange(item.id, item.quantity - 1)}>-</button>
 
                     <input
-                        type="number"
+                        type='number'
                         value={item.quantity}
                         onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 1)}
-                        min="1"
+                        min='1'
                     />
 
                     <button onClick={() => handleQuantityChange(item.id, item.quantity + 1)}>+</button>
@@ -161,6 +180,8 @@ const ShoppingCart = () => {
             </div>
         );
     };
+
+    console.log('CartItems', cartItems);
 
     return (
         <div className={styles.shoppingCart}>
@@ -202,7 +223,7 @@ const ShoppingCart = () => {
             ) : (
                 <div className={styles.emptyCart}>
                     <p>Giỏ hàng của bạn chưa có sản phẩm nào.</p>
-                    <a href="/">Tiếp tục mua sắm</a>
+                    <a href='/'>Tiếp tục mua sắm</a>
                 </div>
             )}
         </div>
