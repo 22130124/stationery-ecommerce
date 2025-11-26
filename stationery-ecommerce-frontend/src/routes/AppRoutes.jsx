@@ -14,6 +14,7 @@ import ShoppingCart from "../features/shopping-cart/pages/ShoppingCart";
 import ProductManagementPage from "../features/admin-product-management/pages/ProductManagementPage";
 import VerifyPage from "../features/auth/pages/VerifyPage";
 import ProfilePage from "../features/user-profile/pages/ProfilePage";
+import OrderHistoryPage from "../features/order-history/OrderHistoryPage";
 
 const AppRoutes = () => {
     return (
@@ -31,6 +32,7 @@ const AppRoutes = () => {
                 <Route path="/:slug" element={<ProductDetailsPage />} />
                 <Route path="/shopping-cart" element={<ShoppingCart />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/order-history" element={<OrderHistoryPage />} />
             </Route>
         </Routes>
     );

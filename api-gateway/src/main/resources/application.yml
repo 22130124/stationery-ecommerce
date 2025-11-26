@@ -45,3 +45,8 @@ spring:
           uri: http://profile-service:8080
           predicates:
             - Path=/profiles/**
+
+        - id: order_route
+          uri: http://order-service:8080
+          predicates:
+            - Path=/orders/**
