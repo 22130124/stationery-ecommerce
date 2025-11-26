@@ -134,14 +134,17 @@ const Header = () => {
                 <span>Tài khoản</span>
                 {hoveredMenu === "user" && (
                     <div className={styles.dropdownUser}>
-                        {isLoggedIn ? (<button onClick={handleLogout}>Đăng xuất</button>) :
-                            (
-                                <>
-                                    <button onClick={() => navigate("/login")}>Đăng nhập</button>
-                                    <button onClick={() => navigate("/sign-up")}>Đăng ký</button>
-                                </>
-                            )
-                        }
+                        {isLoggedIn ? (
+                            <>
+                                <button onClick={() => navigate("/profile")}>Hồ sơ cá nhân</button>
+                                <button onClick={handleLogout}>Đăng xuất</button>
+                            </>
+                        ) : (
+                            <>
+                                <button onClick={() => navigate("/login")}>Đăng nhập</button>
+                                <button onClick={() => navigate("/sign-up")}>Đăng ký</button>
+                            </>
+                        )}
                     </div>
                 )}
             </div>
