@@ -14,5 +14,5 @@ public class OrderResponse {
     private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private List<OrderItem> orderItems;
+    private List<OrderItemResponse> orderItems;
 }

@@ -10,4 +10,5 @@ export const API_URLS = {
     upload: `${API_URL}/upload`,
     cart: `${API_URL}/cart`,
     profile: `${API_URL}/profiles`,
+    order: `${API_URL}/orders`,
 };

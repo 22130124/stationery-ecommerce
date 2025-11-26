@@ -137,6 +137,7 @@ const Header = () => {
                         {isLoggedIn ? (
                             <>
                                 <button onClick={() => navigate("/profile")}>Hồ sơ cá nhân</button>
+                                <button onClick={() => navigate("/order-history")}>Lịch sử đơn hàng</button>
                                 <button onClick={handleLogout}>Đăng xuất</button>
                             </>
                         ) : (

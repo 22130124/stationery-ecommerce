@@ -11,6 +11,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "orders")
@@ -50,7 +51,7 @@ public class Order {
         orderResponse.setStatus(status);
         orderResponse.setCreatedAt(createdAt);
         orderResponse.setUpdatedAt(updatedAt);
-        orderResponse.setOrderItems(orderItems);
+        orderResponse.setOrderItems(orderItems.stream().map(OrderItem::convertToDto).collect(Collectors.toList()));
         return orderResponse;
     }
 }
