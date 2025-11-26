@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="66f227c8-0341-48ac-baab-ce10f5e9d15e" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../stationery-ecommerce-frontend/src/config/apiConfig.js" beforeDir="false" afterPath="$PROJECT_DIR$/../stationery-ecommerce-frontend/src/config/apiConfig.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../stationery-ecommerce-frontend/src/routes/AppRoutes.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/../stationery-ecommerce-frontend/src/routes/AppRoutes.jsx" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
+  <component name="ProjectId" id="35T9LYu47mAvcEo8s7nv71yoIyk" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;Spring Boot.CategoryServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.ProductServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;order&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/hk1_2025_2026/graduation_thesis/stationery-ecommerce/category-service&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\hk1_2025_2026\graduation_thesis\stationery-ecommerce\product-service\src\main\java\com\tqk\productservice\repository" />
+      <recent name="D:\hk1_2025_2026\graduation_thesis\stationery-ecommerce\product-service\src\main\java\com\tqk\productservice\dto" />
+      <recent name="D:\hk1_2025_2026\graduation_thesis\stationery-ecommerce\product-service\src\main\java\com\tqk\productservice\model" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.tqk.categoryservice.service" />
+      <recent name="com.tqk.categoryservice.controller" />
+      <recent name="com.tqk.productservice.controller" />
+      <recent name="com.tqk.productservice.exception" />
+      <recent name="com.tqk.productservice.service" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="profile-service" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="profile-service" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+    <configuration name="UserServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="profile-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.tqk.profileservice.UserServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.26927.53" />
+        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-IU-251.26927.53" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="66f227c8-0341-48ac-baab-ce10f5e9d15e" name="Changes" comment="" />
+      <created>1763123140530</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1763123140530</updated>
+      <workItem from="1763123141539" duration="4174000" />
+      <workItem from="1763127512948" duration="4876000" />
+      <workItem from="1763138010153" duration="16000" />
+      <workItem from="1763138672349" duration="315000" />
+      <workItem from="1763139120011" duration="16000" />
+      <workItem from="1763140745392" duration="288000" />
+      <workItem from="1763186613885" duration="642000" />
+      <workItem from="1763197580904" duration="317000" />
+      <workItem from="1763199385055" duration="3585000" />
+      <workItem from="1763224462859" duration="8000" />
+      <workItem from="1763258352803" duration="1643000" />
+      <workItem from="1763375696458" duration="46000" />
+      <workItem from="1763375758475" duration="861000" />
+      <workItem from="1763378146140" duration="217000" />
+      <workItem from="1763378377396" duration="2569000" />
+      <workItem from="1763440156282" duration="90000" />
+      <workItem from="1763447682425" duration="12000" />
+      <workItem from="1763456388094" duration="50000" />
+      <workItem from="1763463043309" duration="54000" />
+      <workItem from="1763546801085" duration="659000" />
+      <workItem from="1763550838124" duration="44000" />
+      <workItem from="1763553066332" duration="32000" />
+      <workItem from="1763553180925" duration="16000" />
+      <workItem from="1763554496907" duration="723000" />
+      <workItem from="1763890674999" duration="1277000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

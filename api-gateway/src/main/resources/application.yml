@@ -40,3 +40,8 @@ spring:
           uri: http://cart-service:8080
           predicates:
             - Path=/cart/**
+
+        - id: profile_route
+          uri: http://profile-service:8080
+          predicates:
+            - Path=/profiles/**

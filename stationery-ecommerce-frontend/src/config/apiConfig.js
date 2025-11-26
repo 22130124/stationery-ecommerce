@@ -9,4 +9,5 @@ export const API_URLS = {
     auth: `${API_URL}/auth`,
     upload: `${API_URL}/upload`,
     cart: `${API_URL}/cart`,
+    profile: `${API_URL}/profiles`,
 };

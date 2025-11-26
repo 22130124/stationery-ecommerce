@@ -13,6 +13,7 @@ import ProductDetailsPage from "../features/product-details/pages/ProductDetails
 import ShoppingCart from "../features/shopping-cart/pages/ShoppingCart";
 import ProductManagementPage from "../features/admin-product-management/pages/ProductManagementPage";
 import VerifyPage from "../features/auth/pages/VerifyPage";
+import ProfilePage from "../features/user-profile/pages/ProfilePage";
 
 const AppRoutes = () => {
     return (
@@ -29,6 +30,7 @@ const AppRoutes = () => {
                 <Route path="/product-list" element={<ProductListPage />} />
                 <Route path="/:slug" element={<ProductDetailsPage />} />
                 <Route path="/shopping-cart" element={<ShoppingCart />} />
+                <Route path="/profile" element={<ProfilePage />} />
             </Route>
         </Routes>
     );
