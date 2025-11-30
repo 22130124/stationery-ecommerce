@@ -39,3 +39,52 @@ export const createOrders = async (payload) => {
     }
     return data;
 }
+
+export const getAllOrders = async () => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${BASE_URL}/admin`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.message || 'Đã có lỗi xảy ra');
+    }
+    return data;
+}
+
+export const updateOrderStatus = async (id, status) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${BASE_URL}/admin/${id}`, {
+        method: 'PUT',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({status}),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.message || 'Đã có lỗi xảy ra');
+    }
+    return data;
+}
+
+export const cancelOrder = async (id) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${BASE_URL}/${id}`, {
+        method: 'PUT',
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.message || 'Đã có lỗi xảy ra');
+    }
+    return data;
+}

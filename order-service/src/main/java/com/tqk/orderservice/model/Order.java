@@ -30,7 +30,7 @@ public class Order {
     private Double totalAmount;
 
     @Column(name = "status")
-    private String status;
+    private Integer status;
 
     @Column(name = "created_at")
     @CreatedDate

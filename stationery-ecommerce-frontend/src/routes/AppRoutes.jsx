@@ -15,6 +15,8 @@ import ProductManagementPage from "../features/admin-product-management/pages/Pr
 import VerifyPage from "../features/auth/pages/VerifyPage";
 import ProfilePage from "../features/user-profile/pages/ProfilePage";
 import OrderHistoryPage from "../features/order-history/OrderHistoryPage";
+import AdminLayout from "../layouts/AdminLayout";
+import OrderManagementPage from "../features/admin-order-management/pages/OrderManagementPage";
 
 const AppRoutes = () => {
     return (
@@ -23,7 +25,12 @@ const AppRoutes = () => {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/verify" element={<VerifyPage />} />
-            <Route path="/admin/product-management" element={<ProductManagementPage />} />
+
+            {/* Admin */}
+            <Route element={<AdminLayout />}>
+                <Route path="/admin/product-management" element={<ProductManagementPage />} />
+                <Route path="/admin/order-management" element={<OrderManagementPage />} />
+            </Route>
 
             {/* Các Route có header */}
             <Route element={<MainLayout />}>

@@ -1,6 +1,7 @@
 package com.tqk.orderservice.service;
 
-import com.tqk.orderservice.dto.request.OrderRequest;
+import com.tqk.orderservice.dto.request.AddOrderRequest;
+import com.tqk.orderservice.dto.request.UpdateOrderRequest;
 import com.tqk.orderservice.dto.response.OrderItemResponse;
 import com.tqk.orderservice.dto.response.OrderResponse;
 import com.tqk.orderservice.model.Order;
@@ -22,6 +23,15 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final CartClient cartClient;
 
+    // Lấy ra tất cả danh sách đơn hàng
+    @Transactional
+    public List<OrderResponse> getAllOrders() {
+        return orderRepository.findAll()
+                .stream()
+                .map(Order::convertToDto)
+                .collect(Collectors.toList());
+    }
+
     public List<OrderResponse> getOrders(Integer accountId) {
         List<Order> orders = orderRepository.findByAccountIdOrderByCreatedAtDesc(accountId);
         return orders.stream()
@@ -30,7 +40,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponse createOrder(Integer accountId, OrderRequest request) {
+    public OrderResponse createOrder(Integer accountId, AddOrderRequest request) {
 
         // 1. Tính tổng tiền
         double total = request.getOrderItems().stream()
@@ -41,11 +51,11 @@ public class OrderService {
         Order order = new Order();
         order.setAccountId(accountId);
         order.setTotalAmount(total);
-        order.setStatus("Đang lấy hàng");
+        order.setStatus(1);
         order = orderRepository.save(order);
 
         // 3. Lưu OrderItems
-        for(OrderItemResponse o : request.getOrderItems()) {
+        for (OrderItemResponse o : request.getOrderItems()) {
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProductId(o.getProductId());
@@ -63,51 +73,25 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponse updateOrder(Integer accountId, Integer orderId, OrderRequest request) {
+    public OrderResponse updateOrderStatus(Integer accountId, Integer id, UpdateOrderRequest request) {
 
         // 1. Lấy order
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
 
-        // 2. Kiểm tra quyền sở hữu
-        if (!order.getAccountId().equals(accountId)) {
-            throw new RuntimeException("Không có quyền sửa đơn này");
+        // 2. Cập nhật trạng thái
+        if (request.getStatus() != null) {
+            order.setStatus(request.getStatus());
         }
 
-        // 3. Chỉ cho sửa khi đang ở trạng thái Đang lấy hàng
-        if (!order.getStatus().equals("Đang lấy hàng")) {
-            throw new RuntimeException("Chỉ đơn hàng ở trạng thái 'Đang lấy hàng' mới được sửa");
-        }
-
-        // 4. Xóa toàn bộ items cũ (orphanRemoval = true)
-        order.getOrderItems().clear();
-
-        // 5. Tính tổng tiền mới
-        double newTotal = request.getOrderItems().stream()
-                .mapToDouble(i -> i.getPrice() * i.getQuantity())
-                .sum();
-
-        order.setTotalAmount(newTotal);
-
-        // 6. Thêm items mới
-        for (OrderItemResponse o : request.getOrderItems()) {
-            OrderItem item = new OrderItem();
-            item.setOrder(order);
-            item.setProductId(o.getProductId());
-            item.setVariantId(o.getVariantId());
-            item.setPrice(o.getPrice());
-            item.setQuantity(o.getQuantity());
-            order.getOrderItems().add(item);
-        }
-
-        // 7. Lưu
-        order = orderRepository.save(order);
+        // 3. Lưu
+        orderRepository.save(order);
 
         return order.convertToDto();
     }
 
     @Transactional
-    public void cancelOrder(Integer accountId, Integer orderId) {
+    public OrderResponse cancelOrder(Integer accountId, Integer orderId) {
 
         // 1. Lấy order
         Order order = orderRepository.findById(orderId)
@@ -119,12 +103,14 @@ public class OrderService {
         }
 
         // 3. Chỉ cho hủy khi đang 'Đang lấy hàng'
-        if (!order.getStatus().equals("Đang lấy hàng")) {
-            throw new RuntimeException("Chỉ đơn hàng ở trạng thái 'Đang lấy hàng' mới được hủy");
+        if (!(order.getStatus() == 1)) {
+            throw new RuntimeException("Chỉ đơn hàng ở trạng thái Đang lấy hàng mới được hủy");
         }
 
         // 4. Cập nhật trạng thái
-        order.setStatus("Đã hủy");
+        order.setStatus(0);
         orderRepository.save(order);
+
+        return order.convertToDto();
     }
 }

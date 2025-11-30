@@ -24,6 +24,7 @@ public class SecurityConfig {
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers(HttpMethod.OPTIONS).permitAll() // thêm dòng này
                         .pathMatchers("/products/admin","/products/admin/**", "/products/internal/**").hasRole("ADMIN")
+                        .pathMatchers("/orders/admin","/orders/admin/**").hasRole("ADMIN")
                         .pathMatchers("/auth", "/auth/**").permitAll()
                         .pathMatchers("/products", "/products/**").permitAll()
                         .pathMatchers("/categories", "/categories/**").permitAll()

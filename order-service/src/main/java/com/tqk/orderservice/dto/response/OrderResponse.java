@@ -10,7 +10,7 @@ public class OrderResponse {
     private Integer id;
     private Integer accountId;
     private Double totalAmount;
-    private String status;
+    private Integer status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<OrderItemResponse> orderItems;

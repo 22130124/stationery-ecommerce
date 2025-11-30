@@ -6,6 +6,6 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class OrderRequest {
+public class AddOrderRequest {
     private List<OrderItemResponse> orderItems;
 }
