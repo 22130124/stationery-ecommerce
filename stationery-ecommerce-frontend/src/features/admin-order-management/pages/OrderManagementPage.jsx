@@ -3,6 +3,8 @@ import {Table, Modal, Select} from 'antd';
 import styles from './OrderManagementPage.module.scss';
 import toast from 'react-hot-toast';
 import {cancelOrder, getAllOrders, updateOrderStatus} from '../../../api/orderApi';
+import OrderDetailModal from "../components/OrderDetailModal";
+import OrderStatus from "../../../components/order/OrderStatus";
 
 const OrderManagementPage = () => {
     const [orders, setOrders] = useState([]);
@@ -10,6 +12,7 @@ const OrderManagementPage = () => {
     const [searchText, setSearchText] = useState("");
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [editOrder, setEditOrder] = useState(null);
+    const [selectedOrderId, setSelectedOrderId] = useState(null);
 
     const {confirm} = Modal;
 
@@ -140,9 +143,7 @@ const OrderManagementPage = () => {
             key: 'status',
             render: (status) => {
                 return (
-                    <span className={`${styles.statusBadge} ${styles[STATUS_CLASS[status]]}`}>
-                        {STATUS_TEXT[status]}
-                    </span>
+                    <OrderStatus status={status} />
                 )
             }
         },
@@ -161,7 +162,7 @@ const OrderManagementPage = () => {
                 <div className={styles.actions}>
                     <button
                         className={styles.detailBtn}
-                        onClick={() => setSelectedOrder(record)}
+                        onClick={() => setSelectedOrderId(record.id)}
                     >
                         Chi tiết
                     </button>
@@ -214,27 +215,11 @@ const OrderManagementPage = () => {
             />
 
             {/* Modal chi tiết đơn hàng */}
-            {selectedOrder && (
-                <Modal
-                    open={true}
-                    title={`Chi tiết đơn #${selectedOrder.id}`}
-                    onCancel={() => setSelectedOrder(null)}
-                    footer={null}
-                >
-                    <p><b>Tài khoản:</b> {selectedOrder.accountId}</p>
-                    <p><b>Tổng tiền:</b> {formatCurrency(selectedOrder.totalAmount)}</p>
-                    <p><b>Trạng thái:</b> {STATUS_TEXT[selectedOrder.status]}</p>
-
-                    <h4>Danh sách sản phẩm:</h4>
-                    <ul>
-                        {selectedOrder.orderItems?.map(item => (
-                            <li key={item.id}>
-                                SP #{item.productId} - SL: {item.quantity} - {formatCurrency(item.price)}
-                            </li>
-                        ))}
-                    </ul>
-                </Modal>
-            )}
+            <OrderDetailModal
+                orderId={selectedOrderId}
+                open={!!selectedOrderId}
+                onClose={() => setSelectedOrderId(null)}
+            />
         </div>
     );
 };

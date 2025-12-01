@@ -1,4 +1,4 @@
-package com.tqk.categoryservice.dto.response;
+package com.tqk.profileservice.dto.response;
 
 import lombok.Data;
 
@@ -9,6 +9,7 @@ public class ProfileResponse {
     private Integer id;
     private Integer accountId;
     private String fullName;
+    private String email;
     private String phone;
     private String address;
     private String avatarUrl;

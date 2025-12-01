@@ -1,14 +1,17 @@
 package com.tqk.orderservice.service;
 
+import com.tqk.orderservice.dto.request.AddOrderItemRequest;
 import com.tqk.orderservice.dto.request.AddOrderRequest;
 import com.tqk.orderservice.dto.request.UpdateOrderRequest;
-import com.tqk.orderservice.dto.response.OrderItemResponse;
-import com.tqk.orderservice.dto.response.OrderResponse;
+import com.tqk.orderservice.dto.response.order.OrderDetailResponse;
+import com.tqk.orderservice.dto.response.order.OrderResponse;
+import com.tqk.orderservice.dto.response.profile.ProfileResponse;
 import com.tqk.orderservice.model.Order;
 import com.tqk.orderservice.model.OrderItem;
 import com.tqk.orderservice.repository.OrderItemRepository;
 import com.tqk.orderservice.repository.OrderRepository;
 import com.tqk.orderservice.repository.client.CartClient;
+import com.tqk.orderservice.repository.client.ProfileClient;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final CartClient cartClient;
+    private final ProfileClient profileClient;
 
     // Lấy ra tất cả danh sách đơn hàng
     @Transactional
@@ -32,6 +36,7 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
+    // Hàm lấy ra danh sách đơn hàng theo account id
     public List<OrderResponse> getOrders(Integer accountId) {
         List<Order> orders = orderRepository.findByAccountIdOrderByCreatedAtDesc(accountId);
         return orders.stream()
@@ -55,7 +60,7 @@ public class OrderService {
         order = orderRepository.save(order);
 
         // 3. Lưu OrderItems
-        for (OrderItemResponse o : request.getOrderItems()) {
+        for (AddOrderItemRequest o : request.getOrderItems()) {
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProductId(o.getProductId());
@@ -112,5 +117,21 @@ public class OrderService {
         orderRepository.save(order);
 
         return order.convertToDto();
+    }
+
+    public OrderDetailResponse getOrderDetail(Integer id) {
+        // Lấy order
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+
+        // Lấy thông tin profile user
+        ProfileResponse profile = profileClient.getProfileByAccount(order.getAccountId());
+
+        // Tạo đối tượng trả về
+        OrderDetailResponse orderDetailResponse = new OrderDetailResponse();
+        orderDetailResponse.setProfile(profile);
+        orderDetailResponse.setOrder(order.convertToDto());
+
+        return orderDetailResponse;
     }
 }

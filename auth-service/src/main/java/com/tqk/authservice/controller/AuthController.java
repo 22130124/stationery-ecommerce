@@ -22,9 +22,14 @@ public class AuthController {
         this.emailVerificationService = emailVerificationService;
     }
 
+    @GetMapping("/get-email/{id}")
+    public ResponseEntity<?> getEmail(@PathVariable Integer id){
+        String email = authService.getEmail(id);
+        return ResponseEntity.ok(email);
+    }
 
     @PostMapping("/login")
-    private ResponseEntity<?> login(@RequestBody AuthRequest request) {
+    public ResponseEntity<?> login(@RequestBody AuthRequest request) {
         String token = authService.login(request);
         Map<String, String> response = Map.of("token", token);
         return ResponseEntity.ok(response);
@@ -38,7 +43,7 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    private ResponseEntity<?> signUp(@RequestBody AuthRequest request) {
+    public ResponseEntity<?> signUp(@RequestBody AuthRequest request) {
         Integer accountId = authService.signUp(request);
         return ResponseEntity.ok(accountId);
     }

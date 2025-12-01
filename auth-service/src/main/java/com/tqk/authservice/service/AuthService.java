@@ -169,4 +169,9 @@ public class AuthService {
                 .signWith(key)
                 .compact();
     }
+
+    public String getEmail(Integer id) {
+        Account account = accountRepository.findById(id).orElseThrow(() -> new AuthException("Không tìm thấy tài khoản có id: " + id));
+        return account.getEmail();
+    }
 }

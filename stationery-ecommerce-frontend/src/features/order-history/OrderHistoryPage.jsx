@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
 import styles from "./OrderHistoryPage.module.scss";
 import { getOrders } from "../../api/orderApi";
+import OrderStatus from "../../components/order/OrderStatus";
+import OrderDetailModal from "../admin-order-management/components/OrderDetailModal";
 
 const OrderHistoryPage = () => {
     const [orders, setOrders] = useState([]);
+    const [openDetail, setOpenDetail] = useState(false);
+    const [selectedOrderId, setSelectedOrderId] = useState(null);
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -43,10 +47,9 @@ const OrderHistoryPage = () => {
                         <li key={order.id} className={styles.card}>
                             <div className={styles.header}>
                                 <span className={styles.orderId}>#{order.id}</span>
-                                <span className={`${styles.status} ${styles[order.status.replace(/\s/g, "").toLowerCase()]}`}>
-                  {order.status}
-                </span>
+                                <OrderStatus status={order.status} />
                             </div>
+
                             <div className={styles.info}>
                                 <div>
                                     <strong>Ngày tạo:</strong> {formatDateVN(order.createdAt)}
@@ -55,10 +58,28 @@ const OrderHistoryPage = () => {
                                     <strong>Tổng tiền:</strong> {order.totalAmount.toLocaleString("vi-VN")}₫
                                 </div>
                             </div>
+
+                            <div className={styles.actions}>
+                                <button
+                                    className={styles.detailBtn}
+                                    onClick={() => {
+                                        setSelectedOrderId(order.id);
+                                        setOpenDetail(true);
+                                    }}
+                                >
+                                    Chi tiết
+                                </button>
+                            </div>
                         </li>
                     ))}
                 </ul>
             )}
+
+            <OrderDetailModal
+                orderId={selectedOrderId}
+                open={openDetail}
+                onClose={() => setOpenDetail(false)}
+            />
         </div>
     );
 };

@@ -2,7 +2,8 @@ package com.tqk.orderservice.controller;
 
 import com.tqk.orderservice.dto.request.AddOrderRequest;
 import com.tqk.orderservice.dto.request.UpdateOrderRequest;
-import com.tqk.orderservice.dto.response.OrderResponse;
+import com.tqk.orderservice.dto.response.order.OrderDetailResponse;
+import com.tqk.orderservice.dto.response.order.OrderResponse;
 import com.tqk.orderservice.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,12 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getOrderDetail(@PathVariable Integer id) {
+        OrderDetailResponse detail = orderService.getOrderDetail(id);
+        return ResponseEntity.ok(detail);
+    }
+
     @PostMapping
     public ResponseEntity<?> createOrder(@RequestHeader("X-Account-Id") Integer accountId, @RequestBody AddOrderRequest orderRequest) {
         OrderResponse order = orderService.createOrder(accountId, orderRequest);
@@ -43,7 +50,7 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/cancel/{id}")
     public ResponseEntity<?> cancelOrder(
             @RequestHeader("X-Account-Id") Integer accountId,
             @PathVariable Integer id) {

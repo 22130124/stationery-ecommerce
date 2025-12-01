@@ -1,4 +1,4 @@
-package com.tqk.categoryservice.exception;
+package com.tqk.profileservice.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

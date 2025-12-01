@@ -9,6 +9,6 @@ import java.util.List;
 
 @FeignClient(name = "product-service", url = "http://product-service:8080")
 public interface ProductClient {
-    @PostMapping("/products/internal/by-variant-ids")
+    @PostMapping("/products/by-variant-ids")
     List<ProductResponse> getProductsByIds(@RequestBody List<Integer> ids);
 }

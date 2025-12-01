@@ -1,0 +1,80 @@
+.orderDetailWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  background: #fafafa;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid #eee;
+}
+
+.cardTitle {
+  font-weight: 600;
+  margin-bottom: 10px;
+  font-size: 15px;
+  color: #222;
+  border-left: 3px solid #1677ff;
+  padding-left: 8px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+
+  div {
+    font-size: 14px;
+    color: #444;
+  }
+}
+
+/* Bảng sản phẩm */
+.productTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  text-align: center;
+
+  th, td {
+    padding: 8px;
+    border-bottom: 1px solid #e6e6e6;
+    font-size: 14px;
+  }
+
+  th {
+    background: #f5f5f5;
+    font-weight: 600;
+  }
+}
+
+/* Badge trạng thái */
+.statusBadge {
+  margin-left: 6px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: white;
+}
+
+.status-pending {
+  background: #d48806;
+  color: #fff;
+}
+
+.status-shipping {
+  background: #1677ff;
+  color: #fff;
+}
+
+.status-done {
+  background: #389e0d;
+  color: #fff;
+}
+
+.status-cancel {
+  background: #cf1322;
+  color: #fff;
+}

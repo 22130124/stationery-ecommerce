@@ -22,6 +22,26 @@ export const getOrders = async () => {
     return data;
 }
 
+export const getOrderDetail = async (id) => {
+    const token = localStorage.getItem('token')
+    let response;
+    try {
+        response = await fetch(`${BASE_URL}/${id}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            })
+    } catch (error) {
+        throw new Error("Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối hoặc thử lại sau");
+    }
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.message || "Đã có lỗi xảy ray");
+    }
+    return data;
+}
+
 export const createOrders = async (payload) => {
     const token = localStorage.getItem('token');
     const response = await fetch(BASE_URL, {
@@ -75,7 +95,7 @@ export const updateOrderStatus = async (id, status) => {
 
 export const cancelOrder = async (id) => {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${BASE_URL}/${id}`, {
+    const response = await fetch(`${BASE_URL}/cancel/${id}`, {
         method: 'PUT',
         headers: {
             Authorization: `Bearer ${token}`,

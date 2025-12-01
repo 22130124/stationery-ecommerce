@@ -16,7 +16,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/products")
-@EntityListeners(AuditingEntityListener.class)
 public class ProductController {
     @Autowired
     private ProductService productService;
@@ -88,9 +87,9 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
-    // ============ INTERNAL =============
-    @PostMapping("/internal/by-variant-ids")
+    @PostMapping(value = "/by-variant-ids", consumes = "application/json")
     public ResponseEntity<List<ProductResponse>> getProductsByVariantIds(@RequestBody List<Integer> variantIds) {
         return ResponseEntity.ok(productService.getProductsByVariantIds(variantIds));
     }
+
 }

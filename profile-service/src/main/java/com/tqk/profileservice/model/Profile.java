@@ -1,6 +1,6 @@
-package com.tqk.categoryservice.model;
+package com.tqk.profileservice.model;
 
-import com.tqk.categoryservice.dto.response.ProfileResponse;
+import com.tqk.profileservice.dto.response.ProfileResponse;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,11 +43,12 @@ public class Profile {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    public ProfileResponse convertToDto() {
+    public ProfileResponse convertToDto(String email) {
         ProfileResponse dto = new ProfileResponse();
         dto.setId(this.id);
         dto.setAccountId(this.accountId);
         dto.setFullName(this.fullName);
+        dto.setEmail(email);
         dto.setPhone(this.phone);
         dto.setAddress(this.address);
         dto.setAvatarUrl(this.avatarUrl);

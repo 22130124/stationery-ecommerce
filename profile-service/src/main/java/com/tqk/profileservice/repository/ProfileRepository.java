@@ -1,6 +1,6 @@
-package com.tqk.categoryservice.repository;
+package com.tqk.profileservice.repository;
 
-import com.tqk.categoryservice.model.Profile;
+import com.tqk.profileservice.model.Profile;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

@@ -57,29 +57,29 @@ h2 {
   text-transform: uppercase;
 }
 
-.status.danglayhang {
-  background-color: #e0f0ff;
-  color: #007bff;
-}
-
-.status.dahuy {
-  background-color: #ffe0e0;
-  color: #ff4d4f;
-}
-
-.status.dagiao {
-  background-color: #e6ffed;
-  color: #52c41a;
-}
-
-.status.datra {
-  background-color: #fff7e6;
-  color: #fa8c16;
-}
-
 .info {
   display: flex;
   justify-content: space-between;
   font-size: 14px;
   color: #555;
+}
+
+.actions {
+  margin-top: 12px;
+  text-align: right;
+}
+
+.detailBtn {
+  padding: 6px 14px;
+  background: #1677ff;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+
+  &:hover {
+    background: #1654c6;
+  }
 }
