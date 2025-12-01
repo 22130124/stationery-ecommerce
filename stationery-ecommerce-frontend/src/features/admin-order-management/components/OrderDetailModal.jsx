@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Modal, Spin } from "antd";
+import React, {useEffect, useState} from "react";
+import {Modal, Spin} from "antd";
 import toast from "react-hot-toast";
-import { getOrderDetail } from "../../../api/orderApi";
+import {getOrderDetail} from "../../../api/orderApi";
 import styles from "./OrderDetailModal.module.scss";
 import OrderStatus from "../../../components/order/OrderStatus";
 
-const OrderDetailModal = ({ orderId, open, onClose }) => {
+const OrderDetailModal = ({orderId, open, onClose}) => {
     const [loading, setLoading] = useState(false);
     const [orderDetail, setOrderDetail] = useState(null);
     const [profileDetail, setProfileDetail] = useState(null);
@@ -29,15 +29,13 @@ const OrderDetailModal = ({ orderId, open, onClose }) => {
 
         const fetchDetail = async () => {
             setLoading(true);
-            try {
-                const data = await getOrderDetail(orderId);
-                setOrderDetail(data.order);
-                setProfileDetail(data.profile);
-            } catch (err) {
-                console.error("Lỗi load chi tiết đơn:", err);
-                toast.error("Không thể tải chi tiết đơn hàng");
+            const data = await getOrderDetail(orderId);
+            if (!data) {
+                setLoading(false);
+                return
             }
-            setLoading(false);
+            setOrderDetail(data.order);
+            setProfileDetail(data.profile);
         };
 
         fetchDetail();
@@ -48,14 +46,14 @@ const OrderDetailModal = ({ orderId, open, onClose }) => {
     return (
         <Modal
             open={open}
-            title={<>Chi tiết đơn hàng <span style={{ opacity: 0.6 }}>#{orderId}</span></>}
+            title={<>Chi tiết đơn hàng <span style={{opacity: 0.6}}>#{orderId}</span></>}
             onCancel={onClose}
             footer={null}
             width={650}
         >
             {loading ? (
-                <div style={{ textAlign: "center", padding: 50 }}>
-                    <Spin />
+                <div style={{textAlign: "center", padding: 50}}>
+                    <Spin/>
                 </div>
             ) : orderDetail ? (
                 <div className={styles.orderDetailWrapper}>

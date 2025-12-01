@@ -1,110 +1,27 @@
-import {API_URLS} from "../config/apiConfig";
+// src/api/orderApi.js
+import { API_URLS, apiFetch } from "../config/apiConfig";
 
-const BASE_URL = API_URLS.order
+const BASE_URL = API_URLS.order;
 
-export const getOrders = async () => {
-    const token = localStorage.getItem('token')
-    let response;
-    try {
-        response = await fetch(BASE_URL,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
-            })
-    } catch (error) {
-        throw new Error("Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối hoặc thử lại sau");
-    }
-    const data = await response.json();
-    if (!response.ok) {
-        throw new Error(data.message || "Đã có lỗi xảy ray");
-    }
-    return data;
-}
+export const getOrders = () => apiFetch(BASE_URL);
 
-export const getOrderDetail = async (id) => {
-    const token = localStorage.getItem('token')
-    let response;
-    try {
-        response = await fetch(`${BASE_URL}/${id}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
-            })
-    } catch (error) {
-        throw new Error("Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối hoặc thử lại sau");
-    }
-    const data = await response.json();
-    if (!response.ok) {
-        throw new Error(data.message || "Đã có lỗi xảy ray");
-    }
-    return data;
-}
+export const getOrderDetail = (id) => apiFetch(`${BASE_URL}/${id}`);
 
-export const createOrders = async (payload) => {
-    const token = localStorage.getItem('token');
-    const response = await fetch(BASE_URL, {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
+export const createOrders = (payload) =>
+    apiFetch(BASE_URL, {
+        method: "POST",
         body: JSON.stringify(payload),
     });
 
-    const data = await response.json();
-    if (!response.ok) {
-        throw new Error(data.message || 'Đã có lỗi xảy ra');
-    }
-    return data;
-}
+export const getAllOrders = () => apiFetch(`${BASE_URL}/admin`);
 
-export const getAllOrders = async () => {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${BASE_URL}/admin`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
+export const updateOrderStatus = (id, status) =>
+    apiFetch(`${BASE_URL}/admin/${id}`, {
+        method: "PUT",
+        body: JSON.stringify({ status }),
     });
 
-    const data = await response.json();
-    if (!response.ok) {
-        throw new Error(data.message || 'Đã có lỗi xảy ra');
-    }
-    return data;
-}
-
-export const updateOrderStatus = async (id, status) => {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${BASE_URL}/admin/${id}`, {
-        method: 'PUT',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({status}),
+export const cancelOrder = (id) =>
+    apiFetch(`${BASE_URL}/cancel/${id}`, {
+        method: "PUT",
     });
-
-    const data = await response.json();
-    if (!response.ok) {
-        throw new Error(data.message || 'Đã có lỗi xảy ra');
-    }
-    return data;
-}
-
-export const cancelOrder = async (id) => {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${BASE_URL}/cancel/${id}`, {
-        method: 'PUT',
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-        throw new Error(data.message || 'Đã có lỗi xảy ra');
-    }
-    return data;
-}

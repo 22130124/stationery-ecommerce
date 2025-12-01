@@ -56,6 +56,8 @@ public class JwtAuthenticationFilter implements WebFilter {
                     .contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth));
 
         } catch (Exception e) {
+            exchange.getResponse().getHeaders().add("Access-Control-Allow-Origin", "http://localhost:3000");
+            exchange.getResponse().getHeaders().add("Access-Control-Allow-Credentials", "true");
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }

@@ -32,10 +32,14 @@ const OrderManagementPage = () => {
 
     const getNextStatus = (current) => {
         switch (current) {
-            case 1: return 2;
-            case 2: return 3;
-            case 3: return null;
-            default: return null;
+            case 1:
+                return 2;
+            case 2:
+                return 3;
+            case 3:
+                return null;
+            default:
+                return null;
         }
     };
 
@@ -43,32 +47,28 @@ const OrderManagementPage = () => {
     useEffect(() => {
         const fetchOrders = async () => {
             setLoading(true);
-            try {
-                const data = await getAllOrders();
-                setOrders(data);
-            } catch (err) {
-                console.error('Lỗi load đơn hàng:', err);
+            const data = await getAllOrders();
+            if (!data) {
+                setLoading(false);
+                return
             }
+            setOrders(data);
             setLoading(false);
-        };
+        }
 
         fetchOrders();
     }, []);
 
     const handleStatusChange = async (orderId, newStatus) => {
-        try {
-            await updateOrderStatus(orderId, newStatus)
+            const data = await updateOrderStatus(orderId, newStatus)
+            if (!data) return
             setOrders(prev =>
                 prev.map(o =>
-                    o.id === orderId ? { ...o, status: newStatus } : o
+                    o.id === orderId ? {...o, status: newStatus} : o
                 )
             );
             toast.dismiss()
             toast.success('Cập nhật trạng thái thành công');
-        } catch (err) {
-            console.error('Lỗi cập nhật trạng thái:', err);
-            toast.error('Cập nhật thất bại');
-        }
     };
 
     const showCancelConfirm = (order) => {
@@ -143,7 +143,7 @@ const OrderManagementPage = () => {
             key: 'status',
             render: (status) => {
                 return (
-                    <OrderStatus status={status} />
+                    <OrderStatus status={status}/>
                 )
             }
         },

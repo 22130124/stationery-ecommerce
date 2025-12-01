@@ -20,6 +20,7 @@ const ShoppingCart = () => {
     useEffect(() => {
         const fetchCart = async () => {
             const data = await getCart();
+            if (!data) return
             setCart(data.cart)
             setCartItems(data.cart.items)
         }
@@ -45,7 +46,7 @@ const ShoppingCart = () => {
         setCartItems(prev =>
             prev.map(item =>
                 item.id === itemId
-                    ? { ...item, quantity: newQuantity }
+                    ? {...item, quantity: newQuantity}
                     : item
             )
         );
@@ -55,13 +56,10 @@ const ShoppingCart = () => {
     };
 
     const handleUpdateQuantityApi = async (itemId, quantity) => {
-        try {
-            const result = await updateCartItem(itemId, quantity);
-            setCart(result.cart);
-            setCartItems(result.cart.items);
-        } catch (err) {
-            console.error('Update failed', err);
-        }
+        const data = await updateCartItem(itemId, quantity);
+        if (!data) return
+        setCart(data.cart);
+        setCartItems(data.cart.items);
     }
 
 
@@ -78,16 +76,14 @@ const ShoppingCart = () => {
 
         return debouncedFunction;
     }
+
     const debouncedUpdate = useDebounce(handleUpdateQuantityApi, 400);
 
     const handleRemoveItem = async (itemId) => {
-        try {
-            const newCartData = await removeCartItem(itemId);
-            setCart(newCartData.cart);
-            setCartItems(newCartData.cart.items);
-        } catch (error) {
-            console.error('Remove failed:', error);
-        }
+        const newCartData = await removeCartItem(itemId);
+        if (!newCartData) return
+        setCart(newCartData.cart);
+        setCartItems(newCartData.cart.items);
     };
 
     const showDeleteConfirm = (cartItem, onOk) => {
@@ -115,13 +111,10 @@ const ShoppingCart = () => {
                 quantity: item.quantity.toString()
             }));
 
-            try {
-                await createOrders({ orderItems });
-                toast.success('Tạo đơn hàng thành công', { id: toastId, duration: 2000 });
-                navigate('/order-history');
-            } catch (error) {
-                toast.error('Tạo đơn hàng thất bại', { id: toastId, duration: 5000 });
-            }
+            const data = await createOrders({orderItems});
+            if (!data) return
+            toast.success('Tạo đơn hàng thành công', {id: toastId, duration: 2000});
+            navigate('/order-history');
         }
     }
 

@@ -29,18 +29,15 @@ const ProductDetailsPage = () => {
         if (!slug) return;
 
         const fetchProduct = async () => {
-            try {
-                const data = await getProductBySlug(slug);
-                if (data && data.product) {
-                    setProduct(data.product);
-                    const defaultVar = data.product.defaultVariant || data.product.variants?.[0];
-                    if (defaultVar) {
-                        setSelectedVariant(defaultVar);
-                        setMainImage(defaultVar.defaultImage?.url || defaultVar.images?.[0]?.url || '');
-                    }
+            const data = await getProductBySlug(slug);
+            if (!data) return
+            if (data && data.product) {
+                setProduct(data.product);
+                const defaultVar = data.product.defaultVariant || data.product.variants?.[0];
+                if (defaultVar) {
+                    setSelectedVariant(defaultVar);
+                    setMainImage(defaultVar.defaultImage?.url || defaultVar.images?.[0]?.url || '');
                 }
-            } catch (error) {
-                console.error("Lỗi khi tải sản phẩm:", error);
             }
         };
 

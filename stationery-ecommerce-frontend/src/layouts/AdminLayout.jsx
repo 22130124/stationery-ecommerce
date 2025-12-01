@@ -1,16 +1,17 @@
 // src/features/admin/layouts/AdminLayout.jsx
 import React from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import {Outlet, Link, useLocation} from 'react-router-dom';
 import styles from './AdminLayout.module.scss';
+import RequireAuth from "../components/RequireAdminAuth";
 
 const AdminLayout = () => {
     const location = useLocation();
 
     const menuItems = [
-        { label: "Quản lý sản phẩm", path: "/admin/product-management" },
-        { label: "Quản lý đơn hàng", path: "/admin/order-management" },
-        { label: "Quản lý tài khoản", path: "/admin/users" },
-        { label: "Đăng xuất", path: "/login" },
+        {label: "Quản lý sản phẩm", path: "/admin/product-management"},
+        {label: "Quản lý đơn hàng", path: "/admin/order-management"},
+        {label: "Quản lý tài khoản", path: "/admin/users"},
+        {label: "Đăng xuất", path: "/login"},
     ];
 
     return (
@@ -31,7 +32,7 @@ const AdminLayout = () => {
             </aside>
 
             <main className={styles.content}>
-                <Outlet />
+                <Outlet/>
             </main>
         </div>
     );

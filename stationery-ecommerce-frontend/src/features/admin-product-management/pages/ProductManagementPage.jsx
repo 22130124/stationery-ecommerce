@@ -17,8 +17,14 @@ const ProductManagementPage = () => {
     // Hàm fetch products khi mới vào trang
     useEffect(() => {
         const fetchProducts = async () => {
+            setLoading(true);
             const data = await getAllProducts();
-            setProducts(data.products);
+            if(!data) {
+                setLoading(false)
+                return
+            }
+            setProducts(data.products)
+            setLoading(false)
         }
         fetchProducts();
     }, []);
@@ -32,15 +38,12 @@ const ProductManagementPage = () => {
     // Hàm xử lý thêm sản phẩm mới
     const handleAddProduct = async (values) => {
         console.log(values);
-        try {
-            const data = await addProduct(values);
-            console.log("createdProduct:", data.product)
-            setProducts(prev => [...prev, data.product]);
-            setIsModalVisible(false);
-            console.log('Sản phẩm mới đã được tạo:', data.product);
-        } catch (error) {
-            console.error('Thêm sản phẩm thất bại:', error);
-        }
+        const data = await addProduct(values);
+        if (!data) return
+        console.log("createdProduct:", data.product)
+        setProducts(prev => [...prev, data.product]);
+        setIsModalVisible(false);
+        console.log('Sản phẩm mới đã được tạo:', data.product);
     };
 
     // Hàm xử lý sửa thông tin sản phẩm
