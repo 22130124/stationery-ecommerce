@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import styles from "./ProfilePage.module.scss";
-import { getProfile } from "../../../api/profileApi";
-import { token } from "../../../utils/token";
+import {getProfile} from "../../../api/profileApi";
+import {token} from "../../../utils/token";
 
 export default function ProfilePage() {
     const [profile, setProfile] = useState({
@@ -16,16 +16,17 @@ export default function ProfilePage() {
     useEffect(() => {
         const fetchProfile = async () => {
             const data = await getProfile();
-            setProfile(data.profile);
+            setProfile(data);
         };
         fetchProfile();
     }, []);
+    console.log(profile);
 
     const handleAvatarChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             setAvatarFile(file);
-            setProfile({ ...profile, avatarUrl: URL.createObjectURL(file) });
+            setProfile({...profile, avatarUrl: URL.createObjectURL(file)});
         }
     };
 
@@ -50,88 +51,90 @@ export default function ProfilePage() {
     };
 
     return (
-        <div className={styles.container}>
-            <h1 className={styles.title}>Hồ sơ cá nhân</h1>
+        profile && (
+            <div className={styles.container}>
+                <h1 className={styles.title}>Hồ sơ cá nhân</h1>
 
-            <div className={styles.card}>
-                <div className={styles.avatarSection}>
-                    <img src={profile.avatarUrl} alt="avatar" className={styles.avatar} />
-                    {editing && (
-                        <label className={styles.avatarEdit}>
+                <div className={styles.card}>
+                    <div className={styles.avatarSection}>
+                        <img src={profile.avatarUrl} alt="avatar" className={styles.avatar}/>
+                        {editing && (
+                            <label className={styles.avatarEdit}>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleAvatarChange}
+                                />
+                                ✎
+                            </label>
+                        )}
+                    </div>
+
+                    <div className={styles.row}>
+                        <label>Email:</label>
+                        <span>{token.getEmail()}</span>
+                    </div>
+
+                    <div className={styles.row}>
+                        <label>Họ và tên:</label>
+                        {editing ? (
                             <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleAvatarChange}
+                                type="text"
+                                value={profile.fullName}
+                                onChange={(e) =>
+                                    setProfile({...profile, fullName: e.target.value})
+                                }
                             />
-                            ✎
-                        </label>
-                    )}
-                </div>
+                        ) : (
+                            <span>{profile.fullName}</span>
+                        )}
+                    </div>
 
-                <div className={styles.row}>
-                    <label>Email:</label>
-                    <span>{token.getEmail()}</span>
-                </div>
+                    <div className={styles.row}>
+                        <label>Số điện thoại:</label>
+                        {editing ? (
+                            <input
+                                type="text"
+                                value={profile.phone}
+                                onChange={(e) =>
+                                    setProfile({...profile, phone: e.target.value})
+                                }
+                            />
+                        ) : (
+                            <span>{profile.phone}</span>
+                        )}
+                    </div>
 
-                <div className={styles.row}>
-                    <label>Họ và tên:</label>
-                    {editing ? (
-                        <input
-                            type="text"
-                            value={profile.fullName}
-                            onChange={(e) =>
-                                setProfile({ ...profile, fullName: e.target.value })
-                            }
-                        />
-                    ) : (
-                        <span>{profile.fullName}</span>
-                    )}
-                </div>
+                    <div className={styles.row}>
+                        <label>Địa chỉ:</label>
+                        {editing ? (
+                            <textarea
+                                value={profile.address}
+                                onChange={(e) =>
+                                    setProfile({...profile, address: e.target.value})
+                                }
+                            />
+                        ) : (
+                            <span>{profile.address}</span>
+                        )}
+                    </div>
 
-                <div className={styles.row}>
-                    <label>Số điện thoại:</label>
-                    {editing ? (
-                        <input
-                            type="text"
-                            value={profile.phone}
-                            onChange={(e) =>
-                                setProfile({ ...profile, phone: e.target.value })
-                            }
-                        />
-                    ) : (
-                        <span>{profile.phone}</span>
-                    )}
-                </div>
-
-                <div className={styles.row}>
-                    <label>Địa chỉ:</label>
-                    {editing ? (
-                        <textarea
-                            value={profile.address}
-                            onChange={(e) =>
-                                setProfile({ ...profile, address: e.target.value })
-                            }
-                        />
-                    ) : (
-                        <span>{profile.address}</span>
-                    )}
-                </div>
-
-                <div className={styles.actions}>
-                    {editing ? (
-                        <button className={styles.saveBtn} onClick={handleSave}>
-                            Lưu
-                        </button>
-                    ) : (
-                        <button
-                            className={styles.editBtn}
-                            onClick={() => setEditing(true)}
-                        >
-                            Chỉnh sửa
-                        </button>
-                    )}
+                    <div className={styles.actions}>
+                        {editing ? (
+                            <button className={styles.saveBtn} onClick={handleSave}>
+                                Lưu
+                            </button>
+                        ) : (
+                            <button
+                                className={styles.editBtn}
+                                onClick={() => setEditing(true)}
+                            >
+                                Chỉnh sửa
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
-        </div>
+        )
     );
 }

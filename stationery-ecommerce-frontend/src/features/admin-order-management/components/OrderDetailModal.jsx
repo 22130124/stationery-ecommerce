@@ -36,6 +36,7 @@ const OrderDetailModal = ({orderId, open, onClose}) => {
             }
             setOrderDetail(data.order);
             setProfileDetail(data.profile);
+            setLoading(false);
         };
 
         fetchDetail();
