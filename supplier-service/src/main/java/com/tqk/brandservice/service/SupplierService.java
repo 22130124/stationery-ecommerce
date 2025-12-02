@@ -1,5 +1,6 @@
 package com.tqk.brandservice.service;
 
+import com.tqk.brandservice.dto.request.AddUpdateRequest;
 import com.tqk.brandservice.dto.response.SupplierResponse;
 import com.tqk.brandservice.exception.SupplierNotFoundException;
 import com.tqk.brandservice.model.Supplier;
@@ -33,5 +34,26 @@ public class SupplierService {
     public SupplierResponse getById(Integer id) {
         Supplier supplier = supplierRepository.findById(id).orElseThrow(() -> new SupplierNotFoundException("Không tìm thấy nhà cung cấp với id: " + id));
         return supplier.convertToDto();
+    }
+
+    public SupplierResponse updateSupplier(Integer id, AddUpdateRequest request) {
+        Supplier supplier = supplierRepository.findById(id).orElseThrow(() -> new SupplierNotFoundException("Không tìm thấy nhà cung cấp với id: " + id));
+        supplier.setName(request.getName());
+        supplier.setActiveStatus(request.isActiveStatus());
+        supplierRepository.save(supplier);
+        return supplier.convertToDto();
+    }
+
+    public SupplierResponse addSupplier(AddUpdateRequest request) {
+        Supplier supplier = new Supplier();
+        supplier.setName(request.getName());
+        supplier.setActiveStatus(request.isActiveStatus());
+        supplierRepository.save(supplier);
+        return supplier.convertToDto();
+    }
+
+    public Integer deleteSupplier(Integer id) {
+        supplierRepository.deleteById(id);
+        return id;
     }
 }

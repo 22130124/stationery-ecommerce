@@ -1,0 +1,77 @@
+.brandActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.saveBtn {
+  background: #1677ff;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.switchRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brandList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.updateBtn {
+  background: #dc9610;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.deleteBtn {
+  background: #cf1322;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.active {
+  color: #389e0d;
+}
+
+.inactive {
+  color: #cf1322;
+}

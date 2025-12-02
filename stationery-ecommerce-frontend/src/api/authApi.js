@@ -1,5 +1,5 @@
 // authApi.js
-import {API_URLS} from '../config/apiConfig';
+import {API_URLS, apiFetch} from '../config/apiConfig';
 
 const BASE_URL = API_URLS.auth
 
@@ -55,3 +55,26 @@ export const login = (email, password) =>
 
 export const loginWithGoogle = (googleAccessToken) =>
     postAuthRequest('google', { token: googleAccessToken })
+
+export const getAllAccounts = () =>
+    apiFetch(`${BASE_URL}/admin`);
+
+export const toAdmin = (accountId) =>
+    apiFetch(`${BASE_URL}/admin/to-admin/${accountId}`, {
+        method: 'PUT',
+    });
+
+export const toUser = (accountId) =>
+    apiFetch(`${BASE_URL}/admin/to-user/${accountId}`, {
+        method: 'PUT',
+    });
+
+export const lockAccount = (accountId) =>
+    apiFetch(`${BASE_URL}/admin/lock/${accountId}`, {
+        method: 'PUT',
+    });
+
+export const unlockAccount = (accountId) =>
+    apiFetch(`${BASE_URL}/admin/unlock/${accountId}`, {
+        method: 'PUT',
+    });

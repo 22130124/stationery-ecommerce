@@ -1,5 +1,6 @@
 package com.tqk.brandservice.service;
 
+import com.tqk.brandservice.dto.request.AddUpdateRequest;
 import com.tqk.brandservice.dto.response.BrandResponse;
 import com.tqk.brandservice.exception.BrandNotFoundException;
 import com.tqk.brandservice.model.Brand;
@@ -31,5 +32,28 @@ public class BrandService {
     public BrandResponse getById(Integer id) {
         Brand brand = brandRepository.findById(id).orElseThrow(() -> new BrandNotFoundException("Không tìm thấy thương hiệu với id: " + id));
         return brand.convertToDto();
+    }
+
+
+    public BrandResponse updateBrand(Integer id, AddUpdateRequest request) {
+        Brand brand = brandRepository.findById(id).orElseThrow(() -> new BrandNotFoundException("Không tìm thấy thương hiệu với id: " + id));
+        brand.setName(request.getName());
+        brand.setActiveStatus(request.isActiveStatus());
+        brandRepository.save(brand);
+        return brand.convertToDto();
+    }
+
+    public BrandResponse addBrand(AddUpdateRequest request) {
+        Brand brand = new Brand();
+        brand.setSupplierId(request.getSupplierId());
+        brand.setName(request.getName());
+        brand.setActiveStatus(request.isActiveStatus());
+        brandRepository.save(brand);
+        return brand.convertToDto();
+    }
+
+    public Integer deleteBrand(Integer id) {
+        brandRepository.deleteById(id);
+        return id;
     }
 }

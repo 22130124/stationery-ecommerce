@@ -5,6 +5,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.tqk.authservice.dto.request.AuthRequest;
+import com.tqk.authservice.dto.response.AccountResponse;
 import com.tqk.authservice.exception.AuthException;
 import com.tqk.authservice.model.Account;
 import com.tqk.authservice.model.AuthProvider;
@@ -24,10 +25,8 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthService {
@@ -173,5 +172,28 @@ public class AuthService {
     public String getEmail(Integer id) {
         Account account = accountRepository.findById(id).orElseThrow(() -> new AuthException("Không tìm thấy tài khoản có id: " + id));
         return account.getEmail();
+    }
+
+    public List<AccountResponse> getAllAccounts() {
+        List<Account> accounts = accountRepository.findAll();
+        List<AccountResponse> accountResponseList = new ArrayList<>();
+        for(Account account : accounts) {
+            accountResponseList.add(account.convertToDto());
+        }
+        return accountResponseList;
+    }
+
+    public Integer changeStatus(Integer id, boolean status) {
+        Account account = accountRepository.findById(id).orElseThrow(() -> new AuthException("Không tìm thấy tài khoản có id: " + id));
+        account.setActiveStatus(status);
+        accountRepository.save(account);
+        return account.getId();
+    }
+
+    public Integer changeRole(Integer id, String role) {
+        Account account = accountRepository.findById(id).orElseThrow(() -> new AuthException("Không tìm thấy tài khoản có id: " + id));
+        account.setRole(role);
+        accountRepository.save(account);
+        return account.getId();
     }
 }

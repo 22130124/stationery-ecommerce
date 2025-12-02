@@ -1,13 +1,11 @@
 package com.tqk.brandservice.controller;
 
+import com.tqk.brandservice.dto.request.AddUpdateRequest;
 import com.tqk.brandservice.dto.response.SupplierResponse;
 import com.tqk.brandservice.service.SupplierService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,14 +24,31 @@ public class SupplierController {
     @GetMapping
     public ResponseEntity<?> getSuppliers() {
         List<SupplierResponse> suppliers = supplierService.getSuppliers();
-        Map<String, Object> response = Map.of("suppliers", suppliers);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(suppliers);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Integer id) {
         SupplierResponse supplier = supplierService.getById(id);
-        Map<String, Object> response = Map.of("supplier", supplier);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(supplier);
+    }
+
+    @PostMapping
+    public ResponseEntity<?> addSupplier(@RequestBody AddUpdateRequest request) {
+        SupplierResponse supplier = supplierService.addSupplier(request);
+        return ResponseEntity.ok(supplier);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateSupplier(@PathVariable Integer id, @RequestBody AddUpdateRequest request) {
+        SupplierResponse supplier = supplierService.updateSupplier(id, request);
+        return ResponseEntity.ok(supplier);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteSupplier(@PathVariable Integer id) {
+        Integer supplierId = supplierService.deleteSupplier(id);
+        return ResponseEntity.ok(supplierId);
     }
 }
+    
