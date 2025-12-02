@@ -2,12 +2,14 @@ package com.tqk.authservice.controller;
 
 import com.tqk.authservice.dto.request.AuthRequest;
 import com.tqk.authservice.dto.request.GoogleAuthRequest;
+import com.tqk.authservice.dto.response.AccountResponse;
 import com.tqk.authservice.service.AuthService;
 import com.tqk.authservice.service.EmailVerificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -20,6 +22,12 @@ public class AuthController {
     public AuthController(AuthService authService, EmailVerificationService emailVerificationService) {
         this.authService = authService;
         this.emailVerificationService = emailVerificationService;
+    }
+
+    @GetMapping("/admin")
+    public ResponseEntity<?> getAllAccounts(){
+        List<AccountResponse> accounts = authService.getAllAccounts();
+        return ResponseEntity.ok(accounts);
     }
 
     @GetMapping("/get-email/{id}")
@@ -45,6 +53,30 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody AuthRequest request) {
         Integer accountId = authService.signUp(request);
+        return ResponseEntity.ok(accountId);
+    }
+
+    @PutMapping("/admin/lock/{id}")
+    public ResponseEntity<?> lockAccount(@PathVariable Integer id){
+        Integer accountId = authService.changeStatus(id, false);
+        return ResponseEntity.ok(accountId);
+    }
+
+    @PutMapping("/admin/unlock/{id}")
+    public ResponseEntity<?> unlockAccount(@PathVariable Integer id){
+        Integer accountId = authService.changeStatus(id, true);
+        return ResponseEntity.ok(accountId);
+    }
+
+    @PutMapping("/admin/to-admin/{id}")
+    public ResponseEntity<?> toAdmin(@PathVariable Integer id){
+        Integer accountId = authService.changeRole(id, "ADMIN");
+        return ResponseEntity.ok(accountId);
+    }
+
+    @PutMapping("/admin/to-user/{id}")
+    public ResponseEntity<?> toUser(@PathVariable Integer id){
+        Integer accountId = authService.changeRole(id, "USER");
         return ResponseEntity.ok(accountId);
     }
 

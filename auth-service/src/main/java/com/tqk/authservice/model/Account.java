@@ -1,5 +1,6 @@
 package com.tqk.authservice.model;
 
+import com.tqk.authservice.dto.response.AccountResponse;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,4 +39,16 @@ public class Account {
     @Column(name = "updated_at")
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public AccountResponse convertToDto() {
+        AccountResponse accountResponse = new AccountResponse();
+        accountResponse.setId(id);
+        accountResponse.setEmail(email);
+        accountResponse.setRole(role);
+        accountResponse.setActiveStatus(activeStatus);
+        accountResponse.setVerified(verified);
+        accountResponse.setCreatedAt(createdAt);
+        accountResponse.setUpdatedAt(updatedAt);
+        return accountResponse;
+    }
 }
