@@ -19,6 +19,7 @@ import OrderManagementPage from "../features/admin-order-management/pages/OrderM
 
 import RequireUserAuth from "../components/RequireUserAuth";
 import RequireAdminAuth from "../components/RequireAdminAuth";
+import SupplierManagementPage from "../features/admin-supplier-management/pages/SupplierManagementPage";
 
 const AppRoutes = () => {
     return (
@@ -33,6 +34,7 @@ const AppRoutes = () => {
                 <Route element={<AdminLayout />}>
                     <Route path="/admin/product-management" element={<ProductManagementPage />} />
                     <Route path="/admin/order-management" element={<OrderManagementPage />} />
+                    <Route path="/admin/supplier-management" element={<SupplierManagementPage />} />
                 </Route>
             </Route>
 

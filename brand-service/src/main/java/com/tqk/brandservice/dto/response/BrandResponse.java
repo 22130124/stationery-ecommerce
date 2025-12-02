@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 @Data
 public class BrandResponse {
     private Integer id;
+    private Integer supplierId;
     private String name;
     private boolean activeStatus;
     private LocalDateTime createdAt;

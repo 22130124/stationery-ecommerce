@@ -1,6 +1,6 @@
+// src/features/admin-order-management/components/OrderDetailModal.jsx
 import React, {useEffect, useState} from "react";
 import {Modal, Spin} from "antd";
-import toast from "react-hot-toast";
 import {getOrderDetail} from "../../../api/orderApi";
 import styles from "./OrderDetailModal.module.scss";
 import OrderStatus from "../../../components/order/OrderStatus";

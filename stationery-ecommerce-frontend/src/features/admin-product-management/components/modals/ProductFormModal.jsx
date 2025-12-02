@@ -51,7 +51,7 @@ const ProductFormModal = ({visible, onClose, onSubmit, editingProduct}) => {
             const categoryData = await getCategories();
             const supplierData = await getSuppliers();
             setCategories(categoryData.categories);
-            setSuppliers(supplierData.suppliers);
+            setSuppliers(supplierData);
         };
         fetchInitialData();
     }, [])
@@ -64,7 +64,7 @@ const ProductFormModal = ({visible, onClose, onSubmit, editingProduct}) => {
                 return;
             }
             const data = await getBrandsBySupplierId(selectedSupplierId);
-            setBrands(data.brands || []);
+            setBrands(data || []);
         };
         fetchBrands();
     }, [selectedSupplierId]);

@@ -1,13 +1,11 @@
 package com.tqk.brandservice.controller;
 
+import com.tqk.brandservice.dto.request.AddUpdateRequest;
 import com.tqk.brandservice.dto.response.BrandResponse;
 import com.tqk.brandservice.service.BrandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -25,14 +23,30 @@ public class BrandController {
     @GetMapping("/by-supplier/{supplierId}")
     public ResponseEntity<?> getBrandsBySupplierId(@PathVariable Integer supplierId) {
         List<BrandResponse> brands = brandService.getBySupplierId(supplierId);
-        Map<String, Object> response = Map.of("brands", brands);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(brands);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Integer id) {
         BrandResponse brand = brandService.getById(id);
-        Map<String, Object> response = Map.of("brand", brand);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(brand);
+    }
+
+    @PostMapping
+    public ResponseEntity<?> addBrand(@RequestBody AddUpdateRequest request) {
+        BrandResponse brand = brandService.addBrand(request);
+        return ResponseEntity.ok(brand);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateBrand(@PathVariable Integer id, @RequestBody AddUpdateRequest request) {
+        BrandResponse brand = brandService.updateBrand(id, request);
+        return ResponseEntity.ok(brand);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteBrand(@PathVariable Integer id) {
+        Integer deletedId  = brandService.deleteBrand(id);
+        return ResponseEntity.ok(deletedId);
     }
 }

@@ -40,6 +40,7 @@ public class Brand {
     public BrandResponse convertToDto() {
         BrandResponse dto = new BrandResponse();
         dto.setId(this.id);
+        dto.setSupplierId(this.supplierId);
         dto.setName(this.name);
         dto.setActiveStatus(this.activeStatus);
         dto.setCreatedAt(this.createdAt);

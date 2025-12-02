@@ -10,6 +10,7 @@ const AdminLayout = () => {
     const menuItems = [
         {label: "Quản lý sản phẩm", path: "/admin/product-management"},
         {label: "Quản lý đơn hàng", path: "/admin/order-management"},
+        {label: "Quản lý NCC & thương hiệu", path: "/admin/supplier-management"},
         {label: "Quản lý tài khoản", path: "/admin/users"},
         {label: "Đăng xuất", path: "/login"},
     ];
