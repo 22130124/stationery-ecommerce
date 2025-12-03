@@ -31,6 +31,7 @@ public class SecurityConfig {
                         .pathMatchers("/categories", "/categories/**").permitAll()
                         .pathMatchers("/brands", "/brands/**").permitAll()
                         .pathMatchers("/suppliers", "/suppliers/**").permitAll()
+                        .pathMatchers("/ai", "/ai/**").permitAll()
                         .anyExchange().authenticated()
                 )
                 .addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
