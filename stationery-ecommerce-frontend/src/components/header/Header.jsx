@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import styles from "./Header.module.scss";
 import {FaBars, FaBell, FaShoppingCart, FaUser, FaBoxOpen} from "react-icons/fa";
 import {IoIosArrowForward} from "react-icons/io";
-import {getCategories} from "../../api/categoryApi";
+import {getActiveCategories} from "../../api/categoryApi";
 import {Link, useNavigate} from "react-router-dom";
 
 const Header = () => {
@@ -16,8 +16,8 @@ const Header = () => {
 
     useEffect(() => {
         const fetchCategories = async () => {
-            const data = await getCategories();
-            setCategories(data.categories);
+            const data = await getActiveCategories();
+            setCategories(data);
         }
         fetchCategories();
 

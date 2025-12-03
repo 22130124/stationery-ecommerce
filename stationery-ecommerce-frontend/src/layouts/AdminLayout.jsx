@@ -11,6 +11,7 @@ const AdminLayout = () => {
         {label: "Quản lý sản phẩm", path: "/admin/product-management"},
         {label: "Quản lý đơn hàng", path: "/admin/order-management"},
         {label: "Quản lý tài khoản", path: "/admin/account-management"},
+        {label: "Quản lý danh mục", path: "/admin/category-management"},
         {label: "Quản lý nhà cung cấp và thương hiệu", path: "/admin/supplier-management"},
         {label: "Đăng xuất", path: "/login"},
     ];

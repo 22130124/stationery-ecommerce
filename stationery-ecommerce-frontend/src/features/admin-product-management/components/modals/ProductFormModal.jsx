@@ -4,7 +4,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import countries from 'i18n-iso-countries';
 import viLocale from 'i18n-iso-countries/langs/vi.json';
-import {getCategories} from "../../../../api/categoryApi";
+import {getActiveCategories} from "../../../../api/categoryApi";
 import {getSuppliers} from "../../../../api/supplierApi";
 import {getBrandsBySupplierId} from "../../../../api/brandApi";
 import ProductImages from "../product-images/ProductImages";
@@ -48,9 +48,9 @@ const ProductFormModal = ({visible, onClose, onSubmit, editingProduct}) => {
     // Fetch các dữ liệu ban đầu cho form
     useEffect(() => {
         const fetchInitialData = async () => {
-            const categoryData = await getCategories();
+            const categoryData = await getActiveCategories();
             const supplierData = await getSuppliers();
-            setCategories(categoryData.categories);
+            setCategories(categoryData);
             setSuppliers(supplierData);
         };
         fetchInitialData();

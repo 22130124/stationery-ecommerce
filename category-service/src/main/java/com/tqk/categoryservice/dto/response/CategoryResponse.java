@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 public class CategoryResponse {
     private Integer id;
+    private Integer parentId;
     private String name;
     private String slug;
     private boolean activeStatus;

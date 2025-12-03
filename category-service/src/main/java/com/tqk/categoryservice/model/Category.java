@@ -45,11 +45,12 @@ public class Category {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "parent")
-    private List<Category> children;
+    private List<Category> children = new ArrayList<>();
 
     public CategoryResponse convertToDto() {
         CategoryResponse dto = new CategoryResponse();
         dto.setId(this.id);
+        dto.setParentId(this.parent != null ? this.parent.getId() : null);
         dto.setName(this.name);
         dto.setSlug(this.slug);
         dto.setActiveStatus(this.activeStatus);

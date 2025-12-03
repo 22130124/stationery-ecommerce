@@ -1,13 +1,11 @@
 package com.tqk.categoryservice.controller;
 
+import com.tqk.categoryservice.dto.request.AddUpdateRequest;
 import com.tqk.categoryservice.dto.response.CategoryResponse;
 import com.tqk.categoryservice.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -23,23 +21,44 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getCategories() {
-        List<CategoryResponse> categories = categoryService.getCategories();
-        Map<String, Object> response = Map.of("categories", categories);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> getActiveCategories() {
+        List<CategoryResponse> categories = categoryService.getActiveCategories();
+        return ResponseEntity.ok(categories);
+    }
+
+    @GetMapping("/admin")
+    public ResponseEntity<?> getAllCategories() {
+        List<CategoryResponse> categories = categoryService.getAllCategories();
+        return ResponseEntity.ok(categories);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getCategoryById(@PathVariable Integer id) {
         CategoryResponse category = categoryService.getCategoryById(id);
-        Map<String, Object> response = Map.of("category", category);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(category);
     }
 
     @GetMapping("/by-slug/{slug}")
     public ResponseEntity<?> getCategoryBySlug(@PathVariable String slug) {
         CategoryResponse category = categoryService.getCategoryBySlug(slug);
-        Map<String, Object> response = Map.of("category", category);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(category);
+    }
+
+    @PostMapping("/admin")
+    public ResponseEntity<?> updateCategory(@RequestBody AddUpdateRequest request) {
+        CategoryResponse category = categoryService.createCategory(request);
+        return ResponseEntity.ok(category);
+    }
+
+    @PutMapping("/admin/{id}")
+    public ResponseEntity<?> updateCategory(@PathVariable Integer id, @RequestBody AddUpdateRequest request) {
+        CategoryResponse category = categoryService.updateCategory(id, request);
+        return ResponseEntity.ok(category);
+    }
+
+    @DeleteMapping("/admin/{id}")
+    public ResponseEntity<?> deleteCategory(@PathVariable Integer id) {
+        Integer categoryId = categoryService.deleteCategory(id);
+        return ResponseEntity.ok(categoryId);
     }
 }

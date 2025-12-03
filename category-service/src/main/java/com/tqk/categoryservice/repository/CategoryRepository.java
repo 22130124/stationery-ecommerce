@@ -10,4 +10,6 @@ public interface CategoryRepository extends JpaRepository<Category,Integer> {
     List<Category> findByActiveStatusTrueAndParentIsNull();
 
     Optional<Category> findBySlug(String slug);
+
+    List<Category> findByParentIsNull();
 }

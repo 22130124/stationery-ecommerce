@@ -1,0 +1,98 @@
+@import "../../../styles/variables";
+
+.modalWrapper {
+  padding: 1rem 0.5rem;
+}
+
+.formGroup {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+
+  label {
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+
+  input {
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    transition: 0.2s;
+
+    &:focus {
+      border-color: #1677ff;
+      box-shadow: 0 0 0 3px rgba(22,119,255,0.15);
+    }
+  }
+
+  select {
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    transition: 0.2s;
+
+    &:focus {
+      border-color: #1677ff;
+      box-shadow: 0 0 0 3px rgba(22,119,255,0.15);
+    }
+  }
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  label {
+    font-weight: 500;
+  }
+}
+
+.actionButtons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.2rem;
+  gap: 10px;
+
+  button {
+    padding: 7px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.2s;
+  }
+
+  .saveBtn {
+    background: #1677ff;
+    color: #fff;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  .cancelBtn {
+    background: #999;
+    color: #fff;
+
+    &:hover {
+      opacity: 0.85;
+    }
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+
+  label {
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+
+  .formGroup {
+    margin-bottom: 16px;
+  }
+}

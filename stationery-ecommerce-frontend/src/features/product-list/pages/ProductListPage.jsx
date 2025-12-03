@@ -14,7 +14,7 @@ import Pagination from "../components/Pagination";
 import styles from "./ProductListPage.module.scss";
 
 // APIs
-import {getCategories} from "../../../api/categoryApi";
+import {getActiveCategories} from "../../../api/categoryApi";
 import {getProductsByCategory, getProductsByCategoryAndPagination} from "../../../api/productApi";
 
 const PRODUCTS_PER_PAGE = 12;
@@ -48,8 +48,8 @@ const ProductListPage = () => {
         setSearchParams(newParams)
 
         const fetchCategories = async () => {
-            const data = await getCategories()
-            setCategories(data.categories)
+            const data = await getActiveCategories()
+            setCategories(data)
         }
 
         fetchCategories()

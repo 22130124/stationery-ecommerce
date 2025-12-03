@@ -1,0 +1,84 @@
+.pageContainer {
+  background-color: #f5f6fa;
+}
+
+.header {
+  background: #fff;
+  padding: 1.5rem 2rem;
+  border-radius: 14px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+
+  h1 {
+    font-size: 1.9rem;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  p {
+    color: #666;
+    margin: 0;
+  }
+}
+
+.actionBar {
+  background: #fff;
+  padding: 1rem 1.5rem;
+  border-radius: 14px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.searchInput {
+  flex: 1;
+  padding: 0.7rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.createBtn {
+  padding: 0.7rem 1rem;
+  background: #1677ff;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+
+  button {
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+  }
+}
+
+.updateBtn {
+  background: #dc9610;
+  color: white;
+}
+
+.deleteBtn {
+  background: #cf1322;
+  color: white;
+}
+
+.active {
+  color: #389e0d;
+  font-weight: 500;
+}
+
+.inactive {
+  color: #cf1322;
+  font-weight: 500;
+}
