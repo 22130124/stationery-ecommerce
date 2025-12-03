@@ -11,6 +11,7 @@ mvn -f upload-service/pom.xml clean package -DskipTests
 mvn -f cart-service/pom.xml clean package -DskipTests
 mvn -f profile-service/pom.xml clean package -DskipTests
 mvn -f order-service/pom.xml clean package -DskipTests
+mvn -f ai-service/pom.xml clean package -DskipTests
 
 # Build và up docker
 docker compose up -d --build

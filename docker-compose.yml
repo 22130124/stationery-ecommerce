@@ -146,6 +146,14 @@ services:
       - backend
     entrypoint: ["./wait-for-it.sh", "mysql:3306", "--", "java", "-jar", "app.jar"]
 
+  ai-service:
+    build: ./ai-service
+    environment:
+      GEMINI_API_KEY: "${GEMINI_API_KEY}"
+    networks:
+      - backend
+    entrypoint: ["java", "-jar", "app.jar"]
+
 volumes:
   mysql_data:
 

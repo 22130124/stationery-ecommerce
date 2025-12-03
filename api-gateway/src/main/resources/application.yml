@@ -50,3 +50,8 @@ spring:
           uri: http://order-service:8080
           predicates:
             - Path=/orders/**
+
+        - id: ai_route
+          uri: http://ai-service:8080
+          predicates:
+            - Path=/ai/**
