@@ -100,7 +100,7 @@ const ProductFormModal = ({visible, onClose, onSubmit, editingProduct}) => {
 
     return (
         <Modal
-            title={editingProduct ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới"}
+            title={editingProduct ? "Chi tiết sản phẩm" : "Thêm sản phẩm mới"}
             open={visible}
             onCancel={handleClose}
             footer={null}
@@ -150,12 +150,12 @@ const ProductFormModal = ({visible, onClose, onSubmit, editingProduct}) => {
                         showSearch
                         placeholder="Chọn hoặc tìm kiếm nhà cung cấp"
                         onChange={handleSupplierChange}
-                        filterOption={(input, option) =>
-                            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                        }
+                        value={selectedSupplierId}
                     >
                         {suppliers.map(supplier => (
-                            <Option key={supplier.id} value={supplier.id}>{supplier.name}</Option>
+                            <Option key={supplier.id} value={supplier.id}>
+                                {supplier.name}  {/* Hiển thị tên nhà cung cấp */}
+                            </Option>
                         ))}
                     </Select>
                 </Form.Item>

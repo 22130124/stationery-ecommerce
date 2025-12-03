@@ -127,20 +127,20 @@ const ProductManagementPage = () => {
             key: 'code',
             sorter: (a, b) => a.code.localeCompare(b.code),
         },
-        {
-            title: 'Danh mục',
-            dataIndex: ['category', 'name'],
-            key: 'category',
-            filters: getColumnFilterOptions('category'),
-            onFilter: (value, record) => record.category.name === value,
-        },
-        {
-            title: 'Thương hiệu',
-            dataIndex: ['brand', 'name'],
-            key: 'brand',
-            filters: getColumnFilterOptions('brand'),
-            onFilter: (value, record) => record.brand.name === value,
-        },
+        // {
+        //     title: 'Danh mục',
+        //     dataIndex: ['category', 'name'],
+        //     key: 'category',
+        //     filters: getColumnFilterOptions('category'),
+        //     onFilter: (value, record) => record.category.name === value,
+        // },
+        // {
+        //     title: 'Thương hiệu',
+        //     dataIndex: ['brand', 'name'],
+        //     key: 'brand',
+        //     filters: getColumnFilterOptions('brand'),
+        //     onFilter: (value, record) => record.brand.name === value,
+        // },
         {
             title: 'Giá bán',
             key: 'price',
@@ -188,7 +188,7 @@ const ProductManagementPage = () => {
                             setIsModalVisible(true);
                         }}
                     >
-                        Sửa
+                        Chi tiết
                     </button>
                     <button
                         className={`${styles.actionButton} ${styles.deleteBtn}`}
