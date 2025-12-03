@@ -77,4 +77,9 @@ public class CategoryService {
         categoryRepository.delete(category);
         return id;
     }
+
+    public Integer getCategoryIdBySlug(String slug) {
+        Category category = categoryRepository.findBySlug(slug).orElseThrow(() -> new CategoryNotFoundException("Không tìm thấy danh mục với slug: " + slug));
+        return category.getId();
+    }
 }

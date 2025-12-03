@@ -54,9 +54,9 @@ public class ProductController {
     // ========== USER ===========
 
     @GetMapping()
-    public ResponseEntity<?> getAllForUser(@RequestParam(name = "page", required = false, defaultValue = "1") int page,
+    public ResponseEntity<?> getProductsByActiveStatus(@RequestParam(name = "page", required = false, defaultValue = "1") int page,
                                            @RequestParam(name = "limit", required = false, defaultValue = "12") int size) {
-        ProductListResponse result = productService.getAllForUser(page, size);
+        ProductListResponse result = productService.getProductsByActiveStatus(page, size);
         Map<String, Object> response = Map.of(
                 "products", result.getProducts(),
                 "currentPage", result.getCurrentPage(),
@@ -67,10 +67,10 @@ public class ProductController {
     }
 
     @GetMapping("/by-category")
-    public ResponseEntity<?> getProductsByCategory(@RequestParam(name = "categoryId", required = false) Integer categoryId,
+    public ResponseEntity<?> getProductsByCategory(@RequestParam(name = "categorySlug", required = false) String categorySlug,
                                                    @RequestParam(name = "page", required = false, defaultValue = "1") int page,
                                                    @RequestParam(name = "limit", required = false, defaultValue = "12") int size) {
-        ProductListResponse result = productService.getByCategory(categoryId, page, size);
+        ProductListResponse result = productService.getByActiveStatusAndCategory(categorySlug, page, size);
         Map<String, Object> response = Map.of(
                 "products", result.getProducts(),
                 "currentPage", result.getCurrentPage(),
@@ -92,4 +92,9 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductsByVariantIds(variantIds));
     }
 
+    @GetMapping("/test-client/{slug}")
+    public ResponseEntity<?> getCategoryIdBySlug(@PathVariable String slug) {
+        Integer categoryId = productService.getCategoryIdBySlug(slug);
+        return ResponseEntity.ok(categoryId);
+    }
 }

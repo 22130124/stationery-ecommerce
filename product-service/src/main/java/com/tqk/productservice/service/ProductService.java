@@ -11,8 +11,9 @@ import com.tqk.productservice.model.ProductVariant;
 import com.tqk.productservice.repository.product.ProductImageRepository;
 import com.tqk.productservice.repository.product.ProductRepository;
 import com.tqk.productservice.repository.product.ProductVariantRepository;
+import com.tqk.productservice.repository.client.CategoryClient;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,20 +23,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
     private final ProductVariantRepository productVariantRepository;
     private final ProductImageRepository productImageRepository;
+    private final CategoryClient categoryClient;
 
     private static final String CODE_PREFIX = "SP";
     private static final int INITIAL_CODE_NUMBER = 1000;
-
-    @Autowired
-    public ProductService(ProductRepository productRepository, ProductVariantRepository productVariantRepository, ProductImageRepository productImageRepository) {
-        this.productRepository = productRepository;
-        this.productVariantRepository = productVariantRepository;
-        this.productImageRepository = productImageRepository;
-    }
 
     // Hàm lấy ra danh sách sản phẩm đang hoạt động (activeStatus = true)
     public List<ProductResponse> getAllForAdmin() {
@@ -48,22 +44,31 @@ public class ProductService {
     }
 
     // Hàm lấy ra danh sách sản phẩm theo danh mục (có phân trang)
-    public ProductListResponse getByCategory(Integer categoryId, int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Product> productPage;
-        productPage = productRepository.findByCategoryIdAndActiveStatusTrue(categoryId, pageable);
+    public ProductListResponse getByActiveStatusAndCategory(String categorySlug, int page, int size) {
+        try {
+            Pageable pageable = PageRequest.of(page - 1, size);
+            Page<Product> productPage;
+            if (categorySlug.equalsIgnoreCase("ALL")) {
+                return getProductsByActiveStatus(page, size);
+            }
+            Integer categoryId = categoryClient.getCategoryIdBySlug(categorySlug);
 
-        ProductListResponse productListResponse = new ProductListResponse();
-        List<ProductResponse> productResponses = productPage.getContent().stream().map(Product::convertToDto).toList();
-        productListResponse.setProducts(productResponses);
-        productListResponse.setTotalPages(productPage.getTotalPages());
-        productListResponse.setTotalItems(productPage.getTotalElements());
-        productListResponse.setCurrentPage(productPage.getNumber() + 1);
+            productPage = productRepository.findByCategoryIdAndActiveStatusTrue(categoryId, pageable);
 
-        return productListResponse;
+            ProductListResponse productListResponse = new ProductListResponse();
+            List<ProductResponse> productResponses = productPage.getContent().stream().map(Product::convertToDto).toList();
+            productListResponse.setProducts(productResponses);
+            productListResponse.setTotalPages(productPage.getTotalPages());
+            productListResponse.setTotalItems(productPage.getTotalElements());
+            productListResponse.setCurrentPage(productPage.getNumber() + 1);
+
+            return productListResponse;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public ProductListResponse getAllForUser(int page, int size) {
+    public ProductListResponse getProductsByActiveStatus(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Product> productPage;
         productPage = productRepository.findByActiveStatusTrue(pageable);
@@ -277,11 +282,15 @@ public class ProductService {
         List<ProductResponse> products = new ArrayList<>();
         Product product;
         ProductVariant variant;
-        for(Integer variantId : variantIds) {
+        for (Integer variantId : variantIds) {
             variant = productVariantRepository.findById(variantId).orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm có id biến thể là: " + variantId));
             product = variant.getProduct();
             products.add(product.convertToDtoWithSpecificVariant(variant.convertToDto()));
         }
         return products;
+    }
+
+    public Integer getCategoryIdBySlug(String slug) {
+        return categoryClient.getCategoryIdBySlug(slug);
     }
 }

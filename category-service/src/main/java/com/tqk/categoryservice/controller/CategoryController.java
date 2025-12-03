@@ -44,6 +44,12 @@ public class CategoryController {
         return ResponseEntity.ok(category);
     }
 
+    @GetMapping("get-id-by-slug/{slug}")
+    public ResponseEntity<?> getCategoryIdBySlug(@PathVariable String slug) {
+        Integer categoryId = categoryService.getCategoryIdBySlug(slug);
+        return ResponseEntity.ok(categoryId);
+    }
+
     @PostMapping("/admin")
     public ResponseEntity<?> updateCategory(@RequestBody AddUpdateRequest request) {
         CategoryResponse category = categoryService.createCategory(request);

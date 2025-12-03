@@ -106,14 +106,20 @@ const ProductListPage = () => {
                         </div>
                     </div>
 
-                    <div className={styles.productGrid}>
-                        {products.map((product) => (
-                            <ProductCard
-                                key={product.id}
-                                product={product}
-                            />
-                        ))}
-                    </div>
+                    {products && products.length === 0 ? (
+                        <div className={styles.noProducts}>
+                            <p>Hiện chưa có sản phẩm nào</p>
+                        </div>
+                    ) : (
+                        <div className={styles.productGrid}>
+                            {products.map((product) => (
+                                <ProductCard
+                                    key={product.id}
+                                    product={product}
+                                />
+                            ))}
+                        </div>
+                    )}
 
                     <Pagination
                         currentPage={pageParam}
