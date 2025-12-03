@@ -1,12 +1,12 @@
 import React from 'react';
 import {Form, Input, InputNumber, Checkbox, Button, Space, Row, Col, Radio} from 'antd';
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import {MinusCircleOutlined, PlusOutlined} from '@ant-design/icons';
 import ProductImages from '../product-images/ProductImages';
 import styles from './ProductVariantsForm.module.scss';
 
-const ProductVariantsForm = ({ form, handleImagesUploadingChange }) => {
+const ProductVariantsForm = ({form, handleImagesUploadingChange}) => {
     // Hàm kiểm tra nếu giá khuyến mãi lớn hơn giá gốc
-    const validateDiscountPrice = ({ getFieldValue }) => ({
+    const validateDiscountPrice = ({getFieldValue}) => ({
         validator(_, value) {
             const fieldPath = _.field.split('.');
             if (fieldPath.length < 2) {
@@ -39,9 +39,9 @@ const ProductVariantsForm = ({ form, handleImagesUploadingChange }) => {
             </h3>
 
             <Form.List name="variants">
-                {(fields, { add, remove }) => (
+                {(fields, {add, remove}) => (
                     <>
-                        {fields.map(({ key, name, ...restField }) => (
+                        {fields.map(({key, name, ...restField}) => (
                             <div key={key} className={styles.variantItem}>
 
                                 {/* Nút xóa (chỉ hiển thị nếu có 2 biến thể trở lên*/}
@@ -60,9 +60,9 @@ const ProductVariantsForm = ({ form, handleImagesUploadingChange }) => {
                                             {...restField}
                                             name={[name, 'name']}
                                             label="Tên biến thể"
-                                            rules={[{ required: true, message: 'Thiếu tên biến thể' }]}
+                                            rules={[{required: true, message: 'Thiếu tên biến thể'}]}
                                         >
-                                            <Input placeholder="Ví dụ: Màu đỏ, Size L" />
+                                            <Input placeholder="Ví dụ: Màu đỏ, Size L"/>
                                         </Form.Item>
                                     </Col>
 
@@ -73,12 +73,12 @@ const ProductVariantsForm = ({ form, handleImagesUploadingChange }) => {
                                             {...restField}
                                             name={[name, 'basePrice']}
                                             label="Giá cơ bản"
-                                            rules={[{ required: true, message: 'Thiếu giá cơ bản' }]}
+                                            rules={[{required: true, message: 'Thiếu giá cơ bản'}]}
                                         >
                                             <InputNumber
                                                 min={0}
                                                 addonAfter="VNĐ"
-                                                style={{ width: '100%' }}
+                                                style={{width: '100%'}}
                                                 formatter={(value) =>
                                                     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                                                 }
@@ -97,7 +97,7 @@ const ProductVariantsForm = ({ form, handleImagesUploadingChange }) => {
                                             <InputNumber
                                                 min={0}
                                                 addonAfter="VNĐ"
-                                                style={{ width: '100%' }}
+                                                style={{width: '100%'}}
                                                 formatter={(value) =>
                                                     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                                                 }
@@ -126,7 +126,7 @@ const ProductVariantsForm = ({ form, handleImagesUploadingChange }) => {
                                                                 ...v,
                                                                 defaultStatus: i === name,
                                                             }));
-                                                            form.setFieldsValue({ variants: updated });
+                                                            form.setFieldsValue({variants: updated});
                                                         }}
                                                     >
                                                         Mặc định
@@ -150,19 +150,37 @@ const ProductVariantsForm = ({ form, handleImagesUploadingChange }) => {
                                     {...restField}
                                     name={[name, 'images']}
                                     label="Ảnh biến thể (riêng)"
-                                    style={{ marginTop: '10px' }}
+                                    style={{marginTop: '10px'}}
                                 >
                                     {/* ProductImages */}
-                                    <ProductImages onUploadingChange={handleImagesUploadingChange}/>
+                                    <ProductImages
+                                        value={form.getFieldValue(['variants', name, 'images'])}
+                                        onChange={(imgs) => {
+                                            const variants = form.getFieldValue('variants') || [];
+                                            const updated = variants.map((v, i) =>
+                                                i === name ? {...v, images: imgs} : v
+                                            );
+                                            form.setFieldsValue({variants: updated});
+                                        }}
+                                        onUploadingChange={handleImagesUploadingChange}
+                                        allowSetDefault={true}
+                                    />
                                 </Form.Item>
                             </div>
                         ))}
                         <Form.Item>
                             <Button
                                 type="dashed"
-                                onClick={() => add({ name: '', basePrice: null, discountPrice: null, activeStatus: true, defaultStatus: false, images: [] })}
+                                onClick={() => add({
+                                    name: '',
+                                    basePrice: null,
+                                    discountPrice: null,
+                                    activeStatus: true,
+                                    defaultStatus: false,
+                                    images: []
+                                })}
                                 block
-                                icon={<PlusOutlined />}
+                                icon={<PlusOutlined/>}
                             >
                                 Thêm biến thể
                             </Button>

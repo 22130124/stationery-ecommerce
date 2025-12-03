@@ -30,7 +30,7 @@ public class UploadController {
     }
 
     @DeleteMapping("/image")
-    public ResponseEntity<?> deleteImage(@RequestParam String publicId) {
+    public ResponseEntity<?> deleteImage(@RequestParam("publicId") String publicId) {
         try {
             Map result = uploadService.deleteImage(publicId);
             return ResponseEntity.ok(result);
