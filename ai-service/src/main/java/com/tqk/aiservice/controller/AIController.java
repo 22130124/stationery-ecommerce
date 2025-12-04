@@ -1,5 +1,6 @@
 package com.tqk.aiservice.controller;
 
+import com.tqk.aiservice.dto.request.ProductSearchRequest;
 import com.tqk.aiservice.dto.response.GeminiResponse;
 import com.tqk.aiservice.service.AIService;
 import lombok.RequiredArgsConstructor;
@@ -35,5 +36,10 @@ public class AIController {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("Lỗi khi gọi Gemini: " + e.getMessage());
         }
+    }
+
+    @PostMapping("/search-products")
+    public ResponseEntity<?> searchProducts(@RequestBody ProductSearchRequest request) throws Exception {
+        return ResponseEntity.ok(aiService.searchProductsForUserMessage(request));
     }
 }

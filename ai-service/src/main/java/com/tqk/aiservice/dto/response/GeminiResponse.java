@@ -2,10 +2,9 @@ package com.tqk.aiservice.dto.response;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class GeminiResponse {
-    private String keyword;
-    private String color;
-    private Integer priceMin;
-    private Integer priceMax;
+    private List<GeminiResponseItem> items;
 }

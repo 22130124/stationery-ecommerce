@@ -293,4 +293,14 @@ public class ProductService {
     public Integer getCategoryIdBySlug(String slug) {
         return categoryClient.getCategoryIdBySlug(slug);
     }
+
+    // Hàm truy vấn sản phẩm phục vụ cho tính năng chatbot
+    public List<ProductResponse> searchProducts(Integer categoryId, String keyword, String color, Integer minPrice, Integer maxPrice, String extra) {
+        List<Product> products = productRepository.searchProductsWithScore(categoryId, keyword, color, minPrice, maxPrice, extra);
+        List<ProductResponse> productResponses = new ArrayList<>();
+        for (Product product : products) {
+            productResponses.add(product.convertToDto());
+        }
+        return productResponses;
+    }
 }
