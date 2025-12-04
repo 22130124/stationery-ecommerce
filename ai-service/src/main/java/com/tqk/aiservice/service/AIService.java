@@ -64,11 +64,11 @@ public class AIService {
                 {
                   "items": [
                     {
-                      "keyword": "tên sản phẩm",
+                      "brandName": "tên thương hiệu" hoặc null,
                       "colors": ["đỏ", "xanh dương"] hoặc [],
                       "priceMin": số hoặc null,
                       "priceMax": số hoặc null,
-                      "extra": "thông tin mô tả thêm hoặc null",
+                      "extras": ["từ khóa quan trọng"] hoặc [],
                       "categoryId": số (bắt buộc)
                     }
                   ]
@@ -83,11 +83,13 @@ public class AIService {
                 
                 Quy tắc xác định categoryId:
                 - Chọn danh mục leaf phù hợp nhất từ danh sách đã cung cấp.
-                - Ví dụ:
-                    "bút bi", "viết bi", "cây viết" → categoryId của Bút Bi
-                    "bút chì", "chì vẽ" → categoryId của Bút Chì
-                    "tập", "vở", "vở ô ly" → categoryId của Tập – Vở
                 - Không bao giờ được để categoryId = null.
+                
+                Quy tắc phân tích extra:
+                - Tách các từ khóa quan trọng từ mô tả sản phẩm hoặc câu người dùng.
+                - Loại bỏ từ dừng (như "dùng để", "những", "trong", "các",...).
+                - Trả về mảng các từ khóa quan trọng trong extra.
+                - Nếu không có từ khóa → trả về mảng rỗng [].
                 
                 Chỉ trả về JSON hợp lệ.
                 
@@ -134,11 +136,11 @@ public class AIService {
         for (GeminiResponseItem item : result.getItems()) {
             List<ProductResponse> products = productClient.searchProducts(
                     item.getCategoryId(),
-                    normalize(item.getKeyword()),
+                    normalize(item.getBrandName()),
                     item.getColors(),
                     item.getPriceMin(),
                     item.getPriceMax(),
-                    normalize(item.getExtra())
+                    item.getExtras()
             );
             finalResult.addAll(products);
         }

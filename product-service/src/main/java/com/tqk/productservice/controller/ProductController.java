@@ -4,9 +4,7 @@ import com.tqk.productservice.dto.request.ProductRequest;
 import com.tqk.productservice.dto.response.ProductListResponse;
 import com.tqk.productservice.dto.response.ProductResponse;
 import com.tqk.productservice.service.ProductService;
-import jakarta.persistence.EntityListeners;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -101,13 +99,13 @@ public class ProductController {
     // ========== AI SEARCH ===========
     @GetMapping("/search-by-ai")
     public ResponseEntity<?> searchProducts(@RequestParam(required = false) Integer categoryId,
-                                            @RequestParam(required = false) String keyword,
+                                            @RequestParam(required = false) String brandName,
                                             @RequestParam(required = false) List<String> colors,
                                             @RequestParam(required = false) Integer minPrice,
                                             @RequestParam(required = false) Integer maxPrice,
-                                            @RequestParam(required = false) String extra
+                                            @RequestParam(required = false) List<String> extras
     ) {
-        List<ProductResponse> products = productService.searchProducts(categoryId, keyword, colors, minPrice, maxPrice, extra);
+        List<ProductResponse> products = productService.searchProducts(categoryId, brandName, colors, minPrice, maxPrice, extras);
         return ResponseEntity.ok(products);
     }
 }

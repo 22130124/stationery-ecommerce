@@ -12,10 +12,10 @@ public interface ProductClient {
     @GetMapping("/products/search-by-ai")
     List<ProductResponse> searchProducts(
             @RequestParam("categoryId") Integer categoryId,
-            @RequestParam("keyword") String keyword,
+            @RequestParam("brandName") String brandName,
             @RequestParam("colors") List<String> colors,
             @RequestParam("minPrice") Integer minPrice,
             @RequestParam("maxPrice") Integer maxPrice,
-            @RequestParam("extra") String extra
+            @RequestParam("extras") List<String> extras
     );
 }

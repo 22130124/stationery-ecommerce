@@ -6,10 +6,10 @@ import java.util.List;
 
 @Data
 public class GeminiResponseItem {
-    private String keyword;
+    private String brandName;
     private List<String> colors;
     private Integer priceMin;
     private Integer priceMax;
-    private String extra;
+    private List<String> extras;
     private Integer categoryId;
 }

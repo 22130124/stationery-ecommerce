@@ -330,9 +330,9 @@ public class ProductService {
     }
 
     // Hàm truy vấn sản phẩm phục vụ cho tính năng chatbot
-    public List<ProductResponse> searchProducts(Integer categoryId, String keyword, List<String> colors, Integer minPrice, Integer maxPrice, String extra) {
+    public List<ProductResponse> searchProducts(Integer categoryId, String brandName, List<String> colors, Integer minPrice, Integer maxPrice, List<String> extra) {
         int hasColors = (colors != null && !colors.isEmpty()) ? 1 : 0;
-        List<Product> products = productRepository.searchProductsWithScore(categoryId, keyword, colors, minPrice, maxPrice, extra, hasColors);
+        List<Product> products = productRepository.searchProductsWithScore(categoryId, brandName, colors, minPrice, maxPrice, extra, hasColors);
         List<ProductResponse> productResponses = new ArrayList<>();
         for (Product product : products) {
             productResponses.add(product.convertToDto());
