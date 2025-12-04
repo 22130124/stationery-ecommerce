@@ -36,6 +36,9 @@ public class ProductVariant {
     @Column(name = "discount_price")
     private Double discountPrice;
 
+    @Column(name = "color")
+    private String color;
+
     @Column(name = "active_status")
     private boolean activeStatus;
 
@@ -59,6 +62,7 @@ public class ProductVariant {
         dto.setName(this.name);
         dto.setBasePrice(this.basePrice);
         dto.setDiscountPrice(this.discountPrice);
+        dto.setColor(this.color);
         dto.setActiveStatus(this.activeStatus);
         dto.setDefaultStatus(this.defaultStatus);
         dto.setCreatedAt(this.createdAt);

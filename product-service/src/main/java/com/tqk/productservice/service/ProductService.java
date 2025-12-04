@@ -116,6 +116,7 @@ public class ProductService {
             variant.setName(variantRequest.getName());
             variant.setBasePrice(variantRequest.getBasePrice());
             variant.setDiscountPrice(variantRequest.getDiscountPrice());
+            variant.setColor(variantRequest.getColor());
             variant.setActiveStatus(variantRequest.getActiveStatus());
             variant.setDefaultStatus(variantRequest.getDefaultStatus());
 
@@ -190,6 +191,7 @@ public class ProductService {
             variant.setName(variantRequest.getName());
             variant.setBasePrice(variantRequest.getBasePrice());
             variant.setDiscountPrice(variantRequest.getDiscountPrice());
+            variant.setColor(variantRequest.getColor());
             variant.setActiveStatus(variantRequest.getActiveStatus());
             variant.setDefaultStatus(variantRequest.getDefaultStatus());
 

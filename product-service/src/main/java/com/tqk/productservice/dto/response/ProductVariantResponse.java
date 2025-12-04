@@ -11,6 +11,7 @@ public class ProductVariantResponse {
     private String name;
     private Double basePrice;
     private Double discountPrice;
+    private String color;
     private boolean activeStatus;
     private boolean defaultStatus;
     private LocalDateTime createdAt;

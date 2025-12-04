@@ -118,6 +118,7 @@ const ProductFormModal = ({visible, onClose, onSubmit, editingProduct}) => {
                             name: '',
                             basePrice: null,
                             discountPrice: null,
+                            color: null,
                             activeStatus: true,
                             defaultStatus: true,
                             images: [],

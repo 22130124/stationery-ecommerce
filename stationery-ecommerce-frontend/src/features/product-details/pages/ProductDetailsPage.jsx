@@ -160,7 +160,8 @@ const ProductDetailsPage = () => {
                         <div className={styles.metaDivider}>|</div>
                         <div>Thương hiệu: <span className={styles.metaValue}>{product.brand?.name}</span></div>
                         <div className={styles.metaDivider}>|</div>
-                        <div>Loại: <span className={styles.metaValue}>{product.category?.name}</span></div>
+                        <div>Danh mục: <span className={styles.metaValue}>{product.category?.name}</span></div>
+                        <div>Màu sắc: <span className={styles.metaValue}>{selectedVariant.color}</span></div>
                     </div>
 
                     <div className={styles.priceSection}>

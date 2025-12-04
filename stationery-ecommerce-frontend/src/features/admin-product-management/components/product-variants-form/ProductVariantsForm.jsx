@@ -146,12 +146,26 @@ const ProductVariantsForm = ({form, handleImagesUploadingChange}) => {
                                     </Col>
                                 </Row>
 
+                                <Row gutter={16}>
+                                    <Col span={6}>
+                                        <Form.Item
+                                            {...restField}
+                                            name={[name, 'color']}
+                                            label="Màu sắc"
+                                            rules={[{required: true, message: 'Thiếu màu sắc'}]}
+                                        >
+                                            <Input placeholder="Nhập màu sắc sản phẩm"/>
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+
                                 <Form.Item
                                     {...restField}
                                     name={[name, 'images']}
                                     label="Ảnh biến thể (riêng)"
                                     style={{marginTop: '10px'}}
                                 >
+
                                     {/* ProductImages */}
                                     <ProductImages
                                         value={form.getFieldValue(['variants', name, 'images'])}
@@ -175,6 +189,7 @@ const ProductVariantsForm = ({form, handleImagesUploadingChange}) => {
                                     name: '',
                                     basePrice: null,
                                     discountPrice: null,
+                                    color: null,
                                     activeStatus: true,
                                     defaultStatus: false,
                                     images: []
