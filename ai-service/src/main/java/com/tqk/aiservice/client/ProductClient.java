@@ -13,7 +13,7 @@ public interface ProductClient {
     List<ProductResponse> searchProducts(
             @RequestParam("categoryId") Integer categoryId,
             @RequestParam("keyword") String keyword,
-            @RequestParam("color") String color,
+            @RequestParam("colors") List<String> colors,
             @RequestParam("minPrice") Integer minPrice,
             @RequestParam("maxPrice") Integer maxPrice,
             @RequestParam("extra") String extra

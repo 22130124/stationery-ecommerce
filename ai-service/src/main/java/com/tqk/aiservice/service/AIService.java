@@ -50,34 +50,44 @@ public class AIService {
         String prompt = """
                 Bạn là AI phân tích nhu cầu mua sắm.
                 
-                Người dùng có thể yêu cầu nhiều sản phẩm trong một câu.
+                Người dùng có thể yêu cầu:
+                - Một hoặc nhiều sản phẩm trong một câu.
+                - Một hoặc nhiều màu sắc cho cùng một sản phẩm.
+                - Cách gọi sản phẩm có thể khác nhau (bút bi / viết bi / cây viết / viết…).
                 
                 Danh sách danh mục hiện có trong hệ thống (danh mục con – leaf categories):
                 
                 %s
                 
-                TRẢ VỀ JSON THUẦN (không markdown), theo cấu trúc:
+                Hãy TRẢ VỀ JSON THUẦN (không markdown), theo cấu trúc:
                 
                 {
                   "items": [
                     {
                       "keyword": "tên sản phẩm",
-                      "color": "đen / đỏ / xanh hoặc null",
+                      "colors": ["đỏ", "xanh dương"] hoặc [],
                       "priceMin": số hoặc null,
                       "priceMax": số hoặc null,
-                      "extra": "keyword mô tả thêm hoặc null",
-                      "categoryId": số ID danh mục (BAT BUOC)
+                      "extra": "thông tin mô tả thêm hoặc null",
+                      "categoryId": số (bắt buộc)
                     }
                   ]
                 }
                 
+                Quy tắc phân tích màu sắc:
+                - Nếu người dùng nói: 
+                    "màu xanh dương hoặc đỏ" → ["xanh dương", "đỏ"]
+                    "đen và trắng" → ["đen", "trắng"]
+                    "xanh, đỏ, vàng" → ["xanh", "đỏ", "vàng"]
+                - Nếu không đề cập màu → trả về mảng rỗng [].
+                
                 Quy tắc xác định categoryId:
-                - Hãy chọn category phù hợp nhất trong danh sách leaf
+                - Chọn danh mục leaf phù hợp nhất từ danh sách đã cung cấp.
                 - Ví dụ:
-                    'bút bi', 'viết bi', 'cây viết' -> id danh mục Bút bi
-                    'bút chì', 'chì vẽ' -> id danh mục Bút chì
-                    'tập', 'vở', 'vở ô ly' -> id của danh mục Tập - Vở
-                - Luôn trả categoryId chính xác, không được để null.
+                    "bút bi", "viết bi", "cây viết" → categoryId của Bút Bi
+                    "bút chì", "chì vẽ" → categoryId của Bút Chì
+                    "tập", "vở", "vở ô ly" → categoryId của Tập – Vở
+                - Không bao giờ được để categoryId = null.
                 
                 Chỉ trả về JSON hợp lệ.
                 
@@ -125,7 +135,7 @@ public class AIService {
             List<ProductResponse> products = productClient.searchProducts(
                     item.getCategoryId(),
                     normalize(item.getKeyword()),
-                    normalize(item.getColor()),
+                    item.getColors(),
                     item.getPriceMin(),
                     item.getPriceMax(),
                     normalize(item.getExtra())

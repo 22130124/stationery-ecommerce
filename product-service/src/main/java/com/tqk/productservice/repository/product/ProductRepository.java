@@ -60,20 +60,26 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 //    );
 
     @Query(value = """
-        SELECT p.*
-        FROM products p
-        WHERE p.active_status = true
-          AND p.category_id = :categoryId
-        ORDER BY p.id DESC
-        """,
+            SELECT DISTINCT p.*
+            FROM products p
+            LEFT JOIN product_variant_colors pvc ON pvc.product_id = p.id
+            WHERE p.active_status = true
+              AND p.category_id = :categoryId
+              /* nếu hasColors = 1 thì filter theo màu */
+              AND (
+                    :hasColors = 0
+                    OR pvc.color IN (:colors)
+                  )
+            ORDER BY p.id DESC
+            """,
             nativeQuery = true)
     List<Product> searchProductsWithScore(
             @Param("categoryId") Integer categoryId,
             @Param("keyword") String keyword,
-            @Param("color") String color,
+            @Param("colors") List<String> colors,
             @Param("priceMin") Integer priceMin,
             @Param("priceMax") Integer priceMax,
-            @Param("extra") String extra
+            @Param("extra") String extra,
+            @Param("hasColors") int hasColors
     );
-
 }

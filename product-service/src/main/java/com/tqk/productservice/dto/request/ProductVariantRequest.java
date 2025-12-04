@@ -9,8 +9,8 @@ public class ProductVariantRequest {
     private String name;
     private Double basePrice;
     private Double discountPrice;
-    private String color;
     private Boolean activeStatus;
     private Boolean defaultStatus;
     private List<ProductImageRequest> images;
+    private List<String> colors;
 }

@@ -8,8 +8,10 @@ import com.tqk.productservice.exception.ProductNotFoundException;
 import com.tqk.productservice.model.Product;
 import com.tqk.productservice.model.ProductImage;
 import com.tqk.productservice.model.ProductVariant;
+import com.tqk.productservice.model.ProductVariantColor;
 import com.tqk.productservice.repository.product.ProductImageRepository;
 import com.tqk.productservice.repository.product.ProductRepository;
+import com.tqk.productservice.repository.product.ProductVariantColorRepository;
 import com.tqk.productservice.repository.product.ProductVariantRepository;
 import com.tqk.productservice.repository.client.CategoryClient;
 import jakarta.transaction.Transactional;
@@ -28,6 +30,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductVariantRepository productVariantRepository;
     private final ProductImageRepository productImageRepository;
+    private final ProductVariantColorRepository productVariantColorRepository;
     private final CategoryClient categoryClient;
 
     private static final String CODE_PREFIX = "SP";
@@ -116,7 +119,6 @@ public class ProductService {
             variant.setName(variantRequest.getName());
             variant.setBasePrice(variantRequest.getBasePrice());
             variant.setDiscountPrice(variantRequest.getDiscountPrice());
-            variant.setColor(variantRequest.getColor());
             variant.setActiveStatus(variantRequest.getActiveStatus());
             variant.setDefaultStatus(variantRequest.getDefaultStatus());
 
@@ -127,11 +129,24 @@ public class ProductService {
                 saveProductImages(variantRequest.getImages(), savedProduct, savedVariant);
             }
 
+            // Lưu màu sắc của variant
+            if (variantRequest.getColors() != null && !variantRequest.getColors().isEmpty()) {
+                for (String color : variantRequest.getColors()) {
+                    ProductVariantColor productVariantColor = new ProductVariantColor();
+                    productVariantColor.setProduct(savedProduct);
+                    productVariantColor.setVariant(savedVariant);
+                    productVariantColor.setColor(color);
+                    productVariantColorRepository.save(productVariantColor);
+                }
+            }
+
             savedVariants.add(savedVariant);
         }
 
         // Lưu Product Images (Ảnh chung)
-        if (productRequest.getImages() != null && !productRequest.getImages().isEmpty()) {
+        if (productRequest.getImages() != null && !productRequest.getImages().
+
+                isEmpty()) {
             saveProductImages(productRequest.getImages(), savedProduct, null);
         }
 
@@ -159,7 +174,7 @@ public class ProductService {
 
         Product updatedProduct = productRepository.save(product);
 
-        // Xóa biến thể cũ không còn trong request ---
+        // Xóa biến thể cũ không còn trong request
         List<Integer> requestVariantIds = new ArrayList<>();
         for (ProductVariantRequest vr : productRequest.getVariants()) {
             if (vr.getId() != null) requestVariantIds.add(vr.getId());
@@ -171,6 +186,10 @@ public class ProductService {
                 // Xóa ảnh liên quan trước
                 List<ProductImage> oldImages = productImageRepository.findByVariant(existingVariant);
                 productImageRepository.deleteAll(oldImages);
+
+                // Xóa các thông tin về màu sắc
+                List<ProductVariantColor> oldColors = productVariantColorRepository.findByVariant(existingVariant);
+                productVariantColorRepository.deleteAll(oldColors);
 
                 productVariantRepository.delete(existingVariant);
             }
@@ -191,7 +210,6 @@ public class ProductService {
             variant.setName(variantRequest.getName());
             variant.setBasePrice(variantRequest.getBasePrice());
             variant.setDiscountPrice(variantRequest.getDiscountPrice());
-            variant.setColor(variantRequest.getColor());
             variant.setActiveStatus(variantRequest.getActiveStatus());
             variant.setDefaultStatus(variantRequest.getDefaultStatus());
 
@@ -202,6 +220,19 @@ public class ProductService {
                 List<ProductImage> oldImages = productImageRepository.findByVariant(savedVariant);
                 productImageRepository.deleteAll(oldImages);
                 saveProductImages(variantRequest.getImages(), updatedProduct, savedVariant);
+            }
+
+            // Xử lý màu sắc
+            if (variantRequest.getColors() != null && !variantRequest.getColors().isEmpty()) {
+                List<ProductVariantColor> oldColors = productVariantColorRepository.findByVariant(savedVariant);
+                productVariantColorRepository.deleteAll(oldColors);
+                for (String color : variantRequest.getColors()) {
+                    ProductVariantColor productVariantColor = new ProductVariantColor();
+                    productVariantColor.setProduct(updatedProduct);
+                    productVariantColor.setVariant(savedVariant);
+                    productVariantColor.setColor(color);
+                    productVariantColorRepository.save(productVariantColor);
+                }
             }
 
             updatedVariants.add(savedVariant);
@@ -268,11 +299,13 @@ public class ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm với id: " + productId));
 
-        // Xóa tất cả biến thể và ảnh liên quan
+        // Xóa tất cả biến thể, ảnh, màu sắc liên quan
         List<ProductVariant> variants = productVariantRepository.findByProduct(product);
         for (ProductVariant variant : variants) {
             List<ProductImage> variantImages = productImageRepository.findByVariant(variant);
             productImageRepository.deleteAll(variantImages);
+            List<ProductVariantColor> variantColors = productVariantColorRepository.findByVariant(variant);
+            productVariantColorRepository.deleteAll(variantColors);
         }
         productVariantRepository.deleteAll(variants);
 
@@ -297,8 +330,9 @@ public class ProductService {
     }
 
     // Hàm truy vấn sản phẩm phục vụ cho tính năng chatbot
-    public List<ProductResponse> searchProducts(Integer categoryId, String keyword, String color, Integer minPrice, Integer maxPrice, String extra) {
-        List<Product> products = productRepository.searchProductsWithScore(categoryId, keyword, color, minPrice, maxPrice, extra);
+    public List<ProductResponse> searchProducts(Integer categoryId, String keyword, List<String> colors, Integer minPrice, Integer maxPrice, String extra) {
+        int hasColors = (colors != null && !colors.isEmpty()) ? 1 : 0;
+        List<Product> products = productRepository.searchProductsWithScore(categoryId, keyword, colors, minPrice, maxPrice, extra, hasColors);
         List<ProductResponse> productResponses = new ArrayList<>();
         for (Product product : products) {
             productResponses.add(product.convertToDto());

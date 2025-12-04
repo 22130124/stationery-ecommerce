@@ -1,6 +1,7 @@
 package com.tqk.productservice.model;
 
 import com.tqk.productservice.dto.response.ProductImageResponse;
+import com.tqk.productservice.dto.response.ProductVariantColorResponse;
 import com.tqk.productservice.dto.response.ProductVariantResponse;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -56,25 +57,35 @@ public class ProductVariant {
     @OneToMany(mappedBy = "variant")
     private List<ProductImage> images = new ArrayList<>();
 
+    @OneToMany(mappedBy = "variant")
+    private List<ProductVariantColor> colors = new ArrayList<>();
+
     public ProductVariantResponse convertToDto() {
         ProductVariantResponse dto = new ProductVariantResponse();
         dto.setId(this.id);
         dto.setName(this.name);
         dto.setBasePrice(this.basePrice);
         dto.setDiscountPrice(this.discountPrice);
-        dto.setColor(this.color);
         dto.setActiveStatus(this.activeStatus);
         dto.setDefaultStatus(this.defaultStatus);
         dto.setCreatedAt(this.createdAt);
         dto.setUpdatedAt(this.updatedAt);
         List<ProductImageResponse> imagesResponses = new ArrayList<>();
-        if (this.images != null) {
+        if (!this.images.isEmpty()) {
             for (ProductImage productImage : this.images) {
                 ProductImageResponse productImageResponse = productImage.convertToDto();
                 imagesResponses.add(productImageResponse);
             }
         }
         dto.setImages(imagesResponses);
+
+        List<ProductVariantColorResponse> colorResponses = new ArrayList<>();
+        if (!this.colors.isEmpty()) {
+            for (ProductVariantColor productVariantColor : this.colors) {
+                colorResponses.add(productVariantColor.convertToDto());
+            }
+        }
+        dto.setColors(colorResponses);
         return dto;
     }
 }

@@ -102,12 +102,12 @@ public class ProductController {
     @GetMapping("/search-by-ai")
     public ResponseEntity<?> searchProducts(@RequestParam(required = false) Integer categoryId,
                                             @RequestParam(required = false) String keyword,
-                                            @RequestParam(required = false) String color,
+                                            @RequestParam(required = false) List<String> colors,
                                             @RequestParam(required = false) Integer minPrice,
                                             @RequestParam(required = false) Integer maxPrice,
                                             @RequestParam(required = false) String extra
     ) {
-        List<ProductResponse> products = productService.searchProducts(categoryId, keyword, color, minPrice, maxPrice, extra);
+        List<ProductResponse> products = productService.searchProducts(categoryId, keyword, colors, minPrice, maxPrice, extra);
         return ResponseEntity.ok(products);
     }
 }

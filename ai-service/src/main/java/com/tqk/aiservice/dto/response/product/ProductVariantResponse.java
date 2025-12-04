@@ -16,4 +16,5 @@ public class ProductVariantResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<ProductImageResponse> images;
+    private List<ProductVariantColorResponse> colors;
 }
