@@ -1,7 +1,7 @@
 package com.tqk.aiservice.controller;
 
 import com.tqk.aiservice.dto.request.ProductSearchRequest;
-import com.tqk.aiservice.dto.response.GeminiResponse;
+import com.tqk.aiservice.dto.response.ai.GeminiResponse;
 import com.tqk.aiservice.service.AIService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

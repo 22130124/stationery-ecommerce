@@ -65,19 +65,20 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             LEFT JOIN product_variants pv ON pv.product_id = p.id
             LEFT JOIN product_variant_colors pvc ON pvc.product_id = p.id
             WHERE p.active_status = true
-              AND p.category_id = :categoryId
-              /* nếu hasColors = 1 thì filter theo màu */
-              AND (:hasColors = 0 OR pvc.color IN (:colors))
-              /* filter theo priceMin nếu có */
-              AND (:priceMin IS NULL OR COALESCE(pv.discount_price, pv.base_price) >= :priceMin)
-              /* filter theo priceMax nếu có */
-              AND (:priceMax IS NULL OR COALESCE(pv.discount_price, pv.base_price) <= :priceMax)
+                AND p.category_id = :categoryId
+                AND p.brand_id = :brandId
+                /* nếu hasColors = 1 thì filter theo màu */
+                AND (:hasColors = 0 OR pvc.color IN (:colors))
+                /* filter theo priceMin nếu có */
+                AND (:priceMin IS NULL OR COALESCE(pv.discount_price, pv.base_price) >= :priceMin)
+                /* filter theo priceMax nếu có */
+                AND (:priceMax IS NULL OR COALESCE(pv.discount_price, pv.base_price) <= :priceMax)
             ORDER BY p.id DESC
             """,
             nativeQuery = true)
     List<Product> searchProductsWithScore(
             @Param("categoryId") Integer categoryId,
-            @Param("brandName") String brandName,
+            @Param("brandId") Integer brandId,
             @Param("colors") List<String> colors,
             @Param("priceMin") Integer priceMin,
             @Param("priceMax") Integer priceMax,

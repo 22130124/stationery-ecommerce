@@ -3,11 +3,13 @@ package com.tqk.aiservice.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.genai.Client;
 import com.google.genai.types.GenerateContentResponse;
+import com.tqk.aiservice.client.BrandClient;
 import com.tqk.aiservice.client.CategoryClient;
 import com.tqk.aiservice.client.ProductClient;
 import com.tqk.aiservice.dto.request.ProductSearchRequest;
-import com.tqk.aiservice.dto.response.GeminiResponse;
-import com.tqk.aiservice.dto.response.GeminiResponseItem;
+import com.tqk.aiservice.dto.response.ai.GeminiResponse;
+import com.tqk.aiservice.dto.response.ai.GeminiResponseItem;
+import com.tqk.aiservice.dto.response.brand.BrandResponse;
 import com.tqk.aiservice.dto.response.category.CategoryResponse;
 import com.tqk.aiservice.dto.response.product.ProductResponse;
 import jakarta.annotation.PostConstruct;
@@ -30,6 +32,7 @@ public class AIService {
     private final ObjectMapper mapper = new ObjectMapper();
     private final ProductClient productClient;
     private final CategoryClient categoryClient;
+    private final BrandClient brandClient;
 
     @PostConstruct
     public void init() {
@@ -39,12 +42,18 @@ public class AIService {
     }
 
     public GeminiResponse analyzeProductQuery(String userMessage) throws IOException {
-        // Lấy danh sách categories thật
+        // Lấy danh sách categories
         List<CategoryResponse> categories = categoryClient.getActiveCategories();
 
-        // Lấy danh sách leaf-category để AI match dễ nhất
-        List<String> leafList = extractLeafCategories(categories);
-        String leafJson = mapper.writeValueAsString(leafList);
+        // Lấy danh sách brands
+        List<BrandResponse> brands = brandClient.getActiveBrands();
+
+        // Lấy danh sách leaf để AI match dễ nhất
+        List<String> extractedCategoryList = extractLeafCategories(categories);
+        List<String> extractedBrandList = extractBrands(brands);
+
+        String categoriesJson = mapper.writeValueAsString(extractedCategoryList);
+        String brandsJson = mapper.writeValueAsString(extractedBrandList);
 
         // Tạo prompt yêu cầu trả về JSON
         String prompt = """
@@ -59,12 +68,16 @@ public class AIService {
                 
                 %s
                 
+                Danh sách thương hiệu hiện có trong hệ thống:
+                
+                %s
+                
                 Hãy TRẢ VỀ JSON THUẦN (không markdown), theo cấu trúc:
                 
                 {
                   "items": [
                     {
-                      "brandName": "tên thương hiệu" hoặc null,
+                      "brandId": số hoặc null,
                       "colors": ["đỏ", "xanh dương"] hoặc [],
                       "priceMin": số hoặc null,
                       "priceMax": số hoặc null,
@@ -85,6 +98,10 @@ public class AIService {
                 - Chọn danh mục leaf phù hợp nhất từ danh sách đã cung cấp.
                 - Không bao giờ được để categoryId = null.
                 
+                Quy tắc xác định brandId:
+                - Chọn thương hiệu phù hợp nhất từ danh sách đã cung cấp.
+                - brandId có thể null nếu người dùng không có nhu cầu tìm kiếm về thương hiệu hoặc không có thương hiệu đó tồn tại trong hệ thống
+                
                 Quy tắc phân tích extra:
                 - Tách các từ khóa quan trọng từ mô tả sản phẩm hoặc câu người dùng.
                 - Loại bỏ từ dừng (như "dùng để", "những", "trong", "các",...).
@@ -94,7 +111,7 @@ public class AIService {
                 Chỉ trả về JSON hợp lệ.
                 
                 Câu hỏi: %s
-                """.formatted(leafJson, userMessage);
+                """.formatted(categoriesJson, brandsJson, userMessage);
 
         // Gọi Gemini qua SDK
         GenerateContentResponse response = client.models.generateContent(
@@ -136,7 +153,7 @@ public class AIService {
         for (GeminiResponseItem item : result.getItems()) {
             List<ProductResponse> products = productClient.searchProducts(
                     item.getCategoryId(),
-                    normalize(item.getBrandName()),
+                    item.getBrandId(),
                     item.getColors(),
                     item.getPriceMin(),
                     item.getPriceMax(),
@@ -162,6 +179,15 @@ public class AIService {
             } else {
                 result.addAll(extractLeafCategories(c.getChildren()));
             }
+        }
+        return result;
+    }
+
+    // Hàm tiện ích tách id và tên thương hiệu (brand) phục vụ cho việc gọi Gemini
+    private List<String> extractBrands(List<BrandResponse> list) {
+        List<String> result = new ArrayList<>();
+        for (BrandResponse b : list) {
+                result.add(b.getId() + " - " + b.getName());
         }
         return result;
     }

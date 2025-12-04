@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface BrandRepository extends JpaRepository<Brand, Integer> {
     Optional<List<Brand>> findBySupplierId(Integer supplierId);
+
+    List<Brand> findByActiveStatusTrue();
 }

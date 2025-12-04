@@ -20,6 +20,12 @@ public class BrandController {
         this.brandService = brandService;
     }
 
+    @GetMapping
+    public ResponseEntity<?> getActiveBrands() {
+        List<BrandResponse> brands = brandService.getActiveBrands();
+        return ResponseEntity.ok(brands);
+    }
+
     @GetMapping("/by-supplier/{supplierId}")
     public ResponseEntity<?> getBrandsBySupplierId(@PathVariable Integer supplierId) {
         List<BrandResponse> brands = brandService.getBySupplierId(supplierId);
@@ -46,7 +52,7 @@ public class BrandController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBrand(@PathVariable Integer id) {
-        Integer deletedId  = brandService.deleteBrand(id);
+        Integer deletedId = brandService.deleteBrand(id);
         return ResponseEntity.ok(deletedId);
     }
 }

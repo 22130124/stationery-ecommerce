@@ -1,4 +1,4 @@
-package com.tqk.aiservice.dto.response;
+package com.tqk.aiservice.dto.response.ai;
 
 import lombok.Data;
 

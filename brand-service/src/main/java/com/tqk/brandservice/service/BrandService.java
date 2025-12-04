@@ -56,4 +56,13 @@ public class BrandService {
         brandRepository.deleteById(id);
         return id;
     }
+
+    public List<BrandResponse> getActiveBrands() {
+        List<Brand> brands = brandRepository.findByActiveStatusTrue();
+        List<BrandResponse> brandResponses = new ArrayList<>();
+        for (Brand brand : brands) {
+            brandResponses.add(brand.convertToDto());
+        }
+        return brandResponses;
+    }
 }
