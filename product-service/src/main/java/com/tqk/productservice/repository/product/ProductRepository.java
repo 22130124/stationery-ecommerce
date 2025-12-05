@@ -21,52 +21,14 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     Page<Product> findByActiveStatusTrue(Pageable pageable);
 
-//    @Query(value = """
-//            SELECT\s
-//                p.*,
-//                (
-//                    (CASE WHEN :keyword IS NOT NULL AND LOWER(p.name) LIKE CONCAT('%', LOWER(:keyword), '%') THEN 5 ELSE 0 END) +
-//                    (CASE WHEN :keyword IS NOT NULL AND LOWER(p.description) LIKE CONCAT('%', LOWER(:keyword), '%') THEN 3 ELSE 0 END) +
-//                    (CASE WHEN :extra   IS NOT NULL AND LOWER(p.description) LIKE CONCAT('%', LOWER(:extra),   '%') THEN 2 ELSE 0 END) +
-//                    (CASE WHEN :color   IS NOT NULL AND v.color_match = 1 THEN 1 ELSE 0 END) +
-//                    (CASE WHEN (:priceMin IS NOT NULL OR :priceMax IS NOT NULL) AND v.price_match = 1 THEN 3 ELSE 0 END)
-//                ) AS score
-//            FROM products p
-//            LEFT JOIN (
-//                SELECT\s
-//                    pv.product_id,
-//                    MAX(CASE WHEN LOWER(pv.name) LIKE CONCAT('%', LOWER(:color), '%') THEN 1 ELSE 0 END) AS color_match,
-//                    MAX(CASE\s
-//                          WHEN (:priceMin IS NULL OR pv.discount_price >= :priceMin)
-//                           AND (:priceMax IS NULL OR pv.discount_price <= :priceMax)
-//                          THEN 1 ELSE 0 END
-//                    ) AS price_match
-//                FROM product_variants pv
-//                GROUP BY pv.product_id
-//            ) v ON v.product_id = p.id
-//            WHERE p.active_status = true
-//              AND (:priceMin IS NULL OR v.price_match = 1)
-//              AND (:priceMax IS NULL OR v.price_match = 1)
-//            ORDER BY score DESC
-//            """,
-//            nativeQuery = true)
-//    List<Product> searchProductsWithScore(
-//            @Param("categoryId") Integer categoryId,
-//            @Param("keyword") String keyword,
-//            @Param("color") String color,
-//            @Param("priceMin") Integer priceMin,
-//            @Param("priceMax") Integer priceMax,
-//            @Param("extra") String extra
-//    );
-
     @Query(value = """
             SELECT DISTINCT p.*
             FROM products p
             LEFT JOIN product_variants pv ON pv.product_id = p.id
             LEFT JOIN product_variant_colors pvc ON pvc.product_id = p.id
             WHERE p.active_status = true
-                AND p.category_id = :categoryId
-                AND p.brand_id = :brandId
+                AND (:categoryId IS NULL OR p.category_id = :categoryId)
+                AND (:brandId IS NULL OR p.brand_id = :brandId)
                 /* nếu hasColors = 1 thì filter theo màu */
                 AND (:hasColors = 0 OR pvc.color IN (:colors))
                 /* filter theo priceMin nếu có */

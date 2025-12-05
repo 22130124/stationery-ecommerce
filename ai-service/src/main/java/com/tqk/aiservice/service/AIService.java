@@ -82,7 +82,7 @@ public class AIService {
                       "priceMin": số hoặc null,
                       "priceMax": số hoặc null,
                       "extras": ["từ khóa quan trọng"] hoặc [],
-                      "categoryId": số (bắt buộc)
+                      "categoryId": số hoặc null
                     }
                   ]
                 }
@@ -96,7 +96,7 @@ public class AIService {
                 
                 Quy tắc xác định categoryId:
                 - Chọn danh mục leaf phù hợp nhất từ danh sách đã cung cấp.
-                - Không bao giờ được để categoryId = null.
+                - categoryId có thể null nếu người dùng không nêu rõ loại sản phẩm muốn mua.
                 
                 Quy tắc xác định brandId:
                 - Chọn thương hiệu phù hợp nhất từ danh sách đã cung cấp.
