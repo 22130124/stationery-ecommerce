@@ -22,7 +22,7 @@ public class AIController {
         return ResponseEntity.ok(aiService.analyzeRequest(request));
     }
 
-    @PostMapping("/search-products")
+    @PostMapping
     public ResponseEntity<?> searchProducts(@RequestBody ChatRequest request) throws Exception {
         return ResponseEntity.ok(aiService.searchProductsWithContext(request));
     }

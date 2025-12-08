@@ -13,6 +13,7 @@ export const API_URLS = {
     cart: `${API_URL}/cart`,
     profile: `${API_URL}/profiles`,
     order: `${API_URL}/orders`,
+    ai: `${API_URL}/ai`,
 };
 
 export async function apiFetch(url, options = {}) {

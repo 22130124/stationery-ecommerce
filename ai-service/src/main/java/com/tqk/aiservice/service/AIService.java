@@ -108,7 +108,6 @@ public class AIService {
         if (geminiResponse.getMessage() != null) {
             chatResponse.setMessage(geminiResponse.getMessage());
             chatResponse.setRelated(geminiResponse.isRelated());
-            chatResponse.setChitChatStatus(geminiResponse.isChitChatStatus());
             return chatResponse;
         }
 
@@ -131,7 +130,6 @@ public class AIService {
         chatResponse.setMessage("Đây là sản phẩm phù hợp với yêu cầu của bạn");
         chatResponse.setProducts(productResponseList);
         chatResponse.setRelated(geminiResponse.isRelated());
-        chatResponse.setChitChatStatus(false);
 
         return chatResponse;
     }

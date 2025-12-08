@@ -9,5 +9,4 @@ public class GeminiResponse {
     private List<GeminiResponseItem> items;
     private String message;
     private boolean related;
-    private boolean chitChatStatus;
 }

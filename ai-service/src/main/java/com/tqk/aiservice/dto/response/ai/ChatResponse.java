@@ -10,5 +10,4 @@ public class ChatResponse {
     private String message;
     private List<ProductResponse> products;
     private boolean related;
-    private boolean chitChatStatus;
 }
