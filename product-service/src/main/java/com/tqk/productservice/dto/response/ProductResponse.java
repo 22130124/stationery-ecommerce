@@ -24,5 +24,6 @@ public class ProductResponse {
     private List<ProductVariantResponse> variants = new ArrayList<>();
     private ProductVariantResponse defaultVariant;
     private ProductImageResponse defaultImage;
+    private int totalStock;
 //    private List<ProductImageResponse> images = new ArrayList<>();
 }

@@ -3,16 +3,11 @@ package com.tqk.productservice.service;
 import com.tqk.productservice.dto.request.ProductImageRequest;
 import com.tqk.productservice.dto.request.ProductRequest;
 import com.tqk.productservice.dto.request.ProductVariantRequest;
+import com.tqk.productservice.dto.request.UpdateInventoryRequest;
 import com.tqk.productservice.dto.response.*;
 import com.tqk.productservice.exception.ProductNotFoundException;
-import com.tqk.productservice.model.Product;
-import com.tqk.productservice.model.ProductImage;
-import com.tqk.productservice.model.ProductVariant;
-import com.tqk.productservice.model.ProductVariantColor;
-import com.tqk.productservice.repository.product.ProductImageRepository;
-import com.tqk.productservice.repository.product.ProductRepository;
-import com.tqk.productservice.repository.product.ProductVariantColorRepository;
-import com.tqk.productservice.repository.product.ProductVariantRepository;
+import com.tqk.productservice.model.*;
+import com.tqk.productservice.repository.product.*;
 import com.tqk.productservice.repository.client.CategoryClient;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +26,7 @@ public class ProductService {
     private final ProductVariantRepository productVariantRepository;
     private final ProductImageRepository productImageRepository;
     private final ProductVariantColorRepository productVariantColorRepository;
+    private final ProductInventoryRepository productInventoryRepository;
     private final CategoryClient categoryClient;
 
     private static final String CODE_PREFIX = "SP";
@@ -41,7 +37,15 @@ public class ProductService {
         List<Product> products = productRepository.findAll();
         List<ProductResponse> productResponseList = new ArrayList<>();
         if (!products.isEmpty()) {
-            products.forEach(product -> productResponseList.add(product.convertToDto()));
+            for (Product product : products) {
+                ProductResponse productResponse = product.convertToDto();
+                int totalStock = 0;
+                for (ProductVariant variant : product.getVariants()) {
+                    totalStock += variant.getProductInventory().getStock();
+                }
+                productResponse.setTotalStock(totalStock);
+                productResponseList.add(productResponse);
+            }
         }
         return productResponseList;
     }
@@ -346,5 +350,25 @@ public class ProductService {
             productResponses.add(product.convertToDto());
         }
         return productResponses;
+    }
+
+    public int getStock(Integer variantId) {
+        ProductVariant productVariant = productVariantRepository.findById(variantId).orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm có id biến thể là: " + variantId));
+        ProductInventory productInventory = productInventoryRepository.findByProductVariant(productVariant);
+        return productInventory.getStock();
+    }
+
+    public int updateInventory(String type, UpdateInventoryRequest request) {
+        ProductVariant productVariant = productVariantRepository.findById(request.getVariantId()).orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm có id biến thể là: " + request.getVariantId()));
+        ProductInventory productInventory = productInventoryRepository.findByProductVariant(productVariant);
+        if (type.equalsIgnoreCase("replace")) {
+            productInventory.setStock(request.getQuantity());
+        } else if (type.equalsIgnoreCase("increase")) {
+            productInventory.setStock(productInventory.getStock() + request.getQuantity());
+        } else if (type.equalsIgnoreCase("decrease")) {
+            productInventory.setStock(productInventory.getStock() - request.getQuantity());
+        }
+        productInventoryRepository.save(productInventory);
+        return productInventory.getStock();
     }
 }

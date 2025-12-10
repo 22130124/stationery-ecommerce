@@ -12,9 +12,6 @@ import {getCategoryById} from "../../../api/categoryApi";
 import {addToCart} from "../../../api/cartApi";
 import RecommendedProducts from "../components/RecommendedProducts";
 
-// Icon ngôi sao đơn giản để đánh giá
-const StarIcon = () => <>⭐</>;
-
 const ProductDetailsPage = () => {
     const {slug} = useParams();
     const [product, setProduct] = useState(null);
@@ -155,14 +152,14 @@ const ProductDetailsPage = () => {
                     <h1 className={styles.productName}>{product.name}</h1>
 
                     <div className={styles.metaInfo}>
-                        <div className={styles.rating}>
-                            <span>{product.rating}</span> <StarIcon/>
-                        </div>
                         <div className={styles.metaDivider}>|</div>
                         <div>Thương hiệu: <span className={styles.metaValue}>{product.brand?.name}</span></div>
                         <div className={styles.metaDivider}>|</div>
                         <div>Danh mục: <span className={styles.metaValue}>{product.category?.name}</span></div>
-                        <div>Màu sắc: <span className={styles.metaValue}>{selectedVariant.color}</span></div>
+                        <div>Màu sắc: <span className={styles.metaValue}>
+                                {selectedVariant.colors.map(item => item.color).join(", ")}
+                            </span>
+                        </div>
                     </div>
 
                     <div className={styles.priceSection}>

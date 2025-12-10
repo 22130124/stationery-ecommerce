@@ -4,6 +4,7 @@ import styles from './ProductManagementPage.module.scss';
 import ProductFormModal from "../components/modals/ProductFormModal";
 import {addProduct, deleteProduct, getAllProducts, updateProduct} from "../../../api/productApi";
 import toast from "react-hot-toast";
+import InventoryModal from "../components/modals/InventoryModal";
 
 const ProductManagementPage = () => {
     const [products, setProducts] = useState([]);
@@ -11,6 +12,7 @@ const ProductManagementPage = () => {
     const [searchText, setSearchText] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
+    const [isInventoryModalVisible, setIsInventoryModalVisible] = useState(false);
 
     const {confirm} = Modal;
 
@@ -81,6 +83,11 @@ const ProductManagementPage = () => {
             cancelText: 'Hủy',
             onOk,
         });
+    };
+
+    const showInventoryModal = (product) => {
+        setEditingProduct(product); // dùng luôn editingProduct
+        setIsInventoryModalVisible(true);
     };
 
     // Hàm chỉnh định dạng tiền VND
@@ -162,6 +169,14 @@ const ProductManagementPage = () => {
             }
         },
         {
+            title: 'Tồn kho',
+            key: 'stock',
+            render: (_, record) => (
+                <span>{record.totalStock}</span>
+            ),
+            sorter: (a, b) => a.totalStock - b.totalStock
+        },
+        {
             title: 'Trạng thái',
             dataIndex: 'activeStatus',
             key: 'status',
@@ -189,6 +204,12 @@ const ProductManagementPage = () => {
                         }}
                     >
                         Chi tiết
+                    </button>
+                    <button
+                        className={styles.actionBtn}
+                        onClick={() => showInventoryModal(record)}
+                    >
+                        Quản lý kho
                     </button>
                     <button
                         className={`${styles.actionButton} ${styles.deleteBtn}`}
@@ -247,6 +268,63 @@ const ProductManagementPage = () => {
                     onSubmit={editingProduct ? handleEditProduct : handleAddProduct}
                 />
             )}
+            {isInventoryModalVisible && editingProduct && (
+                <InventoryModal
+                    open={isInventoryModalVisible}
+                    product={editingProduct}
+                    onClose={() => {
+                        setIsInventoryModalVisible(false);
+                        setEditingProduct(null);
+                    }}
+                    onUpdate={(updatedVariants) => {
+                        setProducts(prev =>
+                            prev.map(p =>
+                                p.id === editingProduct.id
+                                    ? {
+                                        ...p,
+                                        variants: p.variants.map(v => {
+                                            const updated = updatedVariants.find(u => u.id === v.id);
+                                            if (!updated) return v;
+
+                                            let newStock = v.stock;
+                                            switch (updated.changeType) {
+                                                case 'replace':
+                                                    newStock = updated.quantity;
+                                                    break;
+                                                case 'increase':
+                                                    newStock = v.stock + updated.quantity;
+                                                    break;
+                                                case 'decrease':
+                                                    newStock = v.stock - updated.quantity;
+                                                    break;
+                                            }
+
+                                            return {
+                                                ...v,
+                                                stock: newStock
+                                            };
+                                        }),
+                                        totalStock: updatedVariants.reduce((sum, u) => {
+                                            const original = p.variants.find(v => v.id === u.id);
+                                            let newStock = original?.stock || 0;
+                                            switch (u.changeType) {
+                                                case 'replace': newStock = u.quantity; break;
+                                                case 'increase': newStock += u.quantity; break;
+                                                case 'decrease': newStock -= u.quantity; break;
+                                            }
+                                            return sum + newStock;
+                                        }, 0)
+                                    }
+                                    : p
+                            )
+                        );
+
+                        setEditingProduct(null);
+                    }}
+
+                />
+            )}
+
         </div>
     );
 };

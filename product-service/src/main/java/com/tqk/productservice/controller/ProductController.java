@@ -1,6 +1,7 @@
 package com.tqk.productservice.controller;
 
 import com.tqk.productservice.dto.request.ProductRequest;
+import com.tqk.productservice.dto.request.UpdateInventoryRequest;
 import com.tqk.productservice.dto.response.ProductListResponse;
 import com.tqk.productservice.dto.response.ProductResponse;
 import com.tqk.productservice.model.Product;
@@ -18,8 +19,6 @@ import java.util.Map;
 public class ProductController {
     @Autowired
     private ProductService productService;
-
-    // ============ ADMIN =============
 
     @GetMapping("/admin")
     public ResponseEntity<?> getAllForAdmin() {
@@ -49,8 +48,6 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
-
-    // ========== USER ===========
 
     @GetMapping()
     public ResponseEntity<?> getProductsByActiveStatus() {
@@ -101,5 +98,29 @@ public class ProductController {
     ) {
         List<ProductResponse> products = productService.searchProducts(categoryId, brandId, colors, minPrice, maxPrice, extras);
         return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/{variantId}/stock")
+    public ResponseEntity<?> getProductStock(@PathVariable("variantId") Integer variantId) {
+        int stock = productService.getStock(variantId);
+        return ResponseEntity.ok(stock);
+    }
+
+    @PutMapping("/inventory")
+    public ResponseEntity<?> updateInventory(@RequestBody UpdateInventoryRequest request) {
+        int newStock = productService.updateInventory("replace", request);
+        return ResponseEntity.ok(newStock);
+    }
+
+    @PutMapping("/inventory/increase")
+    public ResponseEntity<?> increaseInventory(@RequestBody UpdateInventoryRequest request) {
+        int newStock = productService.updateInventory("increase", request);
+        return ResponseEntity.ok(newStock);
+    }
+
+    @PutMapping("/inventory/decrease")
+    public ResponseEntity<?> decreaseInventory(@RequestBody UpdateInventoryRequest request) {
+        int newStock = productService.updateInventory("decrease", request);
+        return ResponseEntity.ok(newStock);
     }
 }

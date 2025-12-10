@@ -28,3 +28,21 @@ export const deleteProduct = (productId) =>
     apiFetch(`${BASE_URL}/admin/${productId}`, {
         method: 'DELETE',
     });
+
+export const updateInventory = (request) =>
+    apiFetch(`${BASE_URL}/inventory`, {
+        method: 'PUT',
+        body: JSON.stringify(request),
+    });
+
+export const increaseInventory = (request) =>
+    apiFetch(`${BASE_URL}/inventory/increase`, {
+        method: 'PUT',
+        body: JSON.stringify(request),
+    });
+
+export const decreaseInventory = (request) =>
+    apiFetch(`${BASE_URL}/inventory/decrease`, {
+        method: 'PUT',
+        body: JSON.stringify(request),
+    });

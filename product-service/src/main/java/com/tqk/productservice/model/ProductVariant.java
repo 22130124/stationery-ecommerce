@@ -60,6 +60,9 @@ public class ProductVariant {
     @OneToMany(mappedBy = "variant")
     private List<ProductVariantColor> colors = new ArrayList<>();
 
+    @OneToOne(mappedBy = "productVariant")
+    private ProductInventory productInventory;
+
     public ProductVariantResponse convertToDto() {
         ProductVariantResponse dto = new ProductVariantResponse();
         dto.setId(this.id);
@@ -86,6 +89,8 @@ public class ProductVariant {
             }
         }
         dto.setColors(colorResponses);
+
+        dto.setStock(productInventory.getStock());
         return dto;
     }
 }
