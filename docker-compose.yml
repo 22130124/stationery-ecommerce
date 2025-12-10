@@ -154,6 +154,20 @@ services:
       - backend
     entrypoint: ["java", "-jar", "app.jar"]
 
+  recommend-service:
+    build: ./recommend-service
+    volumes:
+      - ./recommend-service:/app
+    ports:
+      - "5000:5000"
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/recommend/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   mysql_data:
 

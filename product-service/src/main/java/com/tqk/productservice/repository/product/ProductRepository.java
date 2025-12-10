@@ -21,6 +21,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     Page<Product> findByActiveStatusTrue(Pageable pageable);
 
+    List<Product> findByActiveStatusTrue();
+
     @Query(value = """
             SELECT DISTINCT p.*
             FROM products p

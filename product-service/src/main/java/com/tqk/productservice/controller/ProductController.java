@@ -3,6 +3,7 @@ package com.tqk.productservice.controller;
 import com.tqk.productservice.dto.request.ProductRequest;
 import com.tqk.productservice.dto.response.ProductListResponse;
 import com.tqk.productservice.dto.response.ProductResponse;
+import com.tqk.productservice.model.Product;
 import com.tqk.productservice.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -52,16 +53,9 @@ public class ProductController {
     // ========== USER ===========
 
     @GetMapping()
-    public ResponseEntity<?> getProductsByActiveStatus(@RequestParam(name = "page", required = false, defaultValue = "1") int page,
-                                                       @RequestParam(name = "limit", required = false, defaultValue = "12") int size) {
-        ProductListResponse result = productService.getProductsByActiveStatus(page, size);
-        Map<String, Object> response = Map.of(
-                "products", result.getProducts(),
-                "currentPage", result.getCurrentPage(),
-                "totalPages", result.getTotalPages(),
-                "totalItems", result.getTotalItems()
-        );
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> getProductsByActiveStatus() {
+        List<ProductResponse> products = productService.getProductsByActiveStatus();
+        return ResponseEntity.ok(products);
     }
 
     @GetMapping("/by-category")

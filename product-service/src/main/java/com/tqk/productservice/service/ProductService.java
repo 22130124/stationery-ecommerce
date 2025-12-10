@@ -52,7 +52,7 @@ public class ProductService {
             Pageable pageable = PageRequest.of(page - 1, size);
             Page<Product> productPage;
             if (categorySlug.equalsIgnoreCase("ALL")) {
-                return getProductsByActiveStatus(page, size);
+                return getProductsByActiveStatusAndPageable(page, size);
             }
             Integer categoryId = categoryClient.getCategoryIdBySlug(categorySlug);
 
@@ -71,7 +71,7 @@ public class ProductService {
         }
     }
 
-    public ProductListResponse getProductsByActiveStatus(int page, int size) {
+    public ProductListResponse getProductsByActiveStatusAndPageable(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Product> productPage;
         productPage = productRepository.findByActiveStatusTrue(pageable);
@@ -84,6 +84,14 @@ public class ProductService {
         productListResponse.setCurrentPage(productPage.getNumber() + 1);
 
         return productListResponse;
+    }
+
+    public List<ProductResponse> getProductsByActiveStatus() {
+        List<Product> products = productRepository.findByActiveStatusTrue();
+
+        List<ProductResponse> productResponses = products.stream().map(Product::convertToDto).toList();
+
+        return productResponses;
     }
 
     // Hàm lấy ra sản phẩm theo slug
