@@ -17,7 +17,7 @@ import styles from "./ProductListPage.module.scss";
 import {getActiveCategories} from "../../../api/categoryApi";
 import {getProductsByCategory, getProductsByCategoryAndPagination} from "../../../api/productApi";
 
-const PRODUCTS_PER_PAGE = 12;
+const PRODUCTS_PER_PAGE = 16;
 
 const ProductListPage = () => {
     const [searchParams, setSearchParams] = useSearchParams()

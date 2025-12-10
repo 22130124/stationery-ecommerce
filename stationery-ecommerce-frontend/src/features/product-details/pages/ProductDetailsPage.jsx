@@ -10,6 +10,7 @@ import {getSupplierById} from "../../../api/supplierApi";
 import {getBrandById} from "../../../api/brandApi";
 import {getCategoryById} from "../../../api/categoryApi";
 import {addToCart} from "../../../api/cartApi";
+import RecommendedProducts from "../components/RecommendedProducts";
 
 // Icon ngôi sao đơn giản để đánh giá
 const StarIcon = () => <>⭐</>;
@@ -216,6 +217,8 @@ const ProductDetailsPage = () => {
                     dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(product.description)}}
                 />
             </div>
+
+            <RecommendedProducts productId={product.id} />
         </div>
     );
 };

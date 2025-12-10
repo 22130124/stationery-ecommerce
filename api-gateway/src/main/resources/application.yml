@@ -55,3 +55,8 @@ spring:
           uri: http://ai-service:8080
           predicates:
             - Path=/ai/**
+
+        - id: recommend_route
+          uri: http://recommend-service:5000
+          predicates:
+            - Path=/recommend/**

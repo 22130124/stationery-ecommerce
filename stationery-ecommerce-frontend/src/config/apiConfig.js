@@ -14,6 +14,7 @@ export const API_URLS = {
     profile: `${API_URL}/profiles`,
     order: `${API_URL}/orders`,
     ai: `${API_URL}/ai`,
+    recommend: `${API_URL}/recommend`,
 };
 
 export async function apiFetch(url, options = {}) {

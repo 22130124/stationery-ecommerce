@@ -18,7 +18,19 @@ const Sidebar = ({ categories }) => {
         },
         ...categories,
     ];
-    console.log("categories", categories);
+
+    useEffect(() => {
+        const openState = {};
+
+        displayCategories.forEach(cat => {
+            if (cat.children && cat.children.length > 0) {
+                openState[cat.id] = true;
+            }
+        });
+
+        setOpeningCategories(openState);
+
+    }, [categories]);
 
     const toggleCategory = (id) => {
         setOpeningCategories(prev => ({
