@@ -42,8 +42,8 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess, i
     const handleGoogleSuccess = async (credentialResponse) => {
         try {
             // credentialResponse.credential là ID Token để backend xác thực
-            const token = await loginWithGoogle(credentialResponse.credential);
-            localStorage.setItem('token', token);
+            const data = await loginWithGoogle(credentialResponse.credential);
+            localStorage.setItem('token', data.token);
 
             const toastId = toast.success(
                 'Đăng nhập thành công. Đang chuyển hướng tới trang mua hàng...',
