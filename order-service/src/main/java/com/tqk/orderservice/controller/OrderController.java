@@ -46,7 +46,7 @@ public class OrderController {
             @PathVariable Integer id,
             @RequestBody UpdateOrderRequest request) {
 
-        OrderResponse order = orderService.updateOrderStatus(accountId, id, request);
+        OrderResponse order = orderService.updateShippingStatus(accountId, id, request);
         return ResponseEntity.ok(order);
     }
 

@@ -1,13 +1,16 @@
 package com.tqk.orderservice.controller;
 
+import com.tqk.orderservice.dto.response.payment.PaymentResult;
 import com.tqk.orderservice.service.OrderService;
 import com.tqk.orderservice.service.VnPayService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @RestController
@@ -20,18 +23,38 @@ public class VnPayController {
     @PostMapping("/pay")
     public ResponseEntity<?> pay(@RequestParam Integer orderId) {
         String paymentUrl = orderService.createPaymentUrl(orderId);
-        return ResponseEntity.ok(paymentUrl);
+        Map<String, String> response = Map.of("paymentUrl", paymentUrl);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/return")
-    public ResponseEntity<?> handleVnPayReturn(@RequestParam Map<String, String> params) {
-        try {
-            String result = orderService.processVnPayReturn(params);
+    public void handleVnPayReturn(
+            @RequestParam Map<String, String> params,
+            HttpServletResponse response
+    ) throws IOException {
 
-            return ResponseEntity.ok(result);
+        PaymentResult result = orderService.processVnPayReturn(params);
 
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Lỗi xử lý thanh toán: " + e.getMessage());
+        String feBaseUrl = "http://localhost:3000/notify";
+
+        if (result.isSuccess()) {
+            // Redirect success
+            String redirectUrl =
+                    feBaseUrl
+                    + "?type=success"
+                    + "&message=" + URLEncoder.encode(result.getMessage(), StandardCharsets.UTF_8)
+                    + "&redirect=/order-history"
+                    + "&sec=5";
+
+            response.sendRedirect(redirectUrl);
+        } else {
+            // Redirect error
+            String redirectUrl =
+                    feBaseUrl
+                    + "?type=error"
+                    + "&message=" + URLEncoder.encode(result.getMessage(), StandardCharsets.UTF_8);
+
+            response.sendRedirect(redirectUrl);
         }
     }
 }

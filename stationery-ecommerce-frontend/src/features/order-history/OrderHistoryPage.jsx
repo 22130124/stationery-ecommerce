@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import styles from "./OrderHistoryPage.module.scss";
-import { getOrders } from "../../api/orderApi";
-import OrderStatus from "../../components/order/OrderStatus";
+import {getOrders} from "../../api/orderApi";
+import ShippingStatus from "../../components/order/ShippingStatus";
 import OrderDetailModal from "../admin-order-management/components/OrderDetailModal";
+import PaymentStatus from "../../components/order/PaymentStatus";
+import {pay} from "../../api/paymentApi";
+import {useNavigate} from "react-router-dom";
 
 const OrderHistoryPage = () => {
     const [orders, setOrders] = useState([]);
@@ -35,6 +38,13 @@ const OrderHistoryPage = () => {
         }).format(date);
     };
 
+    const handlePayClick = async (orderId) => {
+        const response = await pay(orderId)
+        const paymentUrl = response.paymentUrl
+        if (paymentUrl) {
+            window.location.href = paymentUrl;
+        }
+    }
 
     return (
         <div className={styles.container}>
@@ -47,7 +57,12 @@ const OrderHistoryPage = () => {
                         <li key={order.id} className={styles.card}>
                             <div className={styles.header}>
                                 <span className={styles.orderId}>#{order.id}</span>
-                                <OrderStatus status={order.status} />
+                                <div className={styles.orderStatusBadges}>
+                                    <ShippingStatus status={order.shippingStatus}/>
+                                    {order.shippingStatus !== -1 && (
+                                        <PaymentStatus status={order.paymentStatus}/>
+                                    )}
+                                </div>
                             </div>
 
                             <div className={styles.info}>
@@ -60,6 +75,16 @@ const OrderHistoryPage = () => {
                             </div>
 
                             <div className={styles.actions}>
+                                {/* Nếu chưa thanh toán thì hiện nút */}
+                                {order.paymentStatus === 0 && order.shippingStatus !== -1 && (
+                                    <button
+                                        className={styles.payBtn}
+                                        onClick={() => handlePayClick(order.id)}
+                                    >
+                                        Thanh toán
+                                    </button>
+                                )}
+
                                 <button
                                     className={styles.detailBtn}
                                     onClick={() => {

@@ -22,6 +22,7 @@ import RequireAdminAuth from "../components/RequireAdminAuth";
 import SupplierManagementPage from "../features/admin-supplier-management/pages/SupplierManagementPage";
 import AccountManagementPage from "../features/admin-account-management/pages/AccountManagementPage";
 import CategoryManagementPage from "../features/admin-category-management/pages/CategoryManagementPage";
+import NotifyPage from "../components/notify-page/NotifyPage";
 
 const AppRoutes = () => {
     return (
@@ -30,6 +31,7 @@ const AppRoutes = () => {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/verify" element={<VerifyPage />} />
+            <Route path="/notify" element={<NotifyPage />} />
 
             {/* Admin routes */}
             <Route element={<RequireAdminAuth />}>

@@ -5,7 +5,7 @@ import styles from './OrderManagementPage.module.scss';
 import toast from 'react-hot-toast';
 import {cancelOrder, getAllOrders, updateOrderStatus} from '../../../api/orderApi';
 import OrderDetailModal from "../components/OrderDetailModal";
-import OrderStatus from "../../../components/order/OrderStatus";
+import ShippingStatus from "../../../components/order/ShippingStatus";
 
 const OrderManagementPage = () => {
     const [orders, setOrders] = useState([]);
@@ -144,7 +144,7 @@ const OrderManagementPage = () => {
             key: 'status',
             render: (status) => {
                 return (
-                    <OrderStatus status={status}/>
+                    <ShippingStatus status={status}/>
                 )
             }
         },

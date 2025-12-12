@@ -5,6 +5,7 @@ import com.tqk.orderservice.dto.request.AddOrderRequest;
 import com.tqk.orderservice.dto.request.UpdateOrderRequest;
 import com.tqk.orderservice.dto.response.order.OrderDetailResponse;
 import com.tqk.orderservice.dto.response.order.OrderResponse;
+import com.tqk.orderservice.dto.response.payment.PaymentResult;
 import com.tqk.orderservice.dto.response.profile.ProfileResponse;
 import com.tqk.orderservice.model.Order;
 import com.tqk.orderservice.model.OrderItem;
@@ -68,8 +69,8 @@ public class OrderService {
         Order order = new Order();
         order.setAccountId(accountId);
         order.setTotalAmount(totalAmount);
-        order.setShippingStatus(1);
-        order.setPaymentStatus(1);
+        order.setShippingStatus(0);
+        order.setPaymentStatus(0);
         order = orderRepository.save(order);
 
         // 3. Lưu OrderItems
@@ -91,7 +92,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponse updateOrderStatus(Integer accountId, Integer id, UpdateOrderRequest request) {
+    public OrderResponse updateShippingStatus(Integer accountId, Integer id, UpdateOrderRequest request) {
 
         // 1. Lấy order
         Order order = orderRepository.findById(id)
@@ -106,6 +107,14 @@ public class OrderService {
         orderRepository.save(order);
 
         return order.convertToDto();
+    }
+
+    @Transactional
+    public void updatePaymentStatus(Integer orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+        order.setPaymentStatus(1);
+        orderRepository.save(order);
     }
 
     @Transactional
@@ -149,28 +158,22 @@ public class OrderService {
     }
 
     // Hàm xử lý kết quả thanh toán
-    public String processVnPayReturn(Map<String, String> params) {
+    public PaymentResult processVnPayReturn(Map<String, String> params) {
+
         int result = vnPayService.verifyPayment(params);
 
         if (result == 1) { // Thành công
-            // Lấy mã đơn hàng từ vnp_TxnRef
             Integer orderId = Integer.parseInt(params.get("vnp_TxnRef"));
 
-            // Cập nhật trạng thái đơn hàng trong DB
-            updateOrderPaid(orderId);
+            updatePaymentStatus(orderId);
 
-            return "Thanh toán thành công cho đơn hàng: " + orderId;
-        } else if (result == 0) {
-            return "Thanh toán thất bại hoặc bị hủy bỏ";
-        } else {
-            return "Lỗi xác thực chữ ký";
+            return new PaymentResult(true, "Thanh toán thành công cho đơn hàng: " + orderId);
         }
-    }
 
-    public void updateOrderPaid(Integer orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
-        order.setShippingStatus(2);
-        orderRepository.save(order);
+        if (result == 0) {
+            return new PaymentResult(false, "Thanh toán thất bại hoặc bị hủy bỏ");
+        }
+
+        return new PaymentResult(false, "Lỗi xác thực chữ ký");
     }
 }

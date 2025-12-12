@@ -51,31 +51,8 @@
   }
 }
 
-/* Badge trạng thái */
-.statusBadge {
-  margin-left: 6px;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  color: white;
-}
-
-.status-pending {
-  background: #d48806;
-  color: #fff;
-}
-
-.status-shipping {
-  background: #1677ff;
-  color: #fff;
-}
-
-.status-done {
-  background: #389e0d;
-  color: #fff;
-}
-
-.status-cancel {
-  background: #cf1322;
-  color: #fff;
+.orderStatus {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }

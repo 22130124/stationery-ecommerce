@@ -1,19 +1,25 @@
+@import "../../styles/variables";
+
 .container {
-  max-width: 700px;
+  max-width: 850px;
   margin: 0 auto;
-  padding: 20px;
-  font-family: "Segoe UI", sans-serif;
+  padding: 24px;
+  font-family: "Inter", "Segoe UI", sans-serif;
 }
 
 h2 {
   text-align: center;
-  margin-bottom: 20px;
-  color: #333;
+  margin-bottom: 28px;
+  color: #222;
+  font-weight: 700;
+  font-size: 26px;
 }
 
 .empty {
   text-align: center;
-  color: #888;
+  color: #999;
+  font-size: 15px;
+  margin-top: 40px;
 }
 
 .list {
@@ -22,64 +28,93 @@ h2 {
   margin: 0;
 }
 
+/* Card */
 .card {
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  padding: 16px;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin-bottom: 20px;
+  border: 1px solid #ebebeb;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+  transition: all 0.2s ease;
 
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.08);
   }
 }
 
+/* Header */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .orderId {
   font-weight: 700;
-  font-size: 16px;
-  color: #555;
+  font-size: 18px;
+  color: #333;
 }
 
-.status {
-  font-weight: 600;
-  font-size: 14px;
-  padding: 4px 8px;
-  border-radius: 12px;
-  text-transform: uppercase;
-}
-
-.info {
+/* Badges container */
+.orderStatusBadges {
   display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  color: #555;
+  align-items: center;
+  gap: 8px;
 }
 
+/* Info */
+.info {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 15px;
+  color: #444;
+
+  strong {
+    font-weight: 600;
+    color: #222;
+  }
+}
+
+/* Actions */
 .actions {
-  margin-top: 12px;
-  text-align: right;
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Buttons */
+.detailBtn,
+.payBtn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.25s;
 }
 
 .detailBtn {
-  padding: 6px 14px;
-  background: #1677ff;
-  border: none;
-  border-radius: 6px;
-  color: white;
-  font-size: 14px;
-  cursor: pointer;
-  transition: 0.2s;
+  background: #e4e6eb;
+  color: #333;
 
   &:hover {
-    background: #1654c6;
+    background: #d2d4d8;
+  }
+}
+
+.payBtn {
+  background: $primary-color;
+  color: #fff;
+
+  &:hover {
+    background: darken($primary-color, 10%);
   }
 }

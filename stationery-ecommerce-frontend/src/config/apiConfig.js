@@ -13,6 +13,7 @@ export const API_URLS = {
     cart: `${API_URL}/cart`,
     profile: `${API_URL}/profiles`,
     order: `${API_URL}/orders`,
+    payment: `${API_URL}/vnpay`,
     ai: `${API_URL}/ai`,
     recommend: `${API_URL}/recommend`,
 };
@@ -39,7 +40,7 @@ export async function apiFetch(url, options = {}) {
     if (response.status === 401) {
         localStorage.removeItem("token");
         toast.dismiss();
-        toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại");
+        toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại. Đang chuyển hướng về trang đăng nhập...");
 
         setTimeout(() => {
             window.location.href = "/login";
