@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,6 +27,18 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final CartClient cartClient;
     private final ProfileClient profileClient;
+    private final VnPayService vnPayService;
+
+    public String createPaymentUrl(Integer orderId) {
+        // Lấy thông tin đơn hàng
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+
+        // số tiền thanh toán
+        int amount = order.getTotalAmount();
+
+        return vnPayService.createPaymentUrl(orderId, amount);
+    }
 
     // Lấy ra tất cả danh sách đơn hàng
     @Transactional
@@ -48,15 +61,15 @@ public class OrderService {
     public OrderResponse createOrder(Integer accountId, AddOrderRequest request) {
 
         // 1. Tính tổng tiền
-        double total = request.getOrderItems().stream()
-                .mapToDouble(i -> i.getPrice() * i.getQuantity())
-                .sum();
+        int totalAmount = request.getOrderItems().stream().mapToInt(item -> item.getPrice()).sum();
+
 
         // 2. Tạo Order
         Order order = new Order();
         order.setAccountId(accountId);
-        order.setTotalAmount(total);
-        order.setStatus(1);
+        order.setTotalAmount(totalAmount);
+        order.setShippingStatus(1);
+        order.setPaymentStatus(1);
         order = orderRepository.save(order);
 
         // 3. Lưu OrderItems
@@ -86,7 +99,7 @@ public class OrderService {
 
         // 2. Cập nhật trạng thái
         if (request.getStatus() != null) {
-            order.setStatus(request.getStatus());
+            order.setShippingStatus(request.getStatus());
         }
 
         // 3. Lưu
@@ -108,12 +121,12 @@ public class OrderService {
         }
 
         // 3. Chỉ cho hủy khi đang 'Đang lấy hàng'
-        if (!(order.getStatus() == 1)) {
+        if (!(order.getShippingStatus() == 1)) {
             throw new RuntimeException("Chỉ đơn hàng ở trạng thái Đang lấy hàng mới được hủy");
         }
 
         // 4. Cập nhật trạng thái
-        order.setStatus(0);
+        order.setShippingStatus(0);
         orderRepository.save(order);
 
         return order.convertToDto();
@@ -133,5 +146,31 @@ public class OrderService {
         orderDetailResponse.setOrder(order.convertToDto());
 
         return orderDetailResponse;
+    }
+
+    // Hàm xử lý kết quả thanh toán
+    public String processVnPayReturn(Map<String, String> params) {
+        int result = vnPayService.verifyPayment(params);
+
+        if (result == 1) { // Thành công
+            // Lấy mã đơn hàng từ vnp_TxnRef
+            Integer orderId = Integer.parseInt(params.get("vnp_TxnRef"));
+
+            // Cập nhật trạng thái đơn hàng trong DB
+            updateOrderPaid(orderId);
+
+            return "Thanh toán thành công cho đơn hàng: " + orderId;
+        } else if (result == 0) {
+            return "Thanh toán thất bại hoặc bị hủy bỏ";
+        } else {
+            return "Lỗi xác thực chữ ký";
+        }
+    }
+
+    public void updateOrderPaid(Integer orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+        order.setShippingStatus(2);
+        orderRepository.save(order);
     }
 }

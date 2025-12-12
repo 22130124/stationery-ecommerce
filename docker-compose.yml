@@ -139,6 +139,10 @@ services:
       SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${ORDER_DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
       SPRING_DATASOURCE_USERNAME: "${DB_USERNAME}"
       SPRING_DATASOURCE_PASSWORD: "${DB_PASSWORD}"
+      VNPAY_TMN_CODE: "${VNPAY_TMN_CODE}"
+      VNPAY_HASH_SECRET: "${VNPAY_HASH_SECRET}"
+      VNPAY_URL: "${VNPAY_URL}"
+      VNPAY_RETURN_URL: "${VNPAY_RETURN_URL}"
     depends_on:
       mysql:
         condition: service_healthy

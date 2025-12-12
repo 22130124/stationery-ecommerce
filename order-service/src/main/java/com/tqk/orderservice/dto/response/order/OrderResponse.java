@@ -9,8 +9,9 @@ import java.util.List;
 public class OrderResponse {
     private Integer id;
     private Integer accountId;
-    private Double totalAmount;
-    private Integer status;
+    private int totalAmount;
+    private Integer shippingStatus;
+    private Integer paymentStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<OrderItemResponse> orderItems;

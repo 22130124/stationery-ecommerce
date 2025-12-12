@@ -33,6 +33,7 @@ public class SecurityConfig {
                         .pathMatchers("/suppliers", "/suppliers/**").permitAll()
                         .pathMatchers("/ai", "/ai/**").permitAll()
                         .pathMatchers("/recommend", "/recommend/**").permitAll()
+                        .pathMatchers("/vnpay/return").permitAll()
                         .anyExchange().authenticated()
                 )
                 .addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)

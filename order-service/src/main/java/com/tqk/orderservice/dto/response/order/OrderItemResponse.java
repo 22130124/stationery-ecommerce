@@ -10,7 +10,7 @@ public class OrderItemResponse {
     private Integer orderId;
     private Integer productId;
     private Integer variantId;
-    private Double price;
+    private int price;
     private Integer quantity;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -27,10 +27,13 @@ public class Order {
     private Integer accountId;
 
     @Column(name = "total_amount")
-    private Double totalAmount;
+    private int totalAmount;
 
-    @Column(name = "status")
-    private Integer status;
+    @Column(name = "shipping_status")
+    private Integer shippingStatus;
+
+    @Column(name = "payment_status")
+    private Integer paymentStatus;
 
     @Column(name = "created_at")
     @CreatedDate
@@ -48,7 +51,8 @@ public class Order {
         orderResponse.setId(id);
         orderResponse.setAccountId(accountId);
         orderResponse.setTotalAmount(totalAmount);
-        orderResponse.setStatus(status);
+        orderResponse.setShippingStatus(shippingStatus);
+        orderResponse.setPaymentStatus(paymentStatus);
         orderResponse.setCreatedAt(createdAt);
         orderResponse.setUpdatedAt(updatedAt);
         orderResponse.setOrderItems(orderItems.stream().map(OrderItem::convertToDto).collect(Collectors.toList()));

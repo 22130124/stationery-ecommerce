@@ -31,7 +31,7 @@ public class OrderItem {
     private Integer variantId;
 
     @Column(name = "price")
-    private Double price;
+    private int price;
 
     @Column(name = "quantity")
     private Integer quantity;
