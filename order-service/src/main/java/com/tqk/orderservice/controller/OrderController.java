@@ -4,6 +4,7 @@ import com.tqk.orderservice.dto.request.AddOrderRequest;
 import com.tqk.orderservice.dto.request.UpdateOrderRequest;
 import com.tqk.orderservice.dto.response.order.OrderDetailResponse;
 import com.tqk.orderservice.dto.response.order.OrderResponse;
+import com.tqk.orderservice.dto.response.product.ProductResponse;
 import com.tqk.orderservice.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -57,5 +58,11 @@ public class OrderController {
 
         OrderResponse order = orderService.cancelOrder(accountId, id);
         return ResponseEntity.ok(order);
+    }
+
+    @PostMapping("/test")
+    public ResponseEntity<?> test(@RequestBody List<Integer> ids) {
+        List<ProductResponse> result = orderService.test(ids);
+        return ResponseEntity.ok(result);
     }
 }

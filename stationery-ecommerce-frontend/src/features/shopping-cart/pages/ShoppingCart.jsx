@@ -26,13 +26,13 @@ const ShoppingCart = () => {
         }
         fetchCart()
     }, [])
+    console.log("CartItems", cartItems)
 
     // Hàm tính tổng tiền
     useEffect(() => {
         const calculateTotal = () => {
             return cartItems.reduce((total, item) => {
-                const price = item.discountPrice ?? item.basePrice;
-                return total + (price * item.quantity);
+                return total + (item.finalPrice * item.quantity);
             }, 0);
         };
         setTotalPrice(calculateTotal());
@@ -105,10 +105,10 @@ const ShoppingCart = () => {
 
             // Chỉ lấy các trường cần thiết
             const orderItems = cartItems.map(item => ({
-                productId: item.productId.toString(),
-                variantId: item.variantId.toString(),
-                price: (item.discountPrice ?? item.basePrice).toString(),
-                quantity: item.quantity.toString()
+                productId: item.productId,
+                variantId: item.variantId,
+                price: item.finalPrice,
+                quantity: item.quantity
             }));
 
             const data = await createOrders({orderItems});
@@ -124,27 +124,25 @@ const ShoppingCart = () => {
     };
 
     const CartItem = ({item}) => {
-        const finalPrice = item.discountPrice ?? item.basePrice;
-
         return (
             <div className={styles.cartItem}>
                 {/*Hiển thị thông tin chung*/}
                 <div className={styles.productInfo}>
                     <div className={styles.itemImage}>
-                        <img src={item.defaultImage.url} alt={item.name}/>
+                        <img src={item.product.defaultImage.url} alt={item.name}/>
                     </div>
                     <div className={styles.itemDetails}>
-                        <h3 className={styles.itemName}>{item.productName}</h3>
-                        <p className={styles.itemVariant}>Phân loại: {item.variantName}</p>
+                        <h3 className={styles.itemName}>{item.product.name}</h3>
+                        <p className={styles.itemVariant}>Phân loại: {item.product.defaultVariant.name}</p>
                     </div>
                 </div>
 
                 {/*Hiển thị giá gốc*/}
                 <div className={styles.itemPrice}>
-                    {item.discountPrice && (
-                        <span className={styles.originalPrice}>{formatCurrency(item.basePrice)}</span>
+                    {item.product.defaultVariant.discountPrice && (
+                        <span className={styles.originalPrice}>{formatCurrency(item.product.defaultVariant.basePrice)}</span>
                     )}
-                    <span className={styles.finalPrice}>{formatCurrency(finalPrice)}</span>
+                    <span className={styles.finalPrice}>{formatCurrency(item.finalPrice)}</span>
                 </div>
 
                 {/*Hiển thị khu vực tăng/giảm số lượng*/}
@@ -162,7 +160,7 @@ const ShoppingCart = () => {
                 </div>
 
                 <div className={styles.itemTotal}>
-                    {formatCurrency(finalPrice * item.quantity)}
+                    {formatCurrency(item.finalPrice * item.quantity)}
                 </div>
 
                 <div className={styles.itemActions}>

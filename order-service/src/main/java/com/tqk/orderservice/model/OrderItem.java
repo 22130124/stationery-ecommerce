@@ -45,14 +45,13 @@ public class OrderItem {
     private LocalDateTime updatedAt;
 
     public OrderItemResponse convertToDto() {
-        OrderItemResponse orderItemResponse = new OrderItemResponse();
-        orderItemResponse.setId(id);
-        orderItemResponse.setProductId(productId);
-        orderItemResponse.setVariantId(variantId);
-        orderItemResponse.setPrice(price);
-        orderItemResponse.setQuantity(quantity);
-        orderItemResponse.setCreatedAt(createdAt);
-        orderItemResponse.setUpdatedAt(updatedAt);
-        return orderItemResponse;
+        OrderItemResponse dto = new OrderItemResponse();
+        dto.setId(id);
+        dto.setOrderId(order.getId());
+        dto.setPrice(price);
+        dto.setQuantity(quantity);
+        dto.setCreatedAt(createdAt);
+        dto.setUpdatedAt(updatedAt);
+        return dto;
     }
 }

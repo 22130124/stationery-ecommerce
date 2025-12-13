@@ -138,7 +138,8 @@ public class Product {
         dto.setActiveStatus(this.activeStatus);
         dto.setCreatedAt(this.createdAt);
         dto.setUpdatedAt(this.updatedAt);
-        dto.getVariants().add(productVariantResponse);
+        dto.setDefaultVariant(productVariantResponse);
+        dto.setDefaultImage(productVariantResponse.getDefaultImage());
         return dto;
     }
 }

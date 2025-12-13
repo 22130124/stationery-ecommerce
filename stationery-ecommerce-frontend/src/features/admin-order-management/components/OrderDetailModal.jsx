@@ -4,6 +4,7 @@ import {getOrderDetail} from '../../../api/orderApi'
 import styles from './OrderDetailModal.module.scss'
 import ShippingStatus from '../../../components/order/ShippingStatus'
 import PaymentStatus from "../../../components/order/PaymentStatus";
+import {Link} from "react-router-dom";
 
 const OrderDetailModal = ({orderId, open, onClose}) => {
     const [loading, setLoading] = useState(false)
@@ -87,17 +88,24 @@ const OrderDetailModal = ({orderId, open, onClose}) => {
                         <table className={styles.productTable}>
                             <thead>
                             <tr>
-                                <th>Mã SP</th>
+                                <th></th>
+                                <th>Sản phẩm</th>
                                 <th>Số lượng</th>
-                                <th>Giá</th>
+                                <th>Đơn giá</th>
+                                <th>Thành tiền</th>
                             </tr>
                             </thead>
                             <tbody>
                             {orderDetail.orderItems?.map(item => (
                                 <tr key={item.id}>
-                                    <td>{item.productId}</td>
+                                    <td><img src={item.product.defaultImage.url} alt="Ảnh sản phẩm" className={styles.productImage}/></td>
+                                    <td><Link to={`/${item.product.slug}`}>{item.product.name} ({item.product.defaultVariant.name})</Link></td>
                                     <td>{item.quantity}</td>
-                                    <td>{item.price?.toLocaleString('vi-VN', {
+                                    <td>{item.price.toLocaleString('vi-VN', {
+                                        style: 'currency',
+                                        currency: 'VND',
+                                    })}</td>
+                                    <td>{(item.price * item.quantity).toLocaleString('vi-VN', {
                                         style: 'currency',
                                         currency: 'VND',
                                     })}</td>

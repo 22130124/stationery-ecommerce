@@ -18,4 +18,5 @@ public class ProductVariantResponse {
     private List<ProductImageResponse> images;
     private List<ProductVariantColorResponse> colors;
     private Integer stock;
+    private ProductImageResponse defaultImage;
 }

@@ -1,4 +1,6 @@
 // src/features/admin-order-management/components/OrderDetailModal.module.scss
+@import "../../../styles/variables";
+
 .orderDetailWrapper {
   display: flex;
   flex-direction: column;
@@ -55,4 +57,11 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.productImage {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
 }

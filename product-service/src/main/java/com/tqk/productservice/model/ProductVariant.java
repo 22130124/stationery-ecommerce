@@ -78,6 +78,10 @@ public class ProductVariant {
             for (ProductImage productImage : this.images) {
                 ProductImageResponse productImageResponse = productImage.convertToDto();
                 imagesResponses.add(productImageResponse);
+
+                if (productImage.isDefaultStatus()) {
+                    dto.setDefaultImage(productImageResponse)   ;
+                }
             }
         }
         dto.setImages(imagesResponses);

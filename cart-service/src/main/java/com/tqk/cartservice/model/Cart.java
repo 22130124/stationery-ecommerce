@@ -37,11 +37,13 @@ public class Cart {
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<CartItem> items = new ArrayList<>();
 
-    public CartResponse convertToDto(List<CartItemResponse> items) {
+    public CartResponse convertToDto() {
         CartResponse dto = new CartResponse();
         dto.setId(this.id);
         dto.setAccountId(this.accountId);
-        dto.setItems(items);
+        for (CartItem item : this.items) {
+            dto.getItems().add(item.convertToDto());
+        }
         return dto;
     }
 }

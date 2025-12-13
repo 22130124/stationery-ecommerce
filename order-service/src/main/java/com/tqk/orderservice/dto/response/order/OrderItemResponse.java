@@ -1,5 +1,6 @@
 package com.tqk.orderservice.dto.response.order;
 
+import com.tqk.orderservice.dto.response.product.ProductResponse;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -8,8 +9,7 @@ import java.time.LocalDateTime;
 public class OrderItemResponse {
     private Integer id;
     private Integer orderId;
-    private Integer productId;
-    private Integer variantId;
+    private ProductResponse product;
     private int price;
     private Integer quantity;
     private LocalDateTime createdAt;

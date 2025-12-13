@@ -4,19 +4,23 @@ import com.tqk.orderservice.dto.request.AddOrderItemRequest;
 import com.tqk.orderservice.dto.request.AddOrderRequest;
 import com.tqk.orderservice.dto.request.UpdateOrderRequest;
 import com.tqk.orderservice.dto.response.order.OrderDetailResponse;
+import com.tqk.orderservice.dto.response.order.OrderItemResponse;
 import com.tqk.orderservice.dto.response.order.OrderResponse;
 import com.tqk.orderservice.dto.response.payment.PaymentResult;
+import com.tqk.orderservice.dto.response.product.ProductResponse;
 import com.tqk.orderservice.dto.response.profile.ProfileResponse;
 import com.tqk.orderservice.model.Order;
 import com.tqk.orderservice.model.OrderItem;
 import com.tqk.orderservice.repository.OrderItemRepository;
 import com.tqk.orderservice.repository.OrderRepository;
 import com.tqk.orderservice.repository.client.CartClient;
+import com.tqk.orderservice.repository.client.ProductClient;
 import com.tqk.orderservice.repository.client.ProfileClient;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,6 +33,7 @@ public class OrderService {
     private final CartClient cartClient;
     private final ProfileClient profileClient;
     private final VnPayService vnPayService;
+    private final ProductClient productClient;
 
     public String createPaymentUrl(Integer orderId) {
         // Lấy thông tin đơn hàng
@@ -142,17 +147,35 @@ public class OrderService {
     }
 
     public OrderDetailResponse getOrderDetail(Integer id) {
-        // Lấy order
+        // Lấy ra thông tin order từ database
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
 
-        // Lấy thông tin profile user
-        ProfileResponse profile = profileClient.getProfileByAccount(order.getAccountId());
+        // Lấy thông tin về profile người dùng mua hàng
+        ProfileResponse profileResponse = profileClient.getProfileByAccount(order.getAccountId());
+
+        // Lấy ra các thông tin chi tiết về sản phẩm trong đơn hàng (hình ảnh sản phẩm, tên sản phẩm,...) dựa vào variant_id
+        List<Integer> ids = new ArrayList<>();
+        for(OrderItem item : order.getOrderItems()) {
+            ids.add(item.getVariantId());
+        }
+        System.out.println("Variant Ids: " + ids);
+        List<ProductResponse> productResponseList = productClient.getProductsByIds(ids);
+
+        System.out.println("Kết quả gọi API: " + !productResponseList.isEmpty());
+
+        // Chuyển đổi đơn hàng hiện tại sang Dto
+        OrderResponse orderResponse = order.convertToDto();
+
+        // Gán thông tin sản phẩm chi tiết vào từng item trong dto
+        for(int i = 0; i < productResponseList.size(); i++) {
+            orderResponse.getOrderItems().get(i).setProduct(productResponseList.get(i));
+        }
 
         // Tạo đối tượng trả về
         OrderDetailResponse orderDetailResponse = new OrderDetailResponse();
-        orderDetailResponse.setProfile(profile);
-        orderDetailResponse.setOrder(order.convertToDto());
+        orderDetailResponse.setProfile(profileResponse);
+        orderDetailResponse.setOrder(orderResponse);
 
         return orderDetailResponse;
     }
@@ -175,5 +198,9 @@ public class OrderService {
         }
 
         return new PaymentResult(false, "Lỗi xác thực chữ ký");
+    }
+
+    public List<ProductResponse> test(List<Integer> ids) {
+        return productClient.getProductsByIds(ids);
     }
 }

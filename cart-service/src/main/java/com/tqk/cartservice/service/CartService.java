@@ -41,9 +41,11 @@ public class CartService {
         // Lấy ra danh sách items trong giỏ hàng
         List<CartItem> cartItems = cart.getItems();
 
+        CartResponse cartResponse = cart.convertToDto();
+
         // Nếu có items thì gọi product client để lấy các thông tin của sản phẩm và biến thể
-        List<CartItemResponse> cartItemResponseList = null;
-        if (cartItems != null) {
+        List<CartItemResponse> cartItemResponseList = new ArrayList<>();
+        if (!cartItems.isEmpty()) {
             // Chuẩn bị danh sách các biến thể để gọi api
             List<Integer> variantIds = new ArrayList<>();
             for (CartItem item : cartItems) {
@@ -53,19 +55,19 @@ public class CartService {
             // Tiến hành gọi api để lấy dữ liệu sản phẩm
             List<ProductResponse> productResponseList = productClient.getProductsByIds(variantIds);
 
-            cartItemResponseList = new ArrayList<>();
-            for (CartItem cartItem : cartItems) {
-                for (ProductResponse productResponse : productResponseList) {
-                    if (Objects.equals(cartItem.getProductId(), productResponse.getId())
-                            && Objects.equals(cartItem.getVariantId(), productResponse.getVariants().getFirst().getId())) {
-                        cartItemResponseList.add(convertCartItemToDto(cartItem, productResponse));
-                        break;
-                    }
+            for (int i = 0; i < productResponseList.size(); i++) {
+                CartItemResponse cartItemResponse = cartResponse.getItems().get(i);
+                ProductResponse productResponse = productResponseList.get(i);
+                cartItemResponse.setProduct(productResponse);
+                if (productResponse.getDefaultVariant().getDiscountPrice() != null) {
+                    cartItemResponse.setFinalPrice(productResponse.getDefaultVariant().getDiscountPrice());
+                } else {
+                    cartItemResponse.setFinalPrice(productResponse.getDefaultVariant().getBasePrice());
                 }
             }
         }
 
-        return cart.convertToDto(cartItemResponseList);
+        return cartResponse;
     }
 
     @Transactional
@@ -144,44 +146,6 @@ public class CartService {
 
         // 2. Xóa toàn bộ cart items
         cart.getItems().clear();
-    }
-
-    private CartItemResponse convertCartItemToDto(CartItem cartItem, ProductResponse product) {
-        CartItemResponse dto = new CartItemResponse();
-
-        // Gán id
-        dto.setId(cartItem.getId());
-        dto.setProductId(product.getId());
-
-        // Tên sản phẩm
-        dto.setProductName(product.getName());
-
-        // Biến thể
-        ProductVariantResponse variant = product.getVariants().getFirst();
-        dto.setVariantId(variant.getId());
-        dto.setVariantName(variant.getName());
-
-        // Ảnh mặc định
-        for (ProductImageResponse image : variant.getImages()) {
-            if (image.isDefaultStatus()) dto.setDefaultImage(image);
-            break;
-        }
-
-        // Giá biến thể
-        Double basePrice = variant.getBasePrice();
-        Double discountPrice = variant.getDiscountPrice();
-
-        // Nếu discountPrice khác null thì price = discountPrice, ngược lại = basePrice
-        Double price = (discountPrice != null) ? discountPrice : basePrice;
-
-        dto.setBasePrice(basePrice);
-        dto.setDiscountPrice(discountPrice);
-        dto.setPrice(price);
-
-        // Số lượng
-        dto.setQuantity(cartItem.getQuantity());
-
-        return dto;
     }
 
     private CartResponse convertCartToDto(Cart cart, List<CartItemResponse> cartItemResponseList) {
