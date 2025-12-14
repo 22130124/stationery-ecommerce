@@ -1,23 +1,16 @@
 // src/features/product-details/pages/ProductDetailsPage.jsx
-
 import {useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
 import {getProductBySlug} from "../../../api/productApi";
 import styles from "./ProductDetailsPage.module.scss";
 import DOMPurify from 'dompurify'
 import toast from "react-hot-toast";
-import {getSupplierById} from "../../../api/supplierApi";
-import {getBrandById} from "../../../api/brandApi";
-import {getCategoryById} from "../../../api/categoryApi";
 import {addToCart} from "../../../api/cartApi";
 import RecommendedProducts from "../components/RecommendedProducts";
 
 const ProductDetailsPage = () => {
     const {slug} = useParams();
     const [product, setProduct] = useState(null);
-    const [supplier, setSupplier] = useState(null);
-    const [brand, setBrand] = useState(null);
-    const [category, setCategory] = useState(null);
     const [selectedVariant, setSelectedVariant] = useState(null);
     const [mainImage, setMainImage] = useState('');
     const [quantity, setQuantity] = useState(1);
@@ -31,53 +24,16 @@ const ProductDetailsPage = () => {
             if (!data) return
             if (data && data.product) {
                 setProduct(data.product);
-                const defaultVar = data.product.defaultVariant || data.product.variants?.[0];
-                if (defaultVar) {
-                    setSelectedVariant(defaultVar);
-                    setMainImage(defaultVar.defaultImage?.url || defaultVar.images?.[0]?.url || '');
+                const defaultVariant = data.product.defaultVariant || data.product.variants?.[0];
+                if (defaultVariant) {
+                    setSelectedVariant(defaultVariant);
+                    setMainImage(defaultVariant.defaultImage?.url || defaultVariant.images?.[0]?.url || '');
                 }
             }
         };
 
         fetchProduct();
     }, [slug]);
-
-    // Hàm fetch thông tin supplier, brand, category của sản phẩm
-    useEffect(() => {
-        if (!product) return;
-
-        if (product.supplier && product.brand && product.category) {
-            return;
-        }
-
-        const categoryId = product.categoryId;
-        const supplierId = product.supplierId;
-        const brandId = product.brandId;
-
-        const fetchProductSubInfo = async () => {
-            try {
-                const [supplier, brand, category] = await Promise.all([
-                    getSupplierById(supplierId),
-                    getBrandById(brandId),
-                    getCategoryById(categoryId)
-                ]);
-
-                setProduct(prevProduct => ({
-                    ...prevProduct,
-                    supplier: supplier,
-                    brand: brand,
-                    category: category,
-                }));
-
-            } catch (error) {
-                console.error("Lỗi khi tải thông tin sản phẩm:", error);
-            }
-        }
-
-        fetchProductSubInfo();
-    }, [product]);
-
-    console.log(product);
 
     const formatPrice = (price) =>
         price?.toLocaleString("vi-VN", {style: "currency", currency: "VND"}) || "";
@@ -153,9 +109,10 @@ const ProductDetailsPage = () => {
 
                     <div className={styles.metaInfo}>
                         <div className={styles.metaDivider}>|</div>
-                        <div>Thương hiệu: <span className={styles.metaValue}>{product.brand?.name}</span></div>
+                        <div>Thương hiệu: <span className={styles.metaValue}>{product.brand?.name || "Chưa xác định"}</span></div>
                         <div className={styles.metaDivider}>|</div>
-                        <div>Danh mục: <span className={styles.metaValue}>{product.category?.name}</span></div>
+                        <div>Danh mục: <span className={styles.metaValue}>{product.category?.name || "Chưa xác định"}</span></div>
+                        <div className={styles.metaDivider}>|</div>
                         <div>Màu sắc: <span className={styles.metaValue}>
                                 {selectedVariant.colors.map(item => item.color).join(", ")}
                             </span>

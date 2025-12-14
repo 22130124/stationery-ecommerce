@@ -40,14 +40,4 @@ public class ProductImage {
     @Column(name = "updated_at")
     @LastModifiedDate
     private LocalDateTime updatedAt;
-
-    public ProductImageResponse convertToDto() {
-        ProductImageResponse dto = new ProductImageResponse();
-        dto.setId(this.id);
-        dto.setUrl(this.url);
-        dto.setDefaultStatus(this.defaultStatus);
-        dto.setCreatedAt(this.createdAt);
-        dto.setUpdatedAt(this.updatedAt);
-        return dto;
-    }
 }

@@ -1,5 +1,8 @@
 package com.tqk.productservice.dto.response;
 
+import com.tqk.productservice.dto.response.brand.BrandResponse;
+import com.tqk.productservice.dto.response.category.CategoryResponse;
+import com.tqk.productservice.dto.response.supplier.SupplierResponse;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -12,9 +15,9 @@ public class ProductResponse {
     private String code;
     private String name;
     private String description;
-    private Integer supplierId;
-    private Integer brandId;
-    private Integer categoryId;
+    private CategoryResponse category;
+    private SupplierResponse supplier;
+    private BrandResponse brand;
     private String origin;
     private String slug;
     private double rating;
@@ -25,5 +28,4 @@ public class ProductResponse {
     private ProductVariantResponse defaultVariant;
     private ProductImageResponse defaultImage;
     private int totalStock;
-//    private List<ProductImageResponse> images = new ArrayList<>();
 }

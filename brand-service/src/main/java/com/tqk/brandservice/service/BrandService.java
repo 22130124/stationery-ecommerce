@@ -65,4 +65,9 @@ public class BrandService {
         }
         return brandResponses;
     }
+
+    public String getNameById(Integer id) {
+        Brand brand = brandRepository.findById(id).orElseThrow(() -> new BrandNotFoundException("Không tìm thấy thương hiệu với id: " + id));
+        return brand.getName();
+    }
 }

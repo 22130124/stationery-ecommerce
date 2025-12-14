@@ -5,8 +5,13 @@ import com.tqk.productservice.dto.request.ProductRequest;
 import com.tqk.productservice.dto.request.ProductVariantRequest;
 import com.tqk.productservice.dto.request.UpdateInventoryRequest;
 import com.tqk.productservice.dto.response.*;
+import com.tqk.productservice.dto.response.brand.BrandResponse;
+import com.tqk.productservice.dto.response.category.CategoryResponse;
+import com.tqk.productservice.dto.response.supplier.SupplierResponse;
 import com.tqk.productservice.exception.ProductNotFoundException;
 import com.tqk.productservice.model.*;
+import com.tqk.productservice.repository.client.BrandClient;
+import com.tqk.productservice.repository.client.SupplierClient;
 import com.tqk.productservice.repository.product.*;
 import com.tqk.productservice.repository.client.CategoryClient;
 import jakarta.transaction.Transactional;
@@ -28,6 +33,8 @@ public class ProductService {
     private final ProductVariantColorRepository productVariantColorRepository;
     private final ProductInventoryRepository productInventoryRepository;
     private final CategoryClient categoryClient;
+    private final SupplierClient supplierlient;
+    private final BrandClient brandClient;
 
     private static final String CODE_PREFIX = "SP";
     private static final int INITIAL_CODE_NUMBER = 1000;
@@ -37,15 +44,7 @@ public class ProductService {
         List<Product> products = productRepository.findAll();
         List<ProductResponse> productResponseList = new ArrayList<>();
         if (!products.isEmpty()) {
-            for (Product product : products) {
-                ProductResponse productResponse = product.convertToDto();
-                int totalStock = 0;
-                for (ProductVariant variant : product.getVariants()) {
-                    totalStock += variant.getProductInventory().getStock();
-                }
-                productResponse.setTotalStock(totalStock);
-                productResponseList.add(productResponse);
-            }
+            productResponseList = convertProductListToDto(products);
         }
         return productResponseList;
     }
@@ -63,8 +62,8 @@ public class ProductService {
             productPage = productRepository.findByCategoryIdAndActiveStatusTrue(categoryId, pageable);
 
             ProductListResponse productListResponse = new ProductListResponse();
-            List<ProductResponse> productResponses = productPage.getContent().stream().map(Product::convertToDto).toList();
-            productListResponse.setProducts(productResponses);
+
+            productListResponse.setProducts(convertProductListToDto(productPage.getContent()));
             productListResponse.setTotalPages(productPage.getTotalPages());
             productListResponse.setTotalItems(productPage.getTotalElements());
             productListResponse.setCurrentPage(productPage.getNumber() + 1);
@@ -81,8 +80,7 @@ public class ProductService {
         productPage = productRepository.findByActiveStatusTrue(pageable);
 
         ProductListResponse productListResponse = new ProductListResponse();
-        List<ProductResponse> productResponses = productPage.getContent().stream().map(Product::convertToDto).toList();
-        productListResponse.setProducts(productResponses);
+        productListResponse.setProducts(convertProductListToDto(productPage.getContent()));
         productListResponse.setTotalPages(productPage.getTotalPages());
         productListResponse.setTotalItems(productPage.getTotalElements());
         productListResponse.setCurrentPage(productPage.getNumber() + 1);
@@ -93,15 +91,18 @@ public class ProductService {
     public List<ProductResponse> getProductsByActiveStatus() {
         List<Product> products = productRepository.findByActiveStatusTrue();
 
-        List<ProductResponse> productResponses = products.stream().map(Product::convertToDto).toList();
+        List<ProductResponse> productResponseList = new ArrayList<>();
+        if (!products.isEmpty()) {
+            productResponseList = convertProductListToDto(products);
+        }
 
-        return productResponses;
+        return productResponseList;
     }
 
     // Hàm lấy ra sản phẩm theo slug
     public ProductResponse getBySlug(String slug) {
         Product product = productRepository.findBySlug(slug).orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm với slug: " + slug));
-        return product.convertToDto();
+        return convertProductToDto(product, null);
     }
 
     // Hàm tạo sản phẩm mới
@@ -166,7 +167,7 @@ public class ProductService {
         savedProduct.setVariants(savedVariants);
 
         // Trả về DTO
-        return savedProduct.convertToDto();
+        return convertProductToDto(savedProduct, null);
     }
 
     // Hàm cập nhật thông tin mới cho sản phẩm
@@ -259,7 +260,7 @@ public class ProductService {
             saveProductImages(productRequest.getImages(), updatedProduct, null);
         }
 
-        return updatedProduct.convertToDto();
+        return convertProductToDto(updatedProduct, null);
     }
 
     // Hàm hỗ trợ lưu ảnh
@@ -326,15 +327,16 @@ public class ProductService {
     }
 
     public List<ProductResponse> getProductsByVariantIds(List<Integer> variantIds) {
-        List<ProductResponse> products = new ArrayList<>();
+        List<ProductResponse> productResponseList = new ArrayList<>();
         Product product;
         ProductVariant variant;
         for (Integer variantId : variantIds) {
             variant = productVariantRepository.findById(variantId).orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm có id biến thể là: " + variantId));
             product = variant.getProduct();
-            products.add(product.convertToDtoWithSpecificVariant(variant.convertToDto()));
+            ProductResponse productResponse = convertProductToDto(product, variant);
+            productResponseList.add(productResponse);
         }
-        return products;
+        return productResponseList;
     }
 
     public Integer getCategoryIdBySlug(String slug) {
@@ -345,11 +347,11 @@ public class ProductService {
     public List<ProductResponse> searchProducts(Integer categoryId, Integer brandId, List<String> colors, Integer minPrice, Integer maxPrice, List<String> extra) {
         int hasColors = (colors != null && !colors.isEmpty()) ? 1 : 0;
         List<Product> products = productRepository.searchProductsWithScore(categoryId, brandId, colors, minPrice, maxPrice, extra, hasColors);
-        List<ProductResponse> productResponses = new ArrayList<>();
-        for (Product product : products) {
-            productResponses.add(product.convertToDto());
+        List<ProductResponse> productResponseList = new ArrayList<>();
+        if (!products.isEmpty()) {
+            productResponseList = convertProductListToDto(products);
         }
-        return productResponses;
+        return productResponseList;
     }
 
     public int getStock(Integer variantId) {
@@ -370,5 +372,131 @@ public class ProductService {
         }
         productInventoryRepository.save(productInventory);
         return productInventory.getStock();
+    }
+
+    private ProductResponse convertProductToDto(Product product, ProductVariant specificVariant) {
+        ProductResponse dto = new ProductResponse();
+        dto.setId(product.getId());
+        dto.setCode(product.getCode());
+        dto.setName(product.getName());
+        dto.setDescription(product.getDescription());
+        dto.setOrigin(product.getOrigin());
+        dto.setSlug(product.getSlug());
+        dto.setRating(product.getRating());
+        dto.setActiveStatus(product.isActiveStatus());
+        dto.setCreatedAt(product.getCreatedAt());
+        dto.setUpdatedAt(product.getUpdatedAt());
+
+        if (specificVariant != null) {
+            ProductVariantResponse variantResponse = convertVariantToDto(specificVariant);
+            dto.setDefaultVariant(variantResponse);
+            dto.setDefaultImage(variantResponse.getDefaultImage());
+        } else {
+            List<ProductVariantResponse> variantResponseList = new ArrayList<>();
+            if (product.getVariants() != null && !product.getVariants().isEmpty()) {
+                for (ProductVariant productVariant : product.getVariants()) {
+                    ProductVariantResponse productVariantResponse = convertVariantToDto(productVariant);
+                    variantResponseList.add(productVariantResponse);
+                    if (productVariant.isDefaultStatus()) {
+                        dto.setDefaultVariant(productVariantResponse);
+                        for (ProductImage productImage : productVariant.getImages()) {
+                            if (productImage.isDefaultStatus()) {
+                                dto.setDefaultImage(convertImageToDto(productImage));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            dto.setVariants(variantResponseList);
+        }
+
+        // Gán thông tin tên category, supplier, brand
+        CategoryResponse category = categoryClient.getCategoryById(product.getCategoryId());
+        SupplierResponse supplier = supplierlient.getSupplierById(product.getSupplierId());
+        BrandResponse brand = brandClient.getBrandById(product.getBrandId());
+        dto.setCategory(category);
+        dto.setSupplier(supplier);
+        dto.setBrand(brand);
+
+        // Tính toán tổng số sản phẩm còn trong kho
+        int totalStock = 0;
+        for (ProductVariant variant : product.getVariants()) {
+            totalStock += variant.getProductInventory().getStock();
+        }
+        dto.setTotalStock(totalStock);
+
+        return dto;
+    }
+
+    private List<ProductResponse> convertProductListToDto(List<Product> products) {
+        List<ProductResponse> productResponseList = new ArrayList<>();
+        for (Product product : products) {
+            ProductResponse productResponse = convertProductToDto(product, null);
+            productResponseList.add(productResponse);
+        }
+        return productResponseList;
+    }
+
+    private ProductVariantResponse convertVariantToDto(ProductVariant variant) {
+        ProductVariantResponse dto = new ProductVariantResponse();
+        dto.setId(variant.getId());
+        dto.setName(variant.getName());
+        dto.setBasePrice(variant.getBasePrice());
+        dto.setDiscountPrice(variant.getDiscountPrice());
+        dto.setActiveStatus(variant.isActiveStatus());
+        dto.setDefaultStatus(variant.isDefaultStatus());
+        dto.setCreatedAt(variant.getCreatedAt());
+        dto.setUpdatedAt(variant.getUpdatedAt());
+        List<ProductImageResponse> imageResponseList = new ArrayList<>();
+        if (!variant.getImages().isEmpty()) {
+            imageResponseList = convertImageListToDto(variant.getImages());
+            // Tìm ra ảnh mặc định
+            ProductImage defaultImage = productImageRepository.findByVariantAndDefaultStatusTrue(variant);
+            dto.setDefaultImage(convertImageToDto(defaultImage));
+        }
+        dto.setImages(imageResponseList);
+
+        List<ProductVariantColorResponse> colorResponseList = new ArrayList<>();
+        if (!variant.getColors().isEmpty()) {
+            colorResponseList = convertColorListToDto(variant.getColors());
+        }
+        dto.setColors(colorResponseList);
+
+        dto.setStock(variant.getProductInventory().getStock());
+        return dto;
+    }
+
+    private ProductImageResponse convertImageToDto(ProductImage image) {
+        ProductImageResponse dto = new ProductImageResponse();
+        dto.setId(image.getId());
+        dto.setUrl(image.getUrl());
+        dto.setDefaultStatus(image.isDefaultStatus());
+        dto.setCreatedAt(image.getCreatedAt());
+        dto.setUpdatedAt(image.getUpdatedAt());
+        return dto;
+    }
+
+    private List<ProductImageResponse> convertImageListToDto(List<ProductImage> images) {
+        List<ProductImageResponse> productImageResponseList = new ArrayList<>();
+        for (ProductImage image : images) {
+            productImageResponseList.add(convertImageToDto(image));
+        }
+        return productImageResponseList;
+    }
+
+    private ProductVariantColorResponse convertColorToDto(ProductVariantColor color) {
+        ProductVariantColorResponse dto = new ProductVariantColorResponse();
+        dto.setId(color.getId());
+        dto.setColor(color.getColor());
+        return dto;
+    }
+
+    private List<ProductVariantColorResponse> convertColorListToDto(List<ProductVariantColor> colors) {
+        List<ProductVariantColorResponse> productVariantColorResponseList = new ArrayList<>();
+        for (ProductVariantColor color : colors) {
+            productVariantColorResponseList.add(convertColorToDto(color));
+        }
+        return productVariantColorResponseList;
     }
 }

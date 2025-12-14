@@ -37,9 +37,6 @@ public class ProductVariant {
     @Column(name = "discount_price")
     private Double discountPrice;
 
-    @Column(name = "color")
-    private String color;
-
     @Column(name = "active_status")
     private boolean activeStatus;
 
@@ -62,39 +59,4 @@ public class ProductVariant {
 
     @OneToOne(mappedBy = "productVariant")
     private ProductInventory productInventory;
-
-    public ProductVariantResponse convertToDto() {
-        ProductVariantResponse dto = new ProductVariantResponse();
-        dto.setId(this.id);
-        dto.setName(this.name);
-        dto.setBasePrice(this.basePrice);
-        dto.setDiscountPrice(this.discountPrice);
-        dto.setActiveStatus(this.activeStatus);
-        dto.setDefaultStatus(this.defaultStatus);
-        dto.setCreatedAt(this.createdAt);
-        dto.setUpdatedAt(this.updatedAt);
-        List<ProductImageResponse> imagesResponses = new ArrayList<>();
-        if (!this.images.isEmpty()) {
-            for (ProductImage productImage : this.images) {
-                ProductImageResponse productImageResponse = productImage.convertToDto();
-                imagesResponses.add(productImageResponse);
-
-                if (productImage.isDefaultStatus()) {
-                    dto.setDefaultImage(productImageResponse)   ;
-                }
-            }
-        }
-        dto.setImages(imagesResponses);
-
-        List<ProductVariantColorResponse> colorResponses = new ArrayList<>();
-        if (!this.colors.isEmpty()) {
-            for (ProductVariantColor productVariantColor : this.colors) {
-                colorResponses.add(productVariantColor.convertToDto());
-            }
-        }
-        dto.setColors(colorResponses);
-
-        dto.setStock(productInventory.getStock());
-        return dto;
-    }
 }

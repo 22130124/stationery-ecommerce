@@ -38,11 +38,4 @@ public class ProductVariantColor {
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    public ProductVariantColorResponse convertToDto() {
-        ProductVariantColorResponse dto = new ProductVariantColorResponse();
-        dto.setId(this.id);
-        dto.setColor(this.color);
-        return dto;
-    }
 }

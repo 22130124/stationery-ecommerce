@@ -12,12 +12,4 @@ public class ProductListResponse {
     private int currentPage;
     private int totalPages;
     private long totalItems;
-
-    private List<ProductResponse> convertToDTO(List<Product> products) {
-        List<ProductResponse> productResponseList = new ArrayList<>();
-        for (Product product : products) {
-            productResponseList.add(product.convertToDto());
-        }
-        return productResponseList;
-    }
 }
