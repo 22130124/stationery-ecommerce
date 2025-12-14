@@ -146,15 +146,37 @@ const ProductVariantsForm = ({form, handleImagesUploadingChange}) => {
                                     </Col>
                                 </Row>
 
+                                {/* Màu sắc*/}
                                 <Row gutter={16}>
-                                    <Col span={6}>
-                                        <Form.Item
-                                            {...restField}
-                                            name={[name, 'color']}
-                                            label="Màu sắc"
-                                            rules={[{required: true, message: 'Thiếu màu sắc'}]}
-                                        >
-                                            <Input placeholder="Nhập màu sắc sản phẩm"/>
+                                    <Col span={12}>
+                                        <Form.Item label="Màu sắc">
+                                            <Form.List name={[name, 'colors']}>
+                                                {(colorFields, { add: addColor, remove: removeColor }) => (
+                                                    <>
+                                                        {colorFields.map(({ key, name: colorName, ...restColorField }) => (
+                                                            <Space key={key} align="baseline" style={{ marginBottom: 8 }}>
+                                                                <Form.Item
+                                                                    {...restColorField}
+                                                                    name={colorName}
+                                                                    rules={[{ required: true, message: 'Nhập màu' }]}
+                                                                >
+                                                                    <Input placeholder="VD: Đỏ, Xanh dương" />
+                                                                </Form.Item>
+                                                                <MinusCircleOutlined onClick={() => removeColor(colorName)} />
+                                                            </Space>
+                                                        ))}
+
+                                                        <Button
+                                                            type="dashed"
+                                                            onClick={() => addColor()}
+                                                            icon={<PlusOutlined />}
+                                                            size="small"
+                                                        >
+                                                            Thêm màu
+                                                        </Button>
+                                                    </>
+                                                )}
+                                            </Form.List>
                                         </Form.Item>
                                     </Col>
                                 </Row>
@@ -189,7 +211,7 @@ const ProductVariantsForm = ({form, handleImagesUploadingChange}) => {
                                     name: '',
                                     basePrice: null,
                                     discountPrice: null,
-                                    color: null,
+                                    colors: [],
                                     activeStatus: true,
                                     defaultStatus: false,
                                     images: []

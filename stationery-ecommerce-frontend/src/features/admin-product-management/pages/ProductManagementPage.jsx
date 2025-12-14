@@ -39,13 +39,16 @@ const ProductManagementPage = () => {
 
     // Hàm xử lý thêm sản phẩm mới
     const handleAddProduct = async (values) => {
-        console.log(values);
-        const data = await addProduct(values);
-        if (!data) return
-        console.log("createdProduct:", data.product)
-        setProducts(prev => [...prev, data.product]);
-        setIsModalVisible(false);
-        console.log('Sản phẩm mới đã được tạo:', data.product);
+        try {
+            const data = await addProduct(values);
+            if (!data) return
+            console.log("createdProduct:", data.product)
+            setProducts(prev => [...prev, data.product]);
+            setIsModalVisible(false);
+            toast.success('Lưu thông tin sản phẩm thành công')
+        } catch (error) {
+            toast.error('Lưu thông tin sản phẩm thất bại. Vui lòng thử lại sau');
+        }
     };
 
     // Hàm xử lý sửa thông tin sản phẩm
@@ -59,9 +62,9 @@ const ProductManagementPage = () => {
             );
             setIsModalVisible(false);
             setEditingProduct(null);
-            console.log('Sản phẩm đã được cập nhật:', updatedProduct);
+            toast.success('Lưu thông tin sản phẩm thành công')
         } catch (error) {
-            console.error('Cập nhật sản phẩm thất bại:', error);
+            toast.error('Lưu thông tin sản phẩm thất bại. Vui lòng thử lại sau');
         }
     };
 
@@ -114,9 +117,17 @@ const ProductManagementPage = () => {
     // Định nghĩa các cột cho bảng
     const columns = [
         {
+            title: 'Mã SP',
+            dataIndex: 'code',
+            key: 'code',
+            sorter: (a, b) => a.code.localeCompare(b.code),
+        },
+        {
             title: 'Sản phẩm',
             dataIndex: 'name',
             key: 'name',
+            width: 500,
+            ellipsis: true,
             render: (text, record) => (
                 <div className={styles.productInfo}>
                     <img
@@ -129,25 +140,26 @@ const ProductManagementPage = () => {
             ),
         },
         {
-            title: 'Mã SP',
-            dataIndex: 'code',
-            key: 'code',
-            sorter: (a, b) => a.code.localeCompare(b.code),
+            title: 'Danh mục',
+            dataIndex: ['category', 'name'],
+            key: 'category',
+            filters: getColumnFilterOptions('category'),
+            onFilter: (value, record) => record.category.name === value,
         },
-        // {
-        //     title: 'Danh mục',
-        //     dataIndex: ['category', 'name'],
-        //     key: 'category',
-        //     filters: getColumnFilterOptions('category'),
-        //     onFilter: (value, record) => record.category.name === value,
-        // },
-        // {
-        //     title: 'Thương hiệu',
-        //     dataIndex: ['brand', 'name'],
-        //     key: 'brand',
-        //     filters: getColumnFilterOptions('brand'),
-        //     onFilter: (value, record) => record.brand.name === value,
-        // },
+        {
+            title: 'Thương hiệu',
+            dataIndex: ['brand', 'name'],
+            key: 'brand',
+            filters: getColumnFilterOptions('brand'),
+            onFilter: (value, record) => record.brand.name === value,
+        },
+        {
+            title: 'Nhà cung cấp',
+            dataIndex: ['supplier', 'name'],
+            key: 'supplier',
+            filters: getColumnFilterOptions('supplier'),
+            onFilter: (value, record) => record.supplier.name === value,
+        },
         {
             title: 'Giá bán',
             key: 'price',
@@ -194,6 +206,8 @@ const ProductManagementPage = () => {
         {
             title: 'Hành động',
             key: 'action',
+            fixed: 'right',
+            width: 250,
             render: (_, record) => (
                 <div className={styles.actions}>
                     <button
@@ -253,7 +267,7 @@ const ProductManagementPage = () => {
                         pageSizeOptions: ['10', '20', '50'],
                         showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} sản phẩm`
                     }}
-                    scroll={{x: 1300}}
+                    scroll={{ x: 'max-content' }}
                     bordered
                 />
             </div>

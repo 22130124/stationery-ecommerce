@@ -28,8 +28,21 @@ const ProductFormModal = ({visible, onClose, onSubmit, editingProduct}) => {
     // Nếu là chế độ chỉnh sửa thông tin sản phẩm thì gán thông tin editingProduct cho form
     useEffect(() => {
         if (editingProduct) {
+            const normalizedProduct = {
+                ...editingProduct,
+
+                // map variants
+                variants: editingProduct.variants.map(variant => ({
+                    ...variant,
+
+                    colors: variant.colors
+                        ? variant.colors.map(c => c.color)
+                        : []
+                }))
+            };
+
             form.resetFields()
-            form.setFieldsValue(editingProduct)
+            form.setFieldsValue(normalizedProduct)
 
             setSelectedSupplierId(editingProduct.supplier.id);
 
@@ -123,7 +136,7 @@ const ProductFormModal = ({visible, onClose, onSubmit, editingProduct}) => {
                             name: '',
                             basePrice: null,
                             discountPrice: null,
-                            color: null,
+                            colors: [],
                             activeStatus: true,
                             defaultStatus: true,
                             images: [],
@@ -230,16 +243,6 @@ const ProductFormModal = ({visible, onClose, onSubmit, editingProduct}) => {
                         placeholder='Nhập mô tả sản phẩm...'
                     />
                 </Form.Item>
-
-                {/*<Form.Item name='images'*/}
-                {/*           label='Ảnh sản phẩm (chung)'>*/}
-                {/*    <ProductImages*/}
-                {/*        value={form.getFieldValue('images')}*/}
-                {/*        onChange={(imgs) => form.setFieldsValue({images: imgs})}*/}
-                {/*        onUploadingChange={handleImagesUploadingChange}*/}
-                {/*        allowSetDefault={true}*/}
-                {/*    />*/}
-                {/*</Form.Item>*/}
 
                 <ProductVariantsForm form={form} handleImagesUploadingChange={handleImagesUploadingChange}/>
 
