@@ -35,7 +35,7 @@ def recommend():
         return jsonify({"error": "productId is required"}), 400
 
     # trả về các sản phẩm tương tự
-    recommendations_ids = get_similar_products(product_id, embeddings, top_n=10)
+    recommendations_ids = get_similar_products(product_id, embeddings, top_n=5)
     
     return jsonify({
         "productId": product_id,
@@ -55,39 +55,68 @@ def fetch_all_products():
 
 # Hàm tính embedding cho tất cả sản phẩm    
 def compute_product_embeddings(products):
-    """
-    products: list dict, mỗi dict chứa info sản phẩm
-    trả về: dict {productId: embedding vector}
-    """
     embeddings = {}
     for p in products:
-        text = (p.get("name", "") + " " + p.get("description", "")).strip()
-        if text:
-            vec = model.encode(text)
-            embeddings[p["id"]] = vec
+        text = build_weighted_text(p)
+        if text.strip():
+            embeddings[p["id"]] = model.encode(text)
     return embeddings
 
 # Hàm tính cosine similarity
 def cosine_similarity(vec1, vec2):
     return dot(vec1, vec2) / (norm(vec1) * norm(vec2))
 
+# Hàm xây dựng văn bản có trọng số từ thông tin sản phẩm
+def build_weighted_text(p):
+    parts = []
+
+    # Category – rất quan trọng
+    if p.get("category"):
+        parts.append(("category " + p["category"]["name"] + " ") * 4)
+
+    # Brand – quan trọng
+    if p.get("brand"):
+        parts.append(("brand " + p["brand"]["name"] + " ") * 3)
+
+    # Name – quan trọng
+    if p.get("name"):
+        parts.append((p["name"] + " ") * 3)
+
+    # Description – bình thường
+    if p.get("description"):
+        parts.append(p["description"])
+
+    # Origin – phụ
+    if p.get("origin"):
+        parts.append("origin " + p["origin"])
+
+    return " ".join(parts)
+
 # Hàm lấy top-N sản phẩm tương tự
-def get_similar_products(product_id, embeddings, top_n=10):
+def get_similar_products(product_id, embeddings, top_n=5):
     if product_id not in embeddings:
         return []
 
     target_vec = embeddings[product_id]
-    scores = []
+    scores = {}
+    
+    # Nếu như không đủ sản phẩm tương tự với threshold cao thì giảm dần threshold
+    for threshold in [0.8, 0.7, 0.6]:
+        for pid, vec in embeddings.items():
+            if pid == product_id or pid in scores:
+                continue
 
-    for pid, vec in embeddings.items():
-        if pid == product_id:
-            continue
-        score = cosine_similarity(target_vec, vec)
-        scores.append((pid, score))
+            score = cosine_similarity(target_vec, vec)
+            if score >= threshold:
+                scores[pid] = score
+
+        # Nếu đã đủ top_n thì dừng
+        if len(scores) >= top_n:
+            break
 
     # Sắp xếp theo score giảm dần
-    scores.sort(key=lambda x: x[1], reverse=True)
-    top_products = [pid for pid, _ in scores[:top_n]]
+    sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    top_products = [pid for pid, _ in sorted_scores[:top_n]]
     return top_products
 
 # Thread để cập nhật embedding định kỳ

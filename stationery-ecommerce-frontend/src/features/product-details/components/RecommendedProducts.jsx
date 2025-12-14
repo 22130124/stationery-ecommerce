@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import ProductCard from "../../product-list/components/ProductCard";
 import styles from "./RecommendedProducts.module.scss";
 import {getRecommendedProducts} from "../../../api/recommendApi";
 
-export default function RecommendedProducts({ productId }) {
+export default function RecommendedProducts({productId}) {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -31,8 +31,12 @@ export default function RecommendedProducts({ productId }) {
             <h3>Sản phẩm gợi ý cho bạn</h3>
             <div className={styles.list}>
                 {loading
-                    ? "Đang tải..."
-                    : products.map((p) => <ProductCard key={p.id} product={p} />)}
+                    ? "Đang tải..." :
+                    <div className={styles.productGrid}>
+                        {products.map((p) =>
+                            <ProductCard key={p.id} product={p}/>)}
+                    </div>
+                }
             </div>
         </div>
     );
