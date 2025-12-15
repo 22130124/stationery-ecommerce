@@ -29,12 +29,7 @@ const ProductListPage = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
 
-    const [pagination, setPagination] = useState({
-        currentPage: 1,
-        totalPages: 1
-    });
-
-    // Fetch categories
+    // Fetch categories và thêm các param cần thiết trên url (nếu thiếu)
     useEffect(() => {
         const newParams = new URLSearchParams(searchParams)
         const categoryParam = searchParams.get("category")
@@ -54,24 +49,21 @@ const ProductListPage = () => {
 
         fetchCategories()
     }, [])
-    console.log("categories", categories)
 
+    // Fetch products dựa trên các tham số trên url
     useEffect(() => {
-        console.log(categoryParam, pageParam, PRODUCTS_PER_PAGE)
         const fetchProducts = async () => {
             const data = await getProductsByCategory({
                 categorySlug: categoryParam,
                 page: pageParam,
                 limit: PRODUCTS_PER_PAGE,
             })
-            console.log("Data products: ", data.products)
             setProducts(data.products)
             setTotalPages(data.totalPages)
             setTotalItems(data.totalItems)
         }
         fetchProducts()
     }, [searchParams, setSearchParams])
-    console.log("products", products)
 
     const handlePageChange = (page) => {
         const newParams = new URLSearchParams(searchParams);
@@ -95,14 +87,8 @@ const ProductListPage = () => {
                 {/* Main Content */}
                 <main className={styles.mainContent}>
                     <div className={styles.controls}>
-                        <div className={styles.sortBar}>
-                            <label htmlFor="sort">Sắp xếp theo: </label>
-                            <select name="sort" id="sort">
-                                <option value="popular">Phổ biến</option>
-                                <option value="newest">Mới nhất</option>
-                                <option value="price-asc">Giá: Tăng dần</option>
-                                <option value="price-desc">Giá: Giảm dần</option>
-                            </select>
+                        <div className={styles.resultInfo}>
+                            Hiển thị {(pageParam - 1) * PRODUCTS_PER_PAGE + 1} – {Math.min(pageParam * PRODUCTS_PER_PAGE, totalItems)} trong tổng {totalItems} sản phẩm
                         </div>
                     </div>
 

@@ -2,13 +2,11 @@ import React, { useEffect, useState } from 'react';
 import styles from './Sidebar.module.scss';
 import { useSearchParams } from "react-router-dom";
 
-const Sidebar = ({ categories }) => {
+const Sidebar = ({ categories = [] }) => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [openingCategories, setOpeningCategories] = useState({});
 
     const selectedCategorySlug = searchParams.get("category") || 'all';
-
-    console.log("categories", categories);
 
     const displayCategories = [
         {

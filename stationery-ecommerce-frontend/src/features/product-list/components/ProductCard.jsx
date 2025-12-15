@@ -18,8 +18,6 @@ const ProductCard = ({ product }) => {
         ? Math.round(((basePrice - discountPrice) / basePrice) * 100)
         : 0;
 
-    console.log("Product", product);
-
     return (
         <Link to={`/${product.slug}`} className={styles.productLink}>
             <div className={styles.card}>

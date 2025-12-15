@@ -1,8 +1,5 @@
 package com.tqk.productservice.model;
 
-import com.tqk.productservice.dto.response.ProductImageResponse;
-import com.tqk.productservice.dto.response.ProductResponse;
-import com.tqk.productservice.dto.response.ProductVariantResponse;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
