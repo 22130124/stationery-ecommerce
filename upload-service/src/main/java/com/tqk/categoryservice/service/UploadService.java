@@ -15,10 +15,10 @@ public class UploadService {
     @Autowired
     private Cloudinary cloudinary;
 
-    public Map<String, Object> uploadImage(MultipartFile file) throws IOException {
+    public Map<String, Object> uploadImage(MultipartFile file, String type) throws IOException {
         return cloudinary.uploader().upload(
                 file.getBytes(),
-                ObjectUtils.asMap("folder", "ecommerce/products")
+                ObjectUtils.asMap("folder", "ecommerce/" + type)
         );
     }
 

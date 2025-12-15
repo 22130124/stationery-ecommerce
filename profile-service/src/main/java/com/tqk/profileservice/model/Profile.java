@@ -42,18 +42,4 @@ public class Profile {
     @Column(name = "updated_at")
     @LastModifiedDate
     private LocalDateTime updatedAt;
-
-    public ProfileResponse convertToDto(String email) {
-        ProfileResponse dto = new ProfileResponse();
-        dto.setId(this.id);
-        dto.setAccountId(this.accountId);
-        dto.setFullName(this.fullName);
-        dto.setEmail(email);
-        dto.setPhone(this.phone);
-        dto.setAddress(this.address);
-        dto.setAvatarUrl(this.avatarUrl);
-        dto.setCreatedAt(this.createdAt);
-        dto.setUpdatedAt(this.updatedAt);
-        return dto;
-    }
 }

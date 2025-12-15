@@ -19,7 +19,7 @@ public class UploadController {
     @PostMapping("/image")
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
-            Map result = uploadService.uploadImage(file);
+            Map result = uploadService.uploadImage(file, "products");
             return ResponseEntity.ok(Map.of(
                     "public_id", result.get("public_id"),
                     "secure_url", result.get("secure_url")
@@ -37,6 +37,19 @@ public class UploadController {
         } catch (IOException e) {
             return ResponseEntity.internalServerError()
                     .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/image/avatar")
+    public ResponseEntity<?> uploadAvatar(@RequestParam("file") MultipartFile file) {
+        try {
+            Map result = uploadService.uploadImage(file, "avatar");
+            return ResponseEntity.ok(Map.of(
+                    "public_id", result.get("public_id"),
+                    "secure_url", result.get("secure_url")
+            ));
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().body("Upload failed: " + e.getMessage());
         }
     }
 }

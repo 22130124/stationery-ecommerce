@@ -1,54 +1,115 @@
-import React, {useEffect, useState} from "react";
-import styles from "./ProfilePage.module.scss";
-import {getProfile} from "../../../api/profileApi";
-import {token} from "../../../utils/token";
+import React, {useEffect, useState} from 'react'
+import styles from './ProfilePage.module.scss'
+import {getProfile, updateAvatar, updateProfile} from '../../../api/profileApi'
+import {token} from '../../../utils/token'
+import defaultAvatar from '../assets/default-avatar.png';
+import {uploadAvatar, uploadImage} from "../../../api/uploadApi";
+import toast from "react-hot-toast";
+import {FaEdit} from "react-icons/fa";
 
 export default function ProfilePage() {
     const [profile, setProfile] = useState({
         fullName: "",
         phone: "",
         address: "",
-        avatarUrl: "/default-avatar.png",
-    });
-    const [editing, setEditing] = useState(false);
-    const [avatarFile, setAvatarFile] = useState(null);
+        avatarUrl: '../assets/default-avatar.png',
+    })
+    const [editing, setEditing] = useState(false)
 
     useEffect(() => {
         const fetchProfile = async () => {
-            const data = await getProfile();
-            setProfile(data);
-        };
-        fetchProfile();
-    }, []);
-    console.log(profile);
+            const data = await getProfile()
+            if (data.avatarUrl) {
+                setProfile(data)
+            } else {
+                setProfile({
+                    ...data,
+                    avatarUrl: defaultAvatar,
+                })
+            }
 
-    const handleAvatarChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setAvatarFile(file);
-            setProfile({...profile, avatarUrl: URL.createObjectURL(file)});
+            // Kiểm tra xem thông tin người dùng đã đầy đủ hay chưa
+            const isIncomplete = !data.fullName || !data.phone || !data.address
+
+            if (isIncomplete) {
+                setEditing(true)
+                toast('Vui lòng hoàn thiện hồ sơ để không bị gián đoạn trải nghiệm mua hàng')
+            }
         }
-    };
+        fetchProfile()
+    }, [])
+    console.log(profile)
+
+    const handleAvatarChange = async (e) => {
+        toast.loading('Đang tải ảnh lên...')
+
+        const file = e.target.files[0]
+        if (!file) return
+
+        // preview trước
+        setProfile({
+            ...profile,
+            avatarUrl: URL.createObjectURL(file),
+        })
+
+        try {
+            const uploadRes = await uploadAvatar(file)
+
+            const updatedProfile = await updateAvatar(uploadRes.secure_url)
+
+            setProfile(updatedProfile)
+
+            toast.dismiss()
+            toast.success('Cập nhật ảnh đại diện thành công')
+        } catch (err) {
+            toast.dismiss()
+            toast.error('Cập nhật ảnh đại diện thất bại. Vui lòng thử lại sau')
+        }
+    }
 
     const handleSave = async () => {
-        const formData = new FormData();
-        formData.append("fullName", profile.fullName);
-        formData.append("phone", profile.phone);
-        formData.append("address", profile.address);
-        if (avatarFile) formData.append("avatar", avatarFile);
+        toast.dismiss()
+        if (!profile.fullName?.trim()) {
+            toast.error('Vui lòng nhập họ và tên')
+            return
+        }
+        if (!profile.phone?.trim()) {
+            toast.error('Vui lòng nhập số điện thoại')
+            return
+        }
+        if (!profile.address?.trim()) {
+            toast.error('Vui lòng nhập địa chỉ')
+            return
+        }
 
-        const data = await fetch("/api/profile", {
-            method: "PUT",
-            headers: {
-                Authorization: `Bearer ${token.get()}`,
-            },
-            body: formData,
-        }).then((res) => res.json());
+        toast.loading('Đang cập nhật thông tin...')
 
-        setProfile(data.profile);
-        setEditing(false);
-        setAvatarFile(null);
-    };
+        try {
+            const payload = {
+                fullName: profile.fullName,
+                phone: profile.phone,
+                address: profile.address,
+            }
+
+            const data = await updateProfile(payload)
+
+            if (data.avatarUrl) {
+                setProfile(data)
+            } else {
+                setProfile({
+                    ...data,
+                    avatarUrl: defaultAvatar,
+                })
+            }
+            setEditing(false)
+
+            toast.dismiss()
+            toast.success('Cập nhật thông tin thành công')
+        } catch (err) {
+            toast.dismiss()
+            toast.error('Cập nhật thông tin thất bại. Vui lòng thử lại sau')
+        }
+    }
 
     return (
         profile && (
@@ -57,29 +118,29 @@ export default function ProfilePage() {
 
                 <div className={styles.card}>
                     <div className={styles.avatarSection}>
-                        <img src={profile.avatarUrl} alt="avatar" className={styles.avatar}/>
-                        {editing && (
-                            <label className={styles.avatarEdit}>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleAvatarChange}
-                                />
-                                ✎
-                            </label>
+                        {profile.avatarUrl && (
+                            <img src={profile.avatarUrl} className={styles.avatar}/>
                         )}
+                        <label className={styles.avatarEdit}>
+                            <input
+                                type='file'
+                                accept='image/*'
+                                onChange={handleAvatarChange}
+                            />
+                            <FaEdit />
+                        </label>
                     </div>
 
                     <div className={styles.row}>
-                        <label>Email:</label>
+                        <label>Email *</label>
                         <span>{token.getEmail()}</span>
                     </div>
 
                     <div className={styles.row}>
-                        <label>Họ và tên:</label>
+                        <label>Họ và tên *</label>
                         {editing ? (
                             <input
-                                type="text"
+                                type='text'
                                 value={profile.fullName}
                                 onChange={(e) =>
                                     setProfile({...profile, fullName: e.target.value})
@@ -91,10 +152,10 @@ export default function ProfilePage() {
                     </div>
 
                     <div className={styles.row}>
-                        <label>Số điện thoại:</label>
+                        <label>Số điện thoại *</label>
                         {editing ? (
                             <input
-                                type="text"
+                                type='text'
                                 value={profile.phone}
                                 onChange={(e) =>
                                     setProfile({...profile, phone: e.target.value})
@@ -106,7 +167,7 @@ export default function ProfilePage() {
                     </div>
 
                     <div className={styles.row}>
-                        <label>Địa chỉ:</label>
+                        <label>Địa chỉ *</label>
                         {editing ? (
                             <textarea
                                 value={profile.address}
@@ -136,5 +197,5 @@ export default function ProfilePage() {
                 </div>
             </div>
         )
-    );
+    )
 }
