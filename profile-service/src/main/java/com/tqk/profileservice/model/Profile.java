@@ -35,6 +35,12 @@ public class Profile {
     @Column(name = "avatar_url")
     private String avatarUrl;
 
+    @Column(name = "avatar_public_id")
+    private String avatarPublicId;
+
+    @Column(name = "completed_status")
+    private boolean completedStatus;
+
     @Column(name = "created_at")
     @CreatedDate
     private LocalDateTime createdAt;

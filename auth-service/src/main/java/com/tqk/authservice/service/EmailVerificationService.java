@@ -5,7 +5,8 @@ import com.tqk.authservice.model.Account;
 import com.tqk.authservice.model.EmailVerificationToken;
 import com.tqk.authservice.repository.AccountRepository;
 import com.tqk.authservice.repository.EmailVerificationTokenRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.tqk.authservice.repository.client.ProfileClient;
+import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -14,20 +15,13 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class EmailVerificationService {
 
     private final EmailVerificationTokenRepository tokenRepository;
     private final AccountRepository accountRepository;
     private final JavaMailSender mailSender;
-
-    @Autowired
-    public EmailVerificationService(EmailVerificationTokenRepository tokenRepository,
-                                    AccountRepository accountRepository,
-                                    JavaMailSender mailSender) {
-        this.tokenRepository = tokenRepository;
-        this.accountRepository = accountRepository;
-        this.mailSender = mailSender;
-    }
+    private final ProfileClient profileClient;
 
     // Hàm xử lý gửi email xác nhận
     public void sendVerificationEmail(Account account) {
@@ -60,6 +54,9 @@ public class EmailVerificationService {
         Account account = verificationToken.getAccount();
         account.setVerified(true);
         accountRepository.save(account);
+
+        // Tạo một profile mới
+        profileClient.createProfile(account.getId());
 
         tokenRepository.delete(verificationToken);
     }

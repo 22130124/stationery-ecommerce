@@ -1,25 +1,26 @@
 // AuthForm.jsx
-import React, { useState } from 'react';
-import styles from './AuthForm.module.scss';
-import { FaUser, FaLock } from 'react-icons/fa';
-import {useNavigate, useLocation} from 'react-router-dom';
-import {GoogleLogin} from '@react-oauth/google';
-import {loginWithGoogle} from '../../../api/authApi';
-import toast from "react-hot-toast";
+import React, { useState } from 'react'
+import styles from './AuthForm.module.scss'
+import { FaUser, FaLock } from 'react-icons/fa'
+import {useNavigate, useLocation} from 'react-router-dom'
+import {GoogleLogin} from '@react-oauth/google'
+import {loginWithGoogle} from '../../../api/authApi'
+import toast from 'react-hot-toast'
+import {getProfile} from '../../../api/profileApi'
 
 // formType: 'login' | 'signup'
 const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess, isSubmitting}) => {
-    const navigate = useNavigate();
-    const location = useLocation();
+    const navigate = useNavigate()
+    const location = useLocation()
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
     const handleSubmit = (e) => {
-        e.preventDefault();
+        e.preventDefault()
         if (formType === 'signup' && password !== confirmPassword) {
             onSubmit({ error: 'Mật khẩu không khớp' })
             return
@@ -31,56 +32,65 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess, i
         }
         
         onSubmit({ email, password })
-    };
+    }
 
     // Hàm kiểm tra định dạng email
     function isValidEmail(email) {
-        return emailRegex.test(email);
+        return emailRegex.test(email)
     }
 
     // Hàm xử lý đăng nhập Google thành công
     const handleGoogleSuccess = async (credentialResponse) => {
+        toast.dismiss()
+        const toastId = toast.loading('Đang xử lý đăng nhập...')
         try {
             // credentialResponse.credential là ID Token để backend xác thực
-            const data = await loginWithGoogle(credentialResponse.credential);
-            localStorage.setItem('token', data.token);
+            const data = await loginWithGoogle(credentialResponse.credential)
+            localStorage.setItem('token', data.token)
 
-            const toastId = toast.success(
-                'Đăng nhập thành công. Đang chuyển hướng tới trang mua hàng...',
-                { duration: 2000 }
-            );
+            toast.success('Đăng nhập thành công. Đang chuyển hướng...',
+                { id: toastId, duration: 2000 }
+            )
 
-            const searchParams = new URLSearchParams(location.search);
-            const redirectPath = searchParams.get("redirect");
+            const searchParams = new URLSearchParams(location.search)
+            const redirectPath = searchParams.get('redirect')
 
-            setTimeout(() => {
+            setTimeout(async () => {
+                // Nếu có redirectPath
                 if (redirectPath) {
-                    navigate(redirectPath);
+                    navigate(redirectPath)
                 } else {
-                    navigate("/product-list");
+                    // Nếu tài khoản đăng nhập vừa được đăng ký thì chuyển hướng vào trang hồ sơ cá nhân để cập nhật thông tin cá nhân
+                    const profile = await getProfile()
+                    if (!profile.completedStatus) {
+                        navigate('/profile')
+                        return
+                    }
+                    // Nếu không thì vào trang danh sách sản phẩm
+                    navigate('/profile')
                 }
-            }, 2000);
+            }, 2000)
         } catch (error) {
             toast.dismiss()
-            toast.error(error.message, { duration: 5000 });
+            toast.error(error.message, { duration: 5000 })
         }
-    };
+    }
 
     // Hàm xử lý đăng nhập Google thất bại
     const handleGoogleError = () => {
-        toast.error("Đăng nhập Google thất bại. Vui lòng thử lại!");
-    };
+        toast.error('Đăng nhập Google thất bại. Vui lòng thử lại!')
+    }
 
     // Hàm xử lý chuyển đổi giữa 2 trang login và signup
     const handleSwitchPage = () => {
-        const nextPage = formType === 'signup' ? 'login' : 'signup';
-        const searchParams = new URLSearchParams(location.search);
-        const redirectPath = searchParams.get("redirect");
+        const nextPage = formType === 'signup' ? 'login' : 'signup'
+        const searchParams = new URLSearchParams(location.search)
+        const redirectPath = searchParams.get('redirect')
 
         if (redirectPath) {
-            navigate(`/${nextPage}?redirect=${redirectPath}`);
+            navigate(`/${nextPage}?redirect=${redirectPath}`)
         } else {
-            navigate(`/${nextPage}`);
+            navigate(`/${nextPage}`)
         }
     }
 
@@ -145,7 +155,7 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess, i
                             onSuccess={handleGoogleSuccess}
                             onError={handleGoogleError}
                             useOneTap={false}
-                            text="signin_with"
+                            text='signin_with'
                         />
                     </div>
                 </div>
@@ -158,7 +168,7 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess, i
                 </button>
             </div>
         </div>
-    );
-};
+    )
+}
 
-export default AuthForm;
+export default AuthForm

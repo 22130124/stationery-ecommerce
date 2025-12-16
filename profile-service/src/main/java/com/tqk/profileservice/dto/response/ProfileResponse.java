@@ -13,6 +13,8 @@ public class ProfileResponse {
     private String phone;
     private String address;
     private String avatarUrl;
+    private String avatarPublicId;
+    private boolean completedStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

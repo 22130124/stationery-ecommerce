@@ -1,46 +1,47 @@
 // ShoppingCart.jsx
-import React, {useState, useEffect} from 'react';
-import styles from './ShoppingCart.module.scss';
-import {FaTrashAlt} from 'react-icons/fa';
-import {getCart, removeCartItem, removeItem, updateCartItem} from '../../../api/cartApi';
-import {useNavigate, useLocation} from 'react-router-dom';
-import {Modal} from 'antd';
-import toast from 'react-hot-toast';
-import {createOrders} from '../../../api/orderApi';
+import React, {useState, useEffect} from 'react'
+import styles from './ShoppingCart.module.scss'
+import {FaTrashAlt} from 'react-icons/fa'
+import {getCart, removeCartItem, removeItem, updateCartItem} from '../../../api/cartApi'
+import {useNavigate, useLocation} from 'react-router-dom'
+import {Modal} from 'antd'
+import toast from 'react-hot-toast'
+import {createOrders} from '../../../api/orderApi'
+import {getProfile} from '../../../api/profileApi'
 
 const ShoppingCart = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
+    const navigate = useNavigate()
+    const location = useLocation()
 
-    const [cart, setCart] = useState({});
-    const [cartItems, setCartItems] = useState([]);
+    const [cart, setCart] = useState({})
+    const [cartItems, setCartItems] = useState([])
     const [totalPrice, setTotalPrice] = useState(0)
-    const {confirm} = Modal;
+    const {confirm} = Modal
 
     useEffect(() => {
         const fetchCart = async () => {
-            const data = await getCart();
+            const data = await getCart()
             if (!data) return
             setCart(data.cart)
             setCartItems(data.cart.items)
         }
         fetchCart()
     }, [])
-    console.log("CartItems", cartItems)
+    console.log('CartItems', cartItems)
 
     // Hàm tính tổng tiền
     useEffect(() => {
         const calculateTotal = () => {
             return cartItems.reduce((total, item) => {
-                return total + (item.finalPrice * item.quantity);
-            }, 0);
-        };
-        setTotalPrice(calculateTotal());
-    }, [cartItems]);
+                return total + (item.finalPrice * item.quantity)
+            }, 0)
+        }
+        setTotalPrice(calculateTotal())
+    }, [cartItems])
 
     // Hàm xử lý thay đổi số lượng
     const handleQuantityChange = (itemId, newQuantity) => {
-        if (newQuantity < 1) return;
+        if (newQuantity < 1) return
 
         // Update UI ngay lập tức
         setCartItems(prev =>
@@ -49,42 +50,42 @@ const ShoppingCart = () => {
                     ? {...item, quantity: newQuantity}
                     : item
             )
-        );
+        )
 
         // Gọi API sau 400ms nếu user ngừng thao tác
-        debouncedUpdate(itemId, newQuantity);
-    };
+        debouncedUpdate(itemId, newQuantity)
+    }
 
     const handleUpdateQuantityApi = async (itemId, quantity) => {
-        const data = await updateCartItem(itemId, quantity);
+        const data = await updateCartItem(itemId, quantity)
         if (!data) return
-        setCart(data.cart);
-        setCartItems(data.cart.items);
+        setCart(data.cart)
+        setCartItems(data.cart.items)
     }
 
 
     // debounce hook cho việc cập nhật số lượng
     function useDebounce(callback, delay) {
-        const timeoutRef = React.useRef(null);
+        const timeoutRef = React.useRef(null)
 
         function debouncedFunction(...args) {
-            clearTimeout(timeoutRef.current);
+            clearTimeout(timeoutRef.current)
             timeoutRef.current = setTimeout(() => {
-                callback(...args);
-            }, delay);
+                callback(...args)
+            }, delay)
         }
 
-        return debouncedFunction;
+        return debouncedFunction
     }
 
-    const debouncedUpdate = useDebounce(handleUpdateQuantityApi, 400);
+    const debouncedUpdate = useDebounce(handleUpdateQuantityApi, 400)
 
     const handleRemoveItem = async (itemId) => {
-        const newCartData = await removeCartItem(itemId);
+        const newCartData = await removeCartItem(itemId)
         if (!newCartData) return
-        setCart(newCartData.cart);
-        setCartItems(newCartData.cart.items);
-    };
+        setCart(newCartData.cart)
+        setCartItems(newCartData.cart.items)
+    }
 
     const showDeleteConfirm = (cartItem, onOk) => {
         confirm({
@@ -94,14 +95,20 @@ const ShoppingCart = () => {
             okType: 'danger',
             cancelText: 'Hủy',
             onOk,
-        });
-    };
+        })
+    }
 
     const handleConfirm = async () => {
         if (!localStorage.getItem('token')) {
-            navigate(`/login?redirect=${location.pathname}`);
+            navigate(`/login?redirect=${location.pathname}`)
         } else {
-            const toastId = toast.loading('Đang xử lý tạo đơn hàng...');
+            const profileData = await getProfile()
+            if(!profileData.completedStatus) {
+                navigate('/profile')
+                return
+            }
+            
+            const toastId = toast.loading('Đang xử lý tạo đơn hàng...')
 
             // Chỉ lấy các trường cần thiết
             const orderItems = cartItems.map(item => ({
@@ -109,19 +116,19 @@ const ShoppingCart = () => {
                 variantId: item.variantId,
                 price: item.finalPrice,
                 quantity: item.quantity
-            }));
+            }))
 
-            const data = await createOrders({orderItems});
+            const data = await createOrders({orderItems})
             if (!data) return
-            toast.success('Tạo đơn hàng thành công', {id: toastId, duration: 2000});
-            navigate('/order-history');
+            toast.success('Tạo đơn hàng thành công', {id: toastId, duration: 2000})
+            navigate('/order-history')
         }
     }
 
     const formatCurrency = (amount) => {
-        if (typeof amount !== 'number') return '';
-        return amount.toLocaleString('vi-VN', {style: 'currency', currency: 'VND'});
-    };
+        if (typeof amount !== 'number') return ''
+        return amount.toLocaleString('vi-VN', {style: 'currency', currency: 'VND'})
+    }
 
     const CartItem = ({item}) => {
         return (
@@ -169,10 +176,10 @@ const ShoppingCart = () => {
                     </button>
                 </div>
             </div>
-        );
-    };
+        )
+    }
 
-    console.log('CartItems', cartItems);
+    console.log('CartItems', cartItems)
 
     return (
         <div className={styles.shoppingCart}>
@@ -218,7 +225,7 @@ const ShoppingCart = () => {
                 </div>
             )}
         </div>
-    );
-};
+    )
+}
 
-export default ShoppingCart;
+export default ShoppingCart

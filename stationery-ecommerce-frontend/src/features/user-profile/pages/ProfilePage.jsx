@@ -3,9 +3,10 @@ import styles from './ProfilePage.module.scss'
 import {getProfile, updateAvatar, updateProfile} from '../../../api/profileApi'
 import {token} from '../../../utils/token'
 import defaultAvatar from '../assets/default-avatar.png';
-import {uploadAvatar, uploadImage} from "../../../api/uploadApi";
+import {deleteImage, uploadAvatar, uploadImage} from "../../../api/uploadApi";
 import toast from "react-hot-toast";
 import {FaEdit} from "react-icons/fa";
+import { Spin } from 'antd';
 
 export default function ProfilePage() {
     const [profile, setProfile] = useState({
@@ -15,7 +16,9 @@ export default function ProfilePage() {
         avatarUrl: '../assets/default-avatar.png',
     })
     const [editing, setEditing] = useState(false)
+    const [isUploading, setIsUploading] = useState(false)
 
+    // Hàm fetch profile của người dùng hiện tại
     useEffect(() => {
         const fetchProfile = async () => {
             const data = await getProfile()
@@ -29,22 +32,33 @@ export default function ProfilePage() {
             }
 
             // Kiểm tra xem thông tin người dùng đã đầy đủ hay chưa
-            const isIncomplete = !data.fullName || !data.phone || !data.address
-
-            if (isIncomplete) {
+            let toastId
+            if (!data.completedStatus) {
                 setEditing(true)
-                toast('Vui lòng hoàn thiện hồ sơ để không bị gián đoạn trải nghiệm mua hàng')
+                toast.dismiss()
+                toastId = toast('Vui lòng hoàn thiện hồ sơ để không bị gián đoạn trải nghiệm mua hàng', {
+                    duration: Infinity,
+                    id: 'complete-profile-toast',
+                })
             }
         }
         fetchProfile()
-    }, [])
-    console.log(profile)
 
+        return () => {
+            // khi rời khỏi ProfilePage
+            toast.dismiss('complete-profile-toast')
+        }
+    }, [])
+    console.log("Profile", profile)
+
+    // Hàm xử lý upload ảnh đại diện
     const handleAvatarChange = async (e) => {
         toast.loading('Đang tải ảnh lên...')
 
         const file = e.target.files[0]
         if (!file) return
+
+        setIsUploading(true)
 
         // preview trước
         setProfile({
@@ -53,9 +67,16 @@ export default function ProfilePage() {
         })
 
         try {
-            const uploadRes = await uploadAvatar(file)
+            if (profile.avatarPublicId) {
+                await deleteImage(profile.avatarPublicId)
+            }
 
-            const updatedProfile = await updateAvatar(uploadRes.secure_url)
+            const response = await uploadAvatar(file)
+
+            const updatedProfile = await updateAvatar({
+                avatarUrl: response.secure_url,
+                avatarPublicId: response.public_id,
+            })
 
             setProfile(updatedProfile)
 
@@ -64,6 +85,8 @@ export default function ProfilePage() {
         } catch (err) {
             toast.dismiss()
             toast.error('Cập nhật ảnh đại diện thất bại. Vui lòng thử lại sau')
+        } finally {
+            setIsUploading(false)
         }
     }
 
@@ -121,6 +144,11 @@ export default function ProfilePage() {
                         {profile.avatarUrl && (
                             <img src={profile.avatarUrl} className={styles.avatar}/>
                         )}
+                        {isUploading && (
+                            <div className={styles.overlay}>
+                                <Spin size="large" />
+                            </div>
+                        )}
                         <label className={styles.avatarEdit}>
                             <input
                                 type='file'
@@ -142,6 +170,7 @@ export default function ProfilePage() {
                             <input
                                 type='text'
                                 value={profile.fullName}
+                                placeholder={'Nhập họ và tên đầy đủ của bạn'}
                                 onChange={(e) =>
                                     setProfile({...profile, fullName: e.target.value})
                                 }
@@ -157,6 +186,7 @@ export default function ProfilePage() {
                             <input
                                 type='text'
                                 value={profile.phone}
+                                placeholder={'Nhập số điện thoại của bạn'}
                                 onChange={(e) =>
                                     setProfile({...profile, phone: e.target.value})
                                 }
@@ -171,6 +201,7 @@ export default function ProfilePage() {
                         {editing ? (
                             <textarea
                                 value={profile.address}
+                                placeholder={'Nhập địa chỉ nhận hàng'}
                                 onChange={(e) =>
                                     setProfile({...profile, address: e.target.value})
                                 }

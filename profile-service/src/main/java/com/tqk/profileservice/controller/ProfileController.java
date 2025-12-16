@@ -17,6 +17,7 @@ public class ProfileController {
     @GetMapping("/current")
     public ResponseEntity<?> getCurrenProfile(@RequestHeader("X-Account-Id") Integer accountId) {
         ProfileResponse profile = profileService.getProfileByAccountId(accountId);
+        profile.setCompletedStatus(false);
         return ResponseEntity.ok(profile);
     }
 
@@ -36,5 +37,11 @@ public class ProfileController {
     public ResponseEntity<?> updateAvatar(@RequestHeader("X-Account-Id") Integer accountId, @RequestBody AvatarUpdateRequest request) {
         ProfileResponse profile = profileService.updateAvatar(accountId, request);
         return ResponseEntity.ok(profile);
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createProfile(@RequestBody Integer accountId) {
+        profileService.createProfile(accountId);
+        return ResponseEntity.ok().build();
     }
 }

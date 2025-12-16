@@ -11,14 +11,14 @@ import com.tqk.authservice.model.Account;
 import com.tqk.authservice.model.AuthProvider;
 import com.tqk.authservice.repository.AccountRepository;
 import com.tqk.authservice.repository.AuthProviderRepository;
+import com.tqk.authservice.repository.client.ProfileClient;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,14 +26,15 @@ import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
     private final AccountRepository accountRepository;
     private final AuthProviderRepository authProviderRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailVerificationService emailVerificationService;
+    private final ProfileClient profileClient;
 
     @Autowired
     private JavaMailSender mailSender;
@@ -46,15 +47,6 @@ public class AuthService {
 
     @Value("${GOOGLE_CLIENT_ID}")
     private String googleClientId;
-
-    @Autowired
-    public AuthService(AccountRepository accountRepository, AuthProviderRepository authProviderRepository,
-                       PasswordEncoder passwordEncoder, EmailVerificationService emailVerificationService) {
-        this.accountRepository = accountRepository;
-        this.authProviderRepository = authProviderRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.emailVerificationService = emailVerificationService;
-    }
 
     public String login(AuthRequest request) {
         String email = request.getEmail();
@@ -120,6 +112,9 @@ public class AuthService {
         authProvider.setProvider("google");
         authProvider.setProviderId(googleUserId);
         authProviderRepository.save(authProvider);
+
+        // Tạo một profile mới
+        profileClient.createProfile(account.getId());
 
         return account;
     }
