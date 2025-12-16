@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import styles from './AuthForm.module.scss'
 import { FaUser, FaLock } from 'react-icons/fa'
-import {useNavigate, useLocation} from 'react-router-dom'
+import {useNavigate, useLocation, Link} from 'react-router-dom'
 import {GoogleLogin} from '@react-oauth/google'
 import {loginWithGoogle} from '../../../api/authApi'
 import toast from 'react-hot-toast'
@@ -166,6 +166,10 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess, i
                 >
                     {formType === 'login' ? 'Create New Account' : 'Back To Login'}
                 </button>
+
+                <Link to="/forgot-password" className={styles.forgotLink}>
+                    Quên mật khẩu?
+                </Link>
             </div>
         </div>
     )

@@ -20,7 +20,7 @@ public class EmailVerificationService {
 
     private final EmailVerificationTokenRepository tokenRepository;
     private final AccountRepository accountRepository;
-    private final JavaMailSender mailSender;
+    private final EmailSenderService emailSenderService;
     private final ProfileClient profileClient;
 
     // Hàm xử lý gửi email xác nhận
@@ -34,12 +34,8 @@ public class EmailVerificationService {
         tokenRepository.save(verificationToken);
 
         String verificationUrl = "http://localhost:3000/verify?token=" + token;
-        SimpleMailMessage mail = new SimpleMailMessage();
-        mail.setTo(account.getEmail());
-        mail.setSubject("Xác thực email của bạn");
-        mail.setText("Click link để kích hoạt tài khoản: " + verificationUrl);
-
-        mailSender.send(mail);
+        emailSenderService.send(account.getEmail(), "Xác thực email của bạn",
+                "Click link để kích hoạt tài khoản: " + verificationUrl);
     }
 
     // Hàm xử lý xác minh token

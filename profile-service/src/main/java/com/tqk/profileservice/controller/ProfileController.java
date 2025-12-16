@@ -17,7 +17,6 @@ public class ProfileController {
     @GetMapping("/current")
     public ResponseEntity<?> getCurrenProfile(@RequestHeader("X-Account-Id") Integer accountId) {
         ProfileResponse profile = profileService.getProfileByAccountId(accountId);
-        profile.setCompletedStatus(false);
         return ResponseEntity.ok(profile);
     }
 

@@ -1,10 +1,14 @@
 package com.tqk.authservice.controller;
 
 import com.tqk.authservice.dto.request.AuthRequest;
+import com.tqk.authservice.dto.request.ForgotPasswordRequest;
 import com.tqk.authservice.dto.request.GoogleAuthRequest;
+import com.tqk.authservice.dto.request.ResetPasswordRequest;
 import com.tqk.authservice.dto.response.AccountResponse;
 import com.tqk.authservice.service.AuthService;
 import com.tqk.authservice.service.EmailVerificationService;
+import com.tqk.authservice.service.PasswordResetService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,15 +18,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
     private final EmailVerificationService emailVerificationService;
-
-    @Autowired
-    public AuthController(AuthService authService, EmailVerificationService emailVerificationService) {
-        this.authService = authService;
-        this.emailVerificationService = emailVerificationService;
-    }
+    private final PasswordResetService passwordResetService;
 
     @GetMapping("/admin")
     public ResponseEntity<?> getAllAccounts(){
@@ -85,4 +85,17 @@ public class AuthController {
         emailVerificationService.verifyAccount(token);
         return ResponseEntity.ok(Map.of("message", "Xác minh tài khoản thành công"));
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        passwordResetService.sendResetPasswordEmail(request);
+        return ResponseEntity.ok(Map.of("message", "Nếu email tồn tại, vui lòng kiểm tra hộp thư"));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
+        passwordResetService.resetPassword(request);
+        return ResponseEntity.ok(Map.of("message", "Đổi mật khẩu thành công"));
+    }
+
 }

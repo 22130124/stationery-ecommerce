@@ -34,7 +34,6 @@ export async function apiFetch(url, options = {}) {
         });
     } catch (err) {
         toast.error("Không thể kết nối đến máy chủ. Vui lòng thử lại sau.");
-        return null;
     }
 
     if (response.status === 401) {
@@ -45,15 +44,12 @@ export async function apiFetch(url, options = {}) {
         setTimeout(() => {
             window.location.href = "/login";
         }, 5000);
-
-        return null;
     }
 
     const data = await response.json();
 
     if (!response.ok) {
-        toast.error(data.message || "Đã có lỗi xảy ra");
-        return null;
+        throw new Error(data.message || "Đã có lỗi xảy ra");
     }
 
     return data;

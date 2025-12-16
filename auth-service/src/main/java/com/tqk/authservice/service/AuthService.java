@@ -9,8 +9,10 @@ import com.tqk.authservice.dto.response.AccountResponse;
 import com.tqk.authservice.exception.AuthException;
 import com.tqk.authservice.model.Account;
 import com.tqk.authservice.model.AuthProvider;
+import com.tqk.authservice.model.PasswordResetToken;
 import com.tqk.authservice.repository.AccountRepository;
 import com.tqk.authservice.repository.AuthProviderRepository;
+import com.tqk.authservice.repository.PasswordResetTokenRepository;
 import com.tqk.authservice.repository.client.ProfileClient;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -18,6 +20,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -32,12 +36,11 @@ import java.util.*;
 public class AuthService {
     private final AccountRepository accountRepository;
     private final AuthProviderRepository authProviderRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailVerificationService emailVerificationService;
     private final ProfileClient profileClient;
-
-    @Autowired
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
 
     @Value("${JWT_SECRET}")
     private String jwtSecret;
@@ -190,5 +193,36 @@ public class AuthService {
         account.setRole(role);
         accountRepository.save(account);
         return account.getId();
+    }
+
+    @Transactional
+    public void sendResetPasswordEmail(String email) {
+        Account account = accountRepository.findByEmail(email)
+                .orElse(null);
+
+        if (account == null) return;
+
+        AuthProvider provider = authProviderRepository.findByAccount(account).orElseThrow();
+
+        if (!"email".equals(provider.getProvider())) return;
+
+        passwordResetTokenRepository.deleteByAccount(account);
+
+        String token = UUID.randomUUID().toString();
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setToken(token);
+        resetToken.setAccount(account);
+        resetToken.setExpiryDate(LocalDateTime.now().plusMinutes(15));
+
+        passwordResetTokenRepository.save(resetToken);
+
+        String resetUrl = "http://localhost:3000/reset-password?token=" + token;
+
+        SimpleMailMessage mail = new SimpleMailMessage();
+        mail.setTo(account.getEmail());
+        mail.setSubject("Đặt lại mật khẩu");
+        mail.setText("Click để đặt lại mật khẩu: " + resetUrl);
+
+        mailSender.send(mail);
     }
 }

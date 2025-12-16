@@ -23,6 +23,8 @@ import SupplierManagementPage from "../features/admin-supplier-management/pages/
 import AccountManagementPage from "../features/admin-account-management/pages/AccountManagementPage";
 import CategoryManagementPage from "../features/admin-category-management/pages/CategoryManagementPage";
 import NotifyPage from "../components/notify-page/NotifyPage";
+import {ForgotPasswordPage} from "../features/auth/pages/ForgotPasswordPage";
+import {ResetPasswordPage} from "../features/auth/pages/ResetPasswordPage";
 
 const AppRoutes = () => {
     return (
@@ -32,6 +34,8 @@ const AppRoutes = () => {
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/verify" element={<VerifyPage />} />
             <Route path="/notify" element={<NotifyPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
 
             {/* Admin routes */}
             <Route element={<RequireAdminAuth />}>
