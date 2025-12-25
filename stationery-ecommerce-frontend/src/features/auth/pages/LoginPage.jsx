@@ -67,7 +67,7 @@ const LoginPage = () => {
             }, 2000)
         } catch (error) {
             setIsSuccess(false)
-            toast.error(error.message, { id: toastId, duration: 5000 })
+            toast.error(error.message, { id: toastId, duration: 5000 }) 
         } finally {
             setIsSubmitting(false)
         }

@@ -91,7 +91,7 @@ public class AIService {
         // Gọi đến mô hình gemini để phân tích promt
         GenerateContentResponse response = client.models.generateContent("gemini-2.5-flash", prompt, null);
 
-        // Xử lý làm sạch kết quả trả về từ Gemini
+        // Xử lý làm sạch kết quả trả về từ Gemin
         String rawText = response.text();
         String cleanText = "";
         if (rawText != null) {

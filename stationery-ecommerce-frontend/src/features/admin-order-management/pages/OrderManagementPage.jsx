@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import {cancelOrder, getAllOrders, updateOrderStatus} from '../../../api/orderApi';
 import OrderDetailModal from "../components/OrderDetailModal";
 import ShippingStatus from "../../../components/order/ShippingStatus";
+import PaymentStatus from "../../../components/order/PaymentStatus";
 
 const OrderManagementPage = () => {
     const [orders, setOrders] = useState([]);
@@ -18,17 +19,10 @@ const OrderManagementPage = () => {
     const {confirm} = Modal;
 
     const STATUS_TEXT = {
-        1: 'Đang lấy hàng',
-        2: 'Đang giao hàng',
-        3: 'Đã giao',
-        0: 'Đã hủy',
-    };
-
-    const STATUS_CLASS = {
-        1: 'status-pending',
-        2: 'status-shipping',
-        3: 'status-done',
-        0: 'status-cancel',
+        "0": 'Đang lấy hàng',
+        "1": 'Đang giao hàng',
+        "2": 'Đã giao',
+        "-1": 'Đã hủy',
     };
 
     const getNextStatus = (current) => {
@@ -65,7 +59,7 @@ const OrderManagementPage = () => {
             if (!data) return
             setOrders(prev =>
                 prev.map(o =>
-                    o.id === orderId ? {...o, status: newStatus} : o
+                    o.id === orderId ? {...o, shippingStatus: newStatus} : o
                 )
             );
             toast.dismiss()
@@ -73,7 +67,7 @@ const OrderManagementPage = () => {
     };
 
     const showCancelConfirm = (order) => {
-        if (order.status === 3 || order.status === 0) {
+        if (order.shippingStatus === 2) {
             toast.dismiss()
             toast.error('Trạng thái này không thể cập nhật thêm');
             return;
@@ -90,7 +84,7 @@ const OrderManagementPage = () => {
     };
 
     const openStatusModal = (order) => {
-        const next = getNextStatus(order.status);
+        const next = getNextStatus(order.shippingStatus);
 
         if (!next) {
             toast.dismiss()
@@ -139,12 +133,22 @@ const OrderManagementPage = () => {
             sorter: (a, b) => a.totalAmount - b.totalAmount,
         },
         {
-            title: 'Trạng thái',
-            dataIndex: 'status',
-            key: 'status',
+            title: 'Giao hàng',
+            dataIndex: 'shippingStatus',
+            key: 'shippingStatus',
             render: (status) => {
                 return (
                     <ShippingStatus status={status}/>
+                )
+            }
+        },
+        {
+            title: 'Thanh toán',
+            dataIndex: 'paymentStatus',
+            key: 'paymentStatus',
+            render: (status) => {
+                return (
+                    <PaymentStatus status={status}/>
                 )
             }
         },
