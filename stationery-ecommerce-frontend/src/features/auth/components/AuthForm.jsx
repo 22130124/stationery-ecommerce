@@ -164,7 +164,7 @@ const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess, i
                         onClick={handleSwitchPage}
                         disabled={isSubmitting}
                 >
-                    {formType === 'login' ? 'Create New Account' : 'Back To Login'}
+                    {formType === 'login' ? 'Tạo tài khoản mới' : 'Quay về đăng nhập'}
                 </button>
 
                 <Link to="/forgot-password" className={styles.forgotLink}>

@@ -6,6 +6,8 @@ import {useNavigate, useLocation} from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { jwtDecode } from 'jwt-decode'
 import {getProfile} from '../../../api/profileApi'
+import authBanner from '../assets/auth-banner.jpg';
+import styles from './AuthPage.module.scss'
 
 const LoginPage = () => {
     const location = useLocation()
@@ -74,15 +76,24 @@ const LoginPage = () => {
     }
 
     return (
-        <AuthForm
-            formType={'login'}
-            title={'LOGIN'}
-            buttonText={'Login'}
-            onSubmit={handleSubmit}
-            message={message}
-            isSuccess={isSuccess}
-            isSubmitting={isSubmitting}
-        />
+        <div
+            className={styles.loginContainer}
+            style={{ backgroundImage: `url(${authBanner})` }}
+        >
+            <div className={styles.backgroundOverlay}></div>
+
+            <div className={styles.formContainer}>
+                <AuthForm
+                    formType="login"
+                    title="ĐĂNG NHẬP"
+                    buttonText="Đăng nhập"
+                    onSubmit={handleSubmit}
+                    message={message}
+                    isSuccess={isSuccess}
+                    isSubmitting={isSubmitting}
+                />
+            </div>
+        </div>
     )
 }
 

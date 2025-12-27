@@ -1,19 +1,21 @@
 // SignupPage.jsx
-import React, {useState} from 'react';
-import AuthForm from "../components/AuthForm";
-import {signUp} from "../../../api/authApi";
-import {useNavigate, useLocation} from "react-router-dom";
-import toast from "react-hot-toast";
+import React, {useState} from 'react'
+import AuthForm from '../components/AuthForm'
+import {signUp} from '../../../api/authApi'
+import {useNavigate, useLocation} from 'react-router-dom'
+import toast from 'react-hot-toast'
+import styles from './AuthPage.module.scss'
+import authBanner from '../assets/auth-banner.jpg'
 
 const SignUpPage = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
+    const navigate = useNavigate()
+    const location = useLocation()
 
     const [message, setMessage] = useState('')
     const [isSuccess, setIsSuccess] = useState(false)
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).+$/;
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).+$/
     const minPasswordLength = 8
 
     // Hàm kiểm tra mật khẩu hợp lệ
@@ -49,7 +51,7 @@ const SignUpPage = () => {
         setMessage('')
 
         toast.dismiss()
-        const toastId = toast.loading("Đang đăng ký...");
+        const toastId = toast.loading('Đang đăng ký...')
 
         try {
             await signUp(formData.email, formData.password)
@@ -57,41 +59,50 @@ const SignUpPage = () => {
             toast.success(
                 'Đăng ký thành công. Vui lòng kiểm tra email để xác minh tài khoản',
                 { id: toastId, duration: 10000 }
-            );
+            )
 
-            const searchParams = new URLSearchParams(location.search);
-            const redirectPath = searchParams.get("redirect");
+            const searchParams = new URLSearchParams(location.search)
+            const redirectPath = searchParams.get('redirect')
 
             setTimeout(() => {
                 if (redirectPath) {
-                    navigate(`/login?redirect=${redirectPath}`);
+                    navigate(`/login?redirect=${redirectPath}`)
                 } else {
-                    navigate("/login");
+                    navigate('/login')
                 }
-            }, 1000);
+            }, 1000)
 
         } catch (error) {
-            setIsSuccess(false);
-            setMessage(error.message);
+            setIsSuccess(false)
+            setMessage(error.message)
 
             // cập nhật toast thành error
-            toast.error(error.message, { id: toastId, duration: 5000 });
+            toast.error(error.message, { id: toastId, duration: 5000 })
         } finally {
-            setIsSubmitting(false);
+            setIsSubmitting(false)
         }
-    };
+    }
 
     return (
-        <AuthForm
-            formType={'signup'}
-            title={'SIGN UP'}
-            buttonText={'Sign up'}
-            onSubmit={handleSubmit}
-            message={message}
-            isSuccess={isSuccess}
-            isSubmitting={isSubmitting}
-        />
-    );
-};
+        <div
+            className={styles.loginContainer}
+            style={{ backgroundImage: `url(${authBanner})` }}
+        >
+            <div className={styles.backgroundOverlay}></div>
 
-export default SignUpPage;
+            <div className={styles.formContainer}>
+                <AuthForm
+                    formType='signup'
+                    title='ĐĂNG KÝ'
+                    buttonText='Tạo tài khoản'
+                    onSubmit={handleSubmit}
+                    message={message}
+                    isSuccess={isSuccess}
+                    isSubmitting={isSubmitting}
+                />
+            </div>
+        </div>
+    )
+}
+
+export default SignUpPage
