@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+// Sidebar.jsx
+import React, {useEffect, useState} from 'react';
 import styles from './Sidebar.module.scss';
-import { useSearchParams } from "react-router-dom";
+import {useSearchParams} from "react-router-dom";
 
-const Sidebar = ({ categories = [] }) => {
+const Sidebar = ({categories = []}) => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [openingCategories, setOpeningCategories] = useState({});
 
@@ -51,18 +52,22 @@ const Sidebar = ({ categories = [] }) => {
                 {displayCategories.map((parentCategory) => (
                     <li key={parentCategory.id} className={styles.navItem}>
                         <div
-                            className={styles.parentLinkWrapper}
+                            className={`${styles.parentLinkWrapper}
+                                        ${!parentCategory.children?.length && selectedCategorySlug === parentCategory.slug
+                                ? styles.active : ''}
+                                        `}
                             onClick={
                                 parentCategory.children?.length > 0
                                     ? () => toggleCategory(parentCategory.id)
                                     : () => handleClickCategory(parentCategory.slug)
                             }
                         >
-                            <div className={`${styles.parentLink} ${selectedCategorySlug === parentCategory.slug ? styles.active : ''}`}>
+                            <div className={styles.parentLink}>
                                 {parentCategory.name}
                             </div>
                             {parentCategory.children?.length > 0 && (
-                                <span className={`${styles.chevron} ${openingCategories[parentCategory.id] ? styles.open : ''}`}></span>
+                                <span
+                                    className={`${styles.chevron} ${openingCategories[parentCategory.id] ? styles.open : ''}`}></span>
                             )}
                         </div>
 

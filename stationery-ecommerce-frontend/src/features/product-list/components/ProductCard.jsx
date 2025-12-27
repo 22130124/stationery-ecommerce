@@ -2,11 +2,7 @@ import React from 'react';
 import styles from './ProductCard.module.scss';
 import {Link} from "react-router-dom";
 
-// Định dạng tiền tệ
-const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
-};
-
+// ProductCard.jsx
 const ProductCard = ({ product }) => {
     const defaultVariant = product.defaultVariant;
     const basePrice = defaultVariant?.basePrice || 0;
@@ -17,6 +13,11 @@ const ProductCard = ({ product }) => {
     const discountPercentage = hasDiscount
         ? Math.round(((basePrice - discountPrice) / basePrice) * 100)
         : 0;
+
+    // Định dạng tiền tệ
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+    };
 
     return (
         <Link to={`/${product.slug}`} className={styles.productLink}>

@@ -17,8 +17,6 @@ import styles from "./ProductListPage.module.scss";
 import {getActiveCategories} from "../../../api/categoryApi";
 import {getProductsByCategory, getProductsByCategoryAndPagination} from "../../../api/productApi";
 
-const PRODUCTS_PER_PAGE = 16;
-
 const ProductListPage = () => {
     const [searchParams, setSearchParams] = useSearchParams()
 
@@ -28,6 +26,7 @@ const ProductListPage = () => {
     const pageParam = searchParams.get("page") ? parseInt(searchParams.get("page")) : "1"
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
+    const PRODUCTS_PER_PAGE = 25;
 
     // Fetch categories và thêm các param cần thiết trên url (nếu thiếu)
     useEffect(() => {

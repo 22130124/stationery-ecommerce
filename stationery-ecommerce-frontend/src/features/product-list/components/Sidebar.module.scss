@@ -1,83 +1,129 @@
+// Sidebar.module.scss
 @import "../../../styles/variables";
 
 .sidebar {
-  background-color: #f9f9f9;
-  padding: 1.5rem;
-  border-radius: 8px;
-  height: fit-content;
+  background: #ffffff;
+  padding: 2rem 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f2f5;
+  min-width: 280px;
 }
 
 .title {
-  font-size: 1.25rem;
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 0.75rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #222;
+  margin: 0 0 2.5rem 0;
+  padding-bottom: 1rem;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 200px;
+    height: 4px;
+    background: $primary-color;
+    border-radius: 2px;
+  }
 }
 
-.navList, .submenu {
+.navList {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
 .navItem {
-  margin-bottom: 0.5rem;
-  cursor: pointer;
-}
 
-.link, .parentLink {
-  text-decoration: none;
-  color: #555;
-  font-size: 0.95rem;
-  transition: color 0.2s ease;
-  display: block;
-  padding: 0.4rem 0;
-
-  &:hover {
-    color: $primary-color;
-  }
-}
-
-.parentLink {
-  font-weight: bold;
-  color: #333;
 }
 
 .parentLinkWrapper {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  cursor: pointer;
-}
+  padding: 0.95rem 1.4rem;
+  border-radius: 12px;
+  transition: all 0.35s ease;
+  position: relative;
 
-.submenu {
-  padding-left: 1.25rem;
-  margin-top: 0.5rem;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease-in-out;
-
-  &.show {
-    max-height: 500px; /* Một giá trị đủ lớn */
+  &:hover {
+    cursor: pointer;
+    background: rgba($primary-color, 0.12);
+    transform: translateX(8px);
   }
 }
 
-// Icon Chevron để sổ ra/vào
-.chevron {
-  border: solid #555;
-  border-width: 2px 2px 0 0;
-  display: inline-block;
-  padding: 3px;
-  transform: rotate(45deg);
-  transition: transform 0.3s ease;
 
-  &.open {
-    transform: rotate(135deg);
+.parentLink {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.4rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  color: #555;
+  transition: all 0.35s ease;
+  position: relative;
+
+  &:hover {
+    cursor: pointer;
+    color: $primary-color;
+    background: rgba($primary-color, 0.12);
+    transform: translateX(8px);
   }
 }
 
 .active {
-  color: $primary-color;
-  font-weight: bold;
+  color: $primary-color !important;
+  font-weight: 700;
+  background: rgba($primary-color, 0.18);
+  box-shadow: 0 4px 12px rgba($primary-color, 0.15);
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 5px;
+    height: 70%;
+    background: $primary-color;
+    border-radius: 0 5px 5px 0;
+  }
+}
+
+.submenu {
+  padding-left: 2rem;
+  margin-top: 0.8rem;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  &.show {
+    max-height: 1000px;
+  }
+}
+
+.chevron {
+  width: 10px;
+  height: 10px;
+  border-top: 2.5px solid #888;
+  border-right: 2.5px solid #888;
+  transform: rotate(45deg);
+  transition: transform 0.35s ease;
+  margin-left: 12px;
+  cursor: pointer;
+
+  &.open {
+    transform: rotate(135deg);
+  }
 }
