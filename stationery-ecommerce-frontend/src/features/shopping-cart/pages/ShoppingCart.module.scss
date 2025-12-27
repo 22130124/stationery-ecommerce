@@ -1,8 +1,10 @@
-// src/features/shopping-cart/pages/ShoppingCart.module.scss
 @import "../../../styles/variables";
 
-$border-color: #dee2e6;
-$box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+$border-color: #e0e0e0;
+$box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+$box-shadow-hover: 0 12px 30px rgba(0, 0, 0, 0.1);
+$border-radius: 16px;
+$transition: all 0.3s ease;
 
 @mixin flex-center($justify: center, $align: center) {
   display: flex;
@@ -11,90 +13,143 @@ $box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .shoppingCart {
-  max-width: 1300px;
+  max-width: 1360px;
   margin: 2rem auto;
-  padding: 1rem;
+  padding: 1.5rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: $text-color;
 
   .cartHeader {
-    font-size: 2.25rem;
-    font-weight: 600;
-    margin-bottom: 2rem;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 2.5rem;
     padding-bottom: 1rem;
+    border-bottom: 1px solid $border-color;
+
+    .itemCount {
+      font-size: 1.4rem;
+      font-weight: 500;
+      color: $primary-color;
+      background: rgba($primary-color, 0.1);
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      margin-left: 1rem;
+    }
   }
 }
 
 .cartBody {
   display: grid;
-  grid-template-columns: 2.5fr 1fr;
-  gap: 2rem;
+  grid-template-columns: 3fr 1fr;
+  gap: 2.5rem;
+}
+
+.listControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 0 2rem;
+
+  .deleteSelectedBtn {
+    background: none;
+    border: none;
+    color: $danger-color;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    transition: $transition;
+
+    &:hover {
+      background: rgba($danger-color, 0.1);
+    }
+  }
 }
 
 .listHeader {
   display: grid;
-  grid-template-columns: 3fr 1.5fr 1.5fr 1.5fr 0.5fr;
+  grid-template-columns: 0.15fr 3fr 1.5fr 1.5fr 1.5fr 0.5fr;
   gap: 1rem;
-  padding: 0.75rem 1.5rem;
+  padding: 1rem 2rem;
+  background-color: #f8f9fa;
+  border-radius: $border-radius;
   color: $dark-gray-color;
   text-transform: uppercase;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  align-items: center;
 
-  .headerProduct { grid-column: 1; }
-  .headerPrice, .headerQuantity, .headerTotal {
-    text-align: center;
-  }
+  .headerProduct { grid-column: 2; }
+  .headerPrice, .headerQuantity, .headerTotal { text-align: center; }
 }
 
 .cartItem {
   display: grid;
-  grid-template-columns: 3fr 1.5fr 1.5fr 1.5fr 0.5fr;
+  grid-template-columns: 0.15fr 3fr 1.5fr 1.5fr 1.5fr 0.5fr;
   gap: 1rem;
-  padding: 1.5rem;
+  padding: 1.5rem 2rem;
   background-color: $white-color;
-  border-radius: 12px;
+  border-radius: $border-radius;
   box-shadow: $box-shadow;
   margin-bottom: 1.5rem;
   align-items: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: $transition;
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-6px);
+    box-shadow: $box-shadow-hover;
+  }
+
+  &.selected {
+    background-color: rgba($primary-color, 0.04);
+    border: 2px solid $primary-color;
+  }
+
+  .itemCheckbox {
+    justify-self: center;
   }
 
   .productInfo {
     @include flex-center(flex-start, center);
-    gap: 1rem;
+    gap: 1.2rem;
   }
 
   .itemImage {
-    width: 90px;
-    height: 90px;
-    border-radius: 8px;
+    width: 100px;
+    height: 100px;
+    border-radius: 12px;
     overflow: hidden;
     flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      transition: transform 0.4s ease;
+
+      &:hover {
+        transform: scale(1.1);
+      }
     }
   }
 
   .itemDetails {
     .itemName {
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-weight: 600;
-      margin: 0 0 0.25rem;
+      margin: 0 0 0.4rem;
       color: $text-color;
+      line-height: 1.4;
     }
-    .itemVariant, .itemBrand {
-      font-size: 0.85rem;
+    .itemVariant {
+      font-size: 0.9rem;
       color: $dark-gray-color;
-      margin: 0;
     }
   }
 
@@ -103,187 +158,198 @@ $box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     .originalPrice {
       text-decoration: line-through;
       color: $dark-gray-color;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       display: block;
+      margin-bottom: 0.3rem;
     }
     .finalPrice {
-      font-weight: 600;
-      font-size: 1rem;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: $primary-color;
     }
   }
 
   .itemQuantity {
     @include flex-center;
 
-    input {
-      width: 45px;
-      height: 36px;
-      text-align: center;
-      border: 1px solid $border-color;
-      margin: 0;
-      font-size: 1rem;
-      font-weight: 500;
-      -moz-appearance: textfield;
-
-      &:focus {
-        outline: 1px solid $primary-color;
-      }
-    }
-    input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-
     button {
-      width: 36px;
-      height: 36px;
-      border: 1px solid $border-color;
+      width: 40px;
+      height: 40px;
+      border: 1.5px solid $border-color;
       background-color: $white-color;
       cursor: pointer;
-      font-size: 1.2rem;
+      font-size: 1.4rem;
       color: $dark-gray-color;
       @include flex-center;
-      transition: background-color 0.2s;
+      transition: $transition;
 
       &:hover {
-        background-color: $border-color;
-        color: $text-color;
+        background-color: $primary-color;
+        color: white;
+        border-color: $primary-color;
       }
 
       &:first-of-type {
-        border-right: none;
-        border-radius: 6px 0 0 6px;
+        border-radius: 10px 0 0 10px;
       }
       &:last-of-type {
-        border-left: none;
-        border-radius: 0 6px 6px 0;
+        border-radius: 0 10px 10px 0;
+      }
+    }
+
+    input {
+      width: 60px;
+      height: 40px;
+      text-align: center;
+      border: 1.5px solid $border-color;
+      border-left: none;
+      border-right: none;
+      font-size: 1.1rem;
+      font-weight: 600;
+
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
       }
     }
   }
 
   .itemTotal {
     text-align: center;
-    font-weight: 600;
-    font-size: 1.1rem;
+    font-weight: 700;
+    font-size: 1.25rem;
     color: $primary-color;
   }
 
   .itemActions {
     text-align: center;
+
     .removeButton {
       background: none;
       border: none;
       color: $dark-gray-color;
       cursor: pointer;
-      font-size: 1.25rem;
-      padding: 0.5rem;
+      font-size: 1.4rem;
+      padding: 0.8rem;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      width: 46px;
+      height: 46px;
       @include flex-center;
-      transition: color 0.2s, background-color 0.2s;
+      transition: $transition;
 
       &:hover {
-        color: $danger-color;
-        background-color: lighten($danger-color, 35%);
+        color: white;
+        background-color: $danger-color;
       }
     }
   }
 }
 
 .cartSummary {
-  padding: 2rem;
-  border-radius: 12px;
+  padding: 2.5rem;
+  border-radius: $border-radius;
   background-color: $white-color;
   box-shadow: $box-shadow;
   height: fit-content;
-
   position: sticky;
   top: 2rem;
 
   h2 {
-    font-size: 1.5rem;
-    margin-top: 0;
-    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    text-align: center;
   }
 
   .summaryLine {
     @include flex-center(space-between, center);
-    margin-bottom: 1rem;
-    font-size: 1rem;
-
-    span:last-child {
-      font-weight: 600;
-    }
+    margin-bottom: 1.2rem;
+    font-size: 1.1rem;
 
     &.total {
-      font-size: 1.25rem;
-      font-weight: bold;
-      color: $text-color;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: $primary-color;
+      margin-top: 1rem;
     }
   }
 
   hr {
     border: none;
-    border-top: 1px solid $border-color;
-    margin: 1.5rem 0;
+    border-top: 2px dashed $border-color;
+    margin: 2rem 0;
   }
 
   .checkoutButton {
     width: 100%;
-    padding: 0.9rem;
-    font-size: 1.1rem;
-    font-weight: 600;
+    padding: 1.2rem;
+    font-size: 1.3rem;
+    font-weight: 700;
     color: #fff;
-    background-color: $primary-color;
+    background: linear-gradient(135deg, $primary-color, $primary-dark-color);
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: background-color 0.2s, transform 0.2s;
+    transition: $transition;
+    box-shadow: 0 6px 15px rgba($primary-color, 0.3);
+
     &:hover {
-      background-color: $primary-dark-color;
-      transform: scale(1.02);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba($primary-color, 0.4);
     }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  .note {
+    text-align: center;
+    font-size: 0.95rem;
+    color: $dark-gray-color;
+    margin-top: 1.5rem;
+    font-style: italic;
   }
 }
 
 .emptyCart {
   text-align: center;
-  padding: 5rem 2rem;
+  padding: 6rem 3rem;
   background-color: $white-color;
-  border-radius: 12px;
+  border-radius: $border-radius;
   box-shadow: $box-shadow;
 
   p {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     color: $dark-gray-color;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
   }
 
   a {
     display: inline-block;
-    padding: 0.8rem 2rem;
-    background-color: $primary-color;
+    padding: 1rem 3rem;
+    background: linear-gradient(135deg, $primary-color, $primary-dark-color);
     color: #fff;
     text-decoration: none;
-    border-radius: 8px;
+    border-radius: 12px;
     font-weight: 600;
-    transition: background-color 0.2s, transform 0.2s;
+    font-size: 1.2rem;
+    transition: $transition;
+    box-shadow: 0 6px 15px rgba($primary-color, 0.3);
+
     &:hover {
-      background-color: $primary-dark-color;
-      transform: scale(1.05);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 25px rgba($primary-color, 0.4);
     }
   }
 }
 
+/* Responsive */
 @media (max-width: 1024px) {
   .cartBody {
     grid-template-columns: 1fr;
   }
   .cartSummary {
     position: static;
-    margin-top: 2rem;
   }
 }
 
@@ -292,30 +358,34 @@ $box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     display: none;
   }
 
+  .listControls {
+    padding: 0 1rem;
+  }
+
   .cartItem {
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
-    padding: 1rem;
+    grid-template-columns: auto 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem;
+
+    .itemCheckbox {
+      grid-row: 1 / -1;
+      align-self: start;
+      margin-top: 1.5rem;
+    }
 
     .productInfo {
-
+      grid-column: 2;
     }
 
-    .itemPrice, .itemQuantity, .itemTotal {
+    .itemPrice, .itemQuantity, .itemTotal, .itemActions {
+      grid-column: 2;
       @include flex-center(space-between, center);
-      width: 100%;
-      padding: 0.5rem 0;
+      padding: 0.8rem 0;
       border-top: 1px solid $border-color;
     }
 
-    .itemPrice::before { content: 'Đơn giá:'; font-weight: normal; color: $dark-gray-color; }
-    .itemTotal::before { content: 'Thành tiền:'; font-weight: normal; color: $dark-gray-color; }
-    .itemQuantity::before { content: 'Số lượng:'; font-weight: normal; color: $dark-gray-color; }
-
-    .itemActions {
-      text-align: right;
-      padding-top: 0.5rem;
-      border-top: 1px solid $border-color;
-    }
+    .itemPrice::before { content: "Đơn giá:"; font-weight: 600; }
+    .itemQuantity::before { content: "Số lượng:"; font-weight: 600; }
+    .itemTotal::before { content: "Thành tiền:"; font-weight: 700; color: $primary-color; }
   }
 }

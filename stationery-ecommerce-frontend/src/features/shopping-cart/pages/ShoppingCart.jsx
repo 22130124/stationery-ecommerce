@@ -1,142 +1,173 @@
-// ShoppingCart.jsx
-import React, {useState, useEffect} from 'react'
-import styles from './ShoppingCart.module.scss'
-import {FaTrashAlt} from 'react-icons/fa'
-import {getCart, removeCartItem, removeItem, updateCartItem} from '../../../api/cartApi'
-import {useNavigate, useLocation} from 'react-router-dom'
-import {Modal} from 'antd'
-import toast from 'react-hot-toast'
-import {createOrders} from '../../../api/orderApi'
-import {getProfile} from '../../../api/profileApi'
+import React, { useState, useEffect, useMemo } from 'react';
+import styles from './ShoppingCart.module.scss';
+import { FaTrashAlt, FaRegTrashAlt } from 'react-icons/fa';
+import { getCart, removeCartItem, updateCartItem } from '../../../api/cartApi';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Modal, Checkbox, Spin } from 'antd';
+import toast from 'react-hot-toast';
+import { createOrders } from '../../../api/orderApi';
+import { getProfile } from '../../../api/profileApi';
+
+const { confirm } = Modal;
 
 const ShoppingCart = () => {
-    const navigate = useNavigate()
-    const location = useLocation()
+    const navigate = useNavigate();
+    const location = useLocation();
 
-    const [cart, setCart] = useState({})
-    const [cartItems, setCartItems] = useState([])
-    const [totalPrice, setTotalPrice] = useState(0)
-    const {confirm} = Modal
+    const [cart, setCart] = useState({});
+    const [cartItems, setCartItems] = useState([]);
+    const [selectedItems, setSelectedItems] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [totalPrice, setTotalPrice] = useState(0);
 
     useEffect(() => {
         const fetchCart = async () => {
-            const data = await getCart()
-            if (!data) return
-            setCart(data.cart)
-            setCartItems(data.cart.items)
-        }
-        fetchCart()
-    }, [])
-    console.log('CartItems', cartItems)
+            setLoading(true);
+            const data = await getCart();
+            if (data) {
+                setCart(data.cart);
+                setCartItems(data.cart.items || []);
+                setSelectedItems(data.cart.items?.map(item => item.id) || []);
+            }
+            setLoading(false);
+        };
+        fetchCart();
+    }, []);
 
-    // Hàm tính tổng tiền
-    useEffect(() => {
-        const calculateTotal = () => {
-            return cartItems.reduce((total, item) => {
-                return total + (item.finalPrice * item.quantity)
-            }, 0)
-        }
-        setTotalPrice(calculateTotal())
-    }, [cartItems])
+    // Tính tổng tiền chỉ của các sản phẩm được chọn
+    const selectedTotal = useMemo(() => {
+        return cartItems
+            .filter(item => selectedItems.includes(item.id))
+            .reduce((sum, item) => sum + item.finalPrice * item.quantity, 0);
+    }, [cartItems, selectedItems]);
 
-    // Hàm xử lý thay đổi số lượng
-    const handleQuantityChange = (itemId, newQuantity) => {
-        if (newQuantity < 1) return
-
-        // Update UI ngay lập tức
-        setCartItems(prev =>
-            prev.map(item =>
-                item.id === itemId
-                    ? {...item, quantity: newQuantity}
-                    : item
-            )
-        )
-
-        // Gọi API sau 400ms nếu user ngừng thao tác
-        debouncedUpdate(itemId, newQuantity)
-    }
+    // Debounce update quantity
+    const useDebounce = (callback, delay) => {
+        const timeoutRef = React.useRef(null);
+        return (...args) => {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = setTimeout(() => callback(...args), delay);
+        };
+    };
 
     const handleUpdateQuantityApi = async (itemId, quantity) => {
-        const data = await updateCartItem(itemId, quantity)
-        if (!data) return
-        setCart(data.cart)
-        setCartItems(data.cart.items)
-    }
-
-
-    // debounce hook cho việc cập nhật số lượng
-    function useDebounce(callback, delay) {
-        const timeoutRef = React.useRef(null)
-
-        function debouncedFunction(...args) {
-            clearTimeout(timeoutRef.current)
-            timeoutRef.current = setTimeout(() => {
-                callback(...args)
-            }, delay)
+        if (quantity < 1) return;
+        const data = await updateCartItem(itemId, quantity);
+        if (data) {
+            setCart(data.cart);
+            setCartItems(data.cart.items);
         }
+    };
 
-        return debouncedFunction
-    }
+    const debouncedUpdate = useDebounce(handleUpdateQuantityApi, 400);
 
-    const debouncedUpdate = useDebounce(handleUpdateQuantityApi, 400)
+    const handleQuantityChange = (itemId, newQuantity) => {
+        if (newQuantity < 1) return;
+        setCartItems(prev =>
+            prev.map(item => (item.id === itemId ? { ...item, quantity: newQuantity } : item))
+        );
+        debouncedUpdate(itemId, newQuantity);
+    };
 
     const handleRemoveItem = async (itemId) => {
-        const newCartData = await removeCartItem(itemId)
-        if (!newCartData) return
-        setCart(newCartData.cart)
-        setCartItems(newCartData.cart.items)
-    }
+        const newCartData = await removeCartItem(itemId);
+        if (newCartData) {
+            setCart(newCartData.cart);
+            setCartItems(newCartData.cart.items);
+            setSelectedItems(prev => prev.filter(id => id !== itemId));
+        }
+    };
 
-    const showDeleteConfirm = (cartItem, onOk) => {
+    const handleRemoveSelected = () => {
+        if (selectedItems.length === 0) return;
+
         confirm({
-            title: 'Xóa sản phẩm',
-            content: `Bạn có chắc chắn muốn xóa sản phẩm '${cartItem.productName}' ra khỏi giỏ hàng không?`,
-            okText: 'Xác nhận',
+            title: 'Xóa các sản phẩm đã chọn',
+            content: `Bạn có chắc muốn xóa ${selectedItems.length} sản phẩm khỏi giỏ hàng?`,
+            okText: 'Xóa',
             okType: 'danger',
             cancelText: 'Hủy',
-            onOk,
-        })
-    }
+            onOk: async () => {
+                // Xóa lần lượt
+                for (const id of selectedItems) {
+                    await handleRemoveItem(id);
+                }
+                toast.success('Đã xóa các sản phẩm đã chọn');
+            },
+        });
+    };
 
-    const handleConfirm = async () => {
-        if (!localStorage.getItem('token')) {
-            navigate(`/login?redirect=${location.pathname}`)
+    const handleSelectAll = (e) => {
+        if (e.target.checked) {
+            setSelectedItems(cartItems.map(item => item.id));
         } else {
-            const profileData = await getProfile()
-            if(!profileData.completedStatus) {
-                navigate('/profile')
-                return
-            }
-            
-            const toastId = toast.loading('Đang xử lý tạo đơn hàng...')
+            setSelectedItems([]);
+        }
+    };
 
-            // Chỉ lấy các trường cần thiết
-            const orderItems = cartItems.map(item => ({
+    const handleSelectItem = (itemId) => {
+        setSelectedItems(prev =>
+            prev.includes(itemId)
+                ? prev.filter(id => id !== itemId)
+                : [...prev, itemId]
+        );
+    };
+
+    const handleCheckout = async () => {
+        if (selectedItems.length === 0) {
+            toast.error('Vui lòng chọn ít nhất một sản phẩm để đặt hàng');
+            return;
+        }
+
+        if (!localStorage.getItem('token')) {
+            navigate(`/login?redirect=${location.pathname}`);
+            return;
+        }
+
+        const profileData = await getProfile();
+        if (!profileData.completedStatus) {
+            navigate('/profile');
+            return;
+        }
+
+        const toastId = toast.loading('Đang tạo đơn hàng...');
+
+        const orderItems = cartItems
+            .filter(item => selectedItems.includes(item.id))
+            .map(item => ({
                 productId: item.productId,
                 variantId: item.variantId,
                 price: item.finalPrice,
-                quantity: item.quantity
-            }))
+                quantity: item.quantity,
+            }));
 
-            const data = await createOrders({orderItems})
-            if (!data) return
-            toast.success('Tạo đơn hàng thành công', {id: toastId, duration: 2000})
-            navigate('/order-history')
+        const data = await createOrders({ orderItems });
+        if (data) {
+            toast.success('Tạo đơn hàng thành công!', { id: toastId });
+            navigate('/order-history');
+        } else {
+            toast.error('Có lỗi xảy ra', { id: toastId });
         }
-    }
+    };
 
     const formatCurrency = (amount) => {
-        if (typeof amount !== 'number') return ''
-        return amount.toLocaleString('vi-VN', {style: 'currency', currency: 'VND'})
-    }
+        return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    };
 
-    const CartItem = ({item}) => {
+    const CartItem = ({ item }) => {
+        const isSelected = selectedItems.includes(item.id);
+
         return (
-            <div className={styles.cartItem}>
-                {/*Hiển thị thông tin chung*/}
+            <div className={`${styles.cartItem} ${isSelected ? styles.selected : ''}`}>
+                <Checkbox
+                    checked={isSelected}
+                    onChange={() => handleSelectItem(item.id)}
+                    className={styles.itemCheckbox}
+                />
+
                 <div className={styles.productInfo}>
                     <div className={styles.itemImage}>
-                        <img src={item.product.defaultImage.url} alt={item.name}/>
+                        <img src={item.product.defaultImage.url} alt={item.product.name} />
                     </div>
                     <div className={styles.itemDetails}>
                         <h3 className={styles.itemName}>{item.product.name}</h3>
@@ -144,25 +175,23 @@ const ShoppingCart = () => {
                     </div>
                 </div>
 
-                {/*Hiển thị giá gốc*/}
                 <div className={styles.itemPrice}>
                     {item.product.defaultVariant.discountPrice && (
-                        <span className={styles.originalPrice}>{formatCurrency(item.product.defaultVariant.basePrice)}</span>
+                        <span className={styles.originalPrice}>
+              {formatCurrency(item.product.defaultVariant.basePrice)}
+            </span>
                     )}
                     <span className={styles.finalPrice}>{formatCurrency(item.finalPrice)}</span>
                 </div>
 
-                {/*Hiển thị khu vực tăng/giảm số lượng*/}
                 <div className={styles.itemQuantity}>
                     <button onClick={() => handleQuantityChange(item.id, item.quantity - 1)}>-</button>
-
                     <input
-                        type='number'
+                        type="number"
                         value={item.quantity}
                         onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 1)}
-                        min='1'
+                        min="1"
                     />
-
                     <button onClick={() => handleQuantityChange(item.id, item.quantity + 1)}>+</button>
                 </div>
 
@@ -171,23 +200,59 @@ const ShoppingCart = () => {
                 </div>
 
                 <div className={styles.itemActions}>
-                    <button onClick={() => showDeleteConfirm(item, () => handleRemoveItem(item.id))}>
-                        <FaTrashAlt/>
+                    <button
+                        onClick={() =>
+                            confirm({
+                                title: 'Xóa sản phẩm',
+                                content: `Xóa "${item.product.name}" khỏi giỏ hàng?`,
+                                okText: 'Xóa',
+                                okType: 'danger',
+                                cancelText: 'Hủy',
+                                onOk: () => handleRemoveItem(item.id),
+                            })
+                        }
+                        className={styles.removeButton}
+                    >
+                        <FaTrashAlt />
                     </button>
                 </div>
             </div>
-        )
-    }
+        );
+    };
 
-    console.log('CartItems', cartItems)
+    if (loading) {
+        return (
+            <div className={styles.shoppingCart}>
+                <Spin size="large" tip="Đang tải giỏ hàng..." style={{ marginTop: '100px' }} />
+            </div>
+        );
+    }
 
     return (
         <div className={styles.shoppingCart}>
-            <h1 className={styles.cartHeader}>Giỏ hàng của bạn</h1>
+            <h1 className={styles.cartHeader}>
+                Giỏ hàng của bạn
+                {cartItems.length > 0 && <span className={styles.itemCount}>({cartItems.length} sản phẩm)</span>}
+            </h1>
 
             {cartItems.length > 0 ? (
                 <div className={styles.cartBody}>
                     <div className={styles.cartItemsList}>
+                        <div className={styles.listControls}>
+                            <Checkbox
+                                checked={selectedItems.length === cartItems.length && cartItems.length > 0}
+                                indeterminate={selectedItems.length > 0 && selectedItems.length < cartItems.length}
+                                onChange={handleSelectAll}
+                            >
+                                Chọn tất cả
+                            </Checkbox>
+                            {selectedItems.length > 0 && (
+                                <button onClick={handleRemoveSelected} className={styles.deleteSelectedBtn}>
+                                    <FaRegTrashAlt /> Xóa đã chọn ({selectedItems.length})
+                                </button>
+                            )}
+                        </div>
+
                         <div className={styles.listHeader}>
                             <div className={styles.headerProduct}>Sản phẩm</div>
                             <div className={styles.headerPrice}>Đơn giá</div>
@@ -195,37 +260,41 @@ const ShoppingCart = () => {
                             <div className={styles.headerTotal}>Thành tiền</div>
                             <div className={styles.headerActions}></div>
                         </div>
+
                         {cartItems.map(item => (
-                            <CartItem key={`${item.variantId}`} item={item}/>
+                            <CartItem key={item.id} item={item} />
                         ))}
                     </div>
 
                     <div className={styles.cartSummary}>
                         <h2>Tóm tắt đơn hàng</h2>
                         <div className={styles.summaryLine}>
-                            <span>Tạm tính</span>
-                            <span>{formatCurrency(totalPrice)}</span>
+                            <span>Tạm tính ({selectedItems.length} sản phẩm)</span>
+                            <span>{formatCurrency(selectedTotal)}</span>
                         </div>
                         <div className={styles.summaryLine}>
                             <span>Phí vận chuyển</span>
                             <span>Miễn phí</span>
                         </div>
-                        <hr/>
+                        <hr />
                         <div className={`${styles.summaryLine} ${styles.total}`}>
                             <span>Tổng cộng</span>
-                            <span>{formatCurrency(totalPrice)}</span>
+                            <span>{formatCurrency(selectedTotal)}</span>
                         </div>
-                        <button className={styles.checkoutButton} onClick={handleConfirm}>Xác nhận đặt hàng</button>
+                        <button className={styles.checkoutButton} onClick={handleCheckout}>
+                            Đặt hàng ngay
+                        </button>
+                        <p className={styles.note}>Bạn có thể chọn sản phẩm để đặt hàng riêng</p>
                     </div>
                 </div>
             ) : (
                 <div className={styles.emptyCart}>
-                    <p>Giỏ hàng của bạn chưa có sản phẩm nào.</p>
-                    <a href='/'>Tiếp tục mua sắm</a>
+                    <p>Giỏ hàng trống rồi nè 😢</p>
+                    <a href="/">Tiếp tục mua sắm thôi nào 💕</a>
                 </div>
             )}
         </div>
-    )
-}
+    );
+};
 
-export default ShoppingCart
+export default ShoppingCart;
