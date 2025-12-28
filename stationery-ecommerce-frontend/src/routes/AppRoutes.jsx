@@ -52,7 +52,7 @@ const AppRoutes = () => {
             <Route element={<MainLayout />}>
                 <Route path="/" element={<Navigate replace to="/product-list" />} />
                 <Route path="/product-list" element={<ProductListPage />} />
-                <Route path="/:slug" element={<ProductDetailsPage />} />
+                <Route path="/product-detail/:slug" element={<ProductDetailsPage />} />
 
                 <Route element={<RequireUserAuth />}>
                     <Route path="/shopping-cart" element={<ShoppingCart />} />
@@ -60,6 +60,9 @@ const AppRoutes = () => {
                     <Route path="/order-history" element={<OrderHistoryPage />} />
                 </Route>
             </Route>
+
+            {/*Nếu path không tồn tại*/}
+            <Route path="*" element={<Navigate replace to="/product-list" />} />
         </Routes>
     );
 };

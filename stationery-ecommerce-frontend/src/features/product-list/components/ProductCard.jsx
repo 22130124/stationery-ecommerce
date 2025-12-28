@@ -20,7 +20,7 @@ const ProductCard = ({ product }) => {
     };
 
     return (
-        <Link to={`/${product.slug}`} className={styles.productLink}>
+        <Link to={`/product-detail/${product.slug}`} className={styles.productLink}>
             <div className={styles.card}>
                 <div className={styles.imageWrapper}>
                     <img src={imageUrl} alt={product.name} className={styles.image} />

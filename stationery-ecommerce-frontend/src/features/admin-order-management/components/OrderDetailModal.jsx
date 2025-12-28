@@ -126,7 +126,7 @@ const OrderDetailModal = ({orderId, open, onClose, onOrderCancelled }) => {
                             {orderDetail.orderItems?.map(item => (
                                 <tr key={item.id}>
                                     <td><img src={item.product.defaultImage.url} alt="Ảnh sản phẩm" className={styles.productImage}/></td>
-                                    <td><Link to={`/${item.product.slug}`}>{item.product.name} ({item.product.defaultVariant.name})</Link></td>
+                                    <td><Link to={`/product-detail/${item.product.slug}`}>{item.product.name} ({item.product.defaultVariant.name})</Link></td>
                                     <td>{item.quantity}</td>
                                     <td>{item.price.toLocaleString('vi-VN', {
                                         style: 'currency',

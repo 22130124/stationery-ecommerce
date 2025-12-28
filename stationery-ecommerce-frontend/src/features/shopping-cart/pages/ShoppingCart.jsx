@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import styles from './ShoppingCart.module.scss';
 import { FaTrashAlt, FaRegTrashAlt } from 'react-icons/fa';
 import { getCart, removeCartItem, updateCartItem } from '../../../api/cartApi';
-import { useNavigate, useLocation } from 'react-router-dom';
+import {useNavigate, useLocation, Link} from 'react-router-dom';
 import { Modal, Checkbox, Spin } from 'antd';
 import toast from 'react-hot-toast';
 import { createOrders } from '../../../api/orderApi';
@@ -290,7 +290,7 @@ const ShoppingCart = () => {
             ) : (
                 <div className={styles.emptyCart}>
                     <p>Giỏ hàng trống</p>
-                    <a href="/">Tiếp tục mua sắm</a>
+                    <Link to='product-list'>Tiếp tục mua sắm</Link>
                 </div>
             )}
         </div>
