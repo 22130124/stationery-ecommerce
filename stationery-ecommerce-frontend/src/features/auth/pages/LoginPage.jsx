@@ -58,12 +58,13 @@ const LoginPage = () => {
                     } else {
                         // Nếu tài khoản đăng nhập vừa được đăng ký thì chuyển hướng vào trang hồ sơ cá nhân để cập nhật thông tin cá nhân
                         const profile = await getProfile()
+                        console.log(profile)
                         if (!profile.completedStatus) {
                             navigate('/profile')
                             return
                         }
                         // Nếu không thì vào trang danh sách sản phẩm
-                        navigate('/profile')
+                        navigate('/product-list')
                     }
                 }
             }, 2000)

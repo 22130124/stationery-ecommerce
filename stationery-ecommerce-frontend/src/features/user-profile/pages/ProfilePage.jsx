@@ -3,9 +3,9 @@ import styles from './ProfilePage.module.scss'
 import {getProfile, updateAvatar, updateProfile} from '../../../api/profileApi'
 import {token} from '../../../utils/token'
 import defaultAvatar from '../assets/default-avatar.png';
-import {deleteImage, uploadAvatar, uploadImage} from "../../../api/uploadApi";
+import {deleteImage, uploadAvatar} from "../../../api/uploadApi";
 import toast from "react-hot-toast";
-import {FaEdit} from "react-icons/fa";
+import {FaEdit, FaCamera} from "react-icons/fa";
 import { Spin } from 'antd';
 
 export default function ProfilePage() {
@@ -13,12 +13,11 @@ export default function ProfilePage() {
         fullName: "",
         phone: "",
         address: "",
-        avatarUrl: '../assets/default-avatar.png',
+        avatarUrl: defaultAvatar,
     })
     const [editing, setEditing] = useState(false)
     const [isUploading, setIsUploading] = useState(false)
 
-    // Hàm fetch profile của người dùng hiện tại
     useEffect(() => {
         const fetchProfile = async () => {
             const data = await getProfile()
@@ -31,36 +30,35 @@ export default function ProfilePage() {
                 })
             }
 
-            // Kiểm tra xem thông tin người dùng đã đầy đủ hay chưa
-            let toastId
             if (!data.completedStatus) {
                 setEditing(true)
-                toast.dismiss()
-                toastId = toast('Vui lòng hoàn thiện hồ sơ để không bị gián đoạn trải nghiệm mua hàng', {
+                toast('Vui lòng hoàn thiện hồ sơ để không bị gián đoạn trải nghiệm mua hàng', {
                     duration: Infinity,
                     id: 'complete-profile-toast',
+                    style: {
+                        borderRadius: '12px',
+                        background: '#333',
+                        color: '#fff',
+                        fontSize: '15px',
+                    },
                 })
             }
         }
         fetchProfile()
 
         return () => {
-            // khi rời khỏi ProfilePage
             toast.dismiss('complete-profile-toast')
         }
     }, [])
-    console.log("Profile", profile)
 
-    // Hàm xử lý upload ảnh đại diện
     const handleAvatarChange = async (e) => {
-        toast.loading('Đang tải ảnh lên...')
+        toast.loading('Đang tải ảnh lên...', { duration: 0 })
 
         const file = e.target.files[0]
         if (!file) return
 
         setIsUploading(true)
 
-        // preview trước
         setProfile({
             ...profile,
             avatarUrl: URL.createObjectURL(file),
@@ -79,12 +77,11 @@ export default function ProfilePage() {
             })
 
             setProfile(updatedProfile)
-
             toast.dismiss()
             toast.success('Cập nhật ảnh đại diện thành công')
         } catch (err) {
             toast.dismiss()
-            toast.error('Cập nhật ảnh đại diện thất bại. Vui lòng thử lại sau')
+            toast.error('Cập nhật thất bại. Thử lại sau')
         } finally {
             setIsUploading(false)
         }
@@ -92,20 +89,11 @@ export default function ProfilePage() {
 
     const handleSave = async () => {
         toast.dismiss()
-        if (!profile.fullName?.trim()) {
-            toast.error('Vui lòng nhập họ và tên')
-            return
-        }
-        if (!profile.phone?.trim()) {
-            toast.error('Vui lòng nhập số điện thoại')
-            return
-        }
-        if (!profile.address?.trim()) {
-            toast.error('Vui lòng nhập địa chỉ')
-            return
-        }
+        if (!profile.fullName?.trim()) return toast.error('Vui lòng nhập họ và tên')
+        if (!profile.phone?.trim()) return toast.error('Vui lòng nhập số điện thoại')
+        if (!profile.address?.trim()) return toast.error('Vui lòng nhập địa chỉ')
 
-        toast.loading('Đang cập nhật thông tin...')
+        toast.loading('Đang lưu thông tin...', { duration: 0 })
 
         try {
             const payload = {
@@ -115,118 +103,103 @@ export default function ProfilePage() {
             }
 
             const data = await updateProfile(payload)
-
-            if (data.avatarUrl) {
-                setProfile(data)
-            } else {
-                setProfile({
-                    ...data,
-                    avatarUrl: defaultAvatar,
-                })
-            }
+            setProfile(data.avatarUrl ? data : {...data, avatarUrl: defaultAvatar})
             setEditing(false)
 
             toast.dismiss()
-            toast.success('Cập nhật thông tin thành công')
+            toast.success('Lưu thành công')
         } catch (err) {
             toast.dismiss()
-            toast.error('Cập nhật thông tin thất bại. Vui lòng thử lại sau')
+            toast.error('Có lỗi xảy ra rồi, thử lại sau')
         }
     }
 
     return (
-        profile && (
-            <div className={styles.container}>
-                <h1 className={styles.title}>Hồ sơ cá nhân</h1>
+        <div className={styles.container}>
+            <h1 className={styles.title}>Hồ sơ cá nhân</h1>
 
-                <div className={styles.card}>
+            <div className={styles.card}>
+                <div className={styles.avatarWrapper}>
                     <div className={styles.avatarSection}>
-                        {profile.avatarUrl && (
-                            <img src={profile.avatarUrl} className={styles.avatar}/>
-                        )}
+                        <img src={profile.avatarUrl} alt="Avatar" className={styles.avatar} />
                         {isUploading && (
                             <div className={styles.overlay}>
                                 <Spin size="large" />
                             </div>
                         )}
                         <label className={styles.avatarEdit}>
-                            <input
-                                type='file'
-                                accept='image/*'
-                                onChange={handleAvatarChange}
-                            />
-                            <FaEdit />
+                            <input type="file" accept="image/*" onChange={handleAvatarChange} />
+                            <FaCamera className={styles.cameraIcon} />
                         </label>
                     </div>
+                </div>
 
+                <div className={styles.infoSection}>
                     <div className={styles.row}>
-                        <label>Email *</label>
-                        <span>{token.getEmail()}</span>
+                        <label>Email</label>
+                        <span className={styles.email}>{token.getEmail()}</span>
                     </div>
 
                     <div className={styles.row}>
-                        <label>Họ và tên *</label>
+                        <label>Họ và tên <span className={styles.required}>*</span></label>
                         {editing ? (
                             <input
-                                type='text'
+                                type="text"
                                 value={profile.fullName}
-                                placeholder={'Nhập họ và tên đầy đủ của bạn'}
-                                onChange={(e) =>
-                                    setProfile({...profile, fullName: e.target.value})
-                                }
+                                placeholder="Nhập họ và tên đầy đủ"
+                                onChange={(e) => setProfile({...profile, fullName: e.target.value})}
                             />
                         ) : (
-                            <span>{profile.fullName}</span>
+                            <span>{profile.fullName || 'Chưa cập nhật'}</span>
                         )}
                     </div>
 
                     <div className={styles.row}>
-                        <label>Số điện thoại *</label>
+                        <label>Số điện thoại <span className={styles.required}>*</span></label>
                         {editing ? (
                             <input
-                                type='text'
+                                type="text"
                                 value={profile.phone}
-                                placeholder={'Nhập số điện thoại của bạn'}
-                                onChange={(e) =>
-                                    setProfile({...profile, phone: e.target.value})
-                                }
+                                placeholder="Nhập số điện thoại"
+                                onChange={(e) => setProfile({...profile, phone: e.target.value})}
                             />
                         ) : (
-                            <span>{profile.phone}</span>
+                            <span>{profile.phone || 'Chưa cập nhật'}</span>
                         )}
                     </div>
 
                     <div className={styles.row}>
-                        <label>Địa chỉ *</label>
+                        <label>Địa chỉ nhận hàng <span className={styles.required}>*</span></label>
                         {editing ? (
                             <textarea
                                 value={profile.address}
-                                placeholder={'Nhập địa chỉ nhận hàng'}
-                                onChange={(e) =>
-                                    setProfile({...profile, address: e.target.value})
-                                }
+                                placeholder="Nhập địa chỉ chi tiết"
+                                onChange={(e) => setProfile({...profile, address: e.target.value})}
+                                rows={3}
                             />
                         ) : (
-                            <span>{profile.address}</span>
+                            <span>{profile.address || 'Chưa cập nhật'}</span>
                         )}
                     </div>
 
                     <div className={styles.actions}>
                         {editing ? (
-                            <button className={styles.saveBtn} onClick={handleSave}>
-                                Lưu
-                            </button>
+                            <>
+                                <button className={styles.cancelBtn} onClick={() => setEditing(false)}>
+                                    Hủy
+                                </button>
+                                <button className={styles.saveBtn} onClick={handleSave}>
+                                    Lưu thay đổi
+                                </button>
+                            </>
                         ) : (
-                            <button
-                                className={styles.editBtn}
-                                onClick={() => setEditing(true)}
-                            >
-                                Chỉnh sửa
+                            <button className={styles.editBtn} onClick={() => setEditing(true)}>
+                                <FaEdit /> Chỉnh sửa
                             </button>
                         )}
                     </div>
                 </div>
             </div>
-        )
+        </div>
     )
 }
