@@ -1,15 +1,17 @@
 import React, {useEffect, useState} from 'react'
 import {Modal, Spin} from 'antd'
-import {getOrderDetail} from '../../../api/orderApi'
+import {cancelOrder, getOrderDetail, updateOrderStatus} from '../../../api/orderApi'
 import styles from './OrderDetailModal.module.scss'
 import ShippingStatus from '../../../components/order/ShippingStatus'
 import PaymentStatus from "../../../components/order/PaymentStatus";
 import {Link} from "react-router-dom";
+import toast from "react-hot-toast";
 
-const OrderDetailModal = ({orderId, open, onClose}) => {
+const OrderDetailModal = ({orderId, open, onClose, onOrderCancelled }) => {
     const [loading, setLoading] = useState(false)
     const [orderDetail, setOrderDetail] = useState(null)
     const [profileDetail, setProfileDetail] = useState(null)
+    const {confirm} = Modal;
 
     useEffect(() => {
         if (!orderId) return
@@ -30,6 +32,31 @@ const OrderDetailModal = ({orderId, open, onClose}) => {
     }, [orderId])
     console.log('orderDetail', orderDetail)
     console.log('profileDetail', profileDetail)
+
+    const handleCancel = async () => {
+        const data = await cancelOrder(orderDetail.id)
+        if (!data) return
+        setOrderDetail({
+            ...orderDetail,
+            shippingStatus: 'CANCELLED'
+        })
+        onOrderCancelled?.(orderDetail.id)
+        toast.dismiss()
+        toast.success('Huỷ đơn hàng thành công', {
+            duration: 1000
+        });
+    };
+
+    const showCancelConfirm = () => {
+        confirm({
+            title: 'Hủy đơn hàng',
+            content: `Bạn có chắc hủy đơn hàng này?`,
+            okText: 'Xác nhận',
+            okType: 'danger',
+            cancelText: 'Hủy',
+            onOk: () => handleCancel(),
+        });
+    };
 
     return (
         <Modal
@@ -72,7 +99,7 @@ const OrderDetailModal = ({orderId, open, onClose}) => {
 
                             <div className={styles.orderStatus}>
                                 <div>
-                                    <b>Trạng thái giao hàng:</b> <ShippingStatus status={orderDetail.shippingStatus}/>
+                                    <b>Trạng thái đơn hàng:</b> <ShippingStatus status={orderDetail.shippingStatus}/>
                                 </div>
                                 <div>
                                     <b>Trạng thái thanh toán:</b> <PaymentStatus status={orderDetail.paymentStatus}/>
@@ -113,8 +140,19 @@ const OrderDetailModal = ({orderId, open, onClose}) => {
                             ))}
                             </tbody>
                         </table>
+                        {(
+                            orderDetail.shippingStatus === 'WAITING_PAYMENT' ||
+                            orderDetail.shippingStatus === 'READY_TO_PICK') && (
+                            <div className={styles.actions}>
+                                <button
+                                    className={styles.cancelButton}
+                                    onClick={() => showCancelConfirm()}
+                                >
+                                    Hủy đơn hàng
+                                </button>
+                            </div>
+                        )}
                     </div>
-
                 </div>
             ) : (
                 <p>Không có dữ liệu</p>

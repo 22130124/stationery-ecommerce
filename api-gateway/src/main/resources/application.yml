@@ -16,6 +16,11 @@ spring:
           predicates:
             - Path=/products/**
 
+        - id: inventory_route
+          uri: http://product-service:8080
+          predicates:
+            - Path=/inventory/**
+
         - id: category_route
           uri: http://category-service:8080
           predicates:

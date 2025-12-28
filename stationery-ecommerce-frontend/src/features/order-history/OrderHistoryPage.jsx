@@ -6,6 +6,7 @@ import OrderDetailModal from "../admin-order-management/components/OrderDetailMo
 import PaymentStatus from "../../components/order/PaymentStatus";
 import {pay} from "../../api/paymentApi";
 import {useNavigate} from "react-router-dom";
+import shippingStatus from "../../components/order/ShippingStatus";
 
 const OrderHistoryPage = () => {
     const [orders, setOrders] = useState([]);
@@ -46,6 +47,16 @@ const OrderHistoryPage = () => {
         }
     }
 
+    const handleOrderCancelled = (orderId) => {
+        setOrders(prev =>
+            prev.map(order =>
+                order.id === orderId
+                    ? { ...order, shippingStatus: 'CANCELLED' }
+                    : order
+            )
+        )
+    }
+
     return (
         <div className={styles.container}>
             <h2>Lịch sử đơn hàng</h2>
@@ -59,9 +70,6 @@ const OrderHistoryPage = () => {
                                 <span className={styles.orderId}>#{order.id}</span>
                                 <div className={styles.orderStatusBadges}>
                                     <ShippingStatus status={order.shippingStatus}/>
-                                    {order.shippingStatus !== -1 && (
-                                        <PaymentStatus status={order.paymentStatus}/>
-                                    )}
                                 </div>
                             </div>
 
@@ -74,9 +82,18 @@ const OrderHistoryPage = () => {
                                 </div>
                             </div>
 
+                            {order.shippingStatus === 'WAITING_PAYMENT' && order.paymentStatus === 'UNPAID' &&(
+                                <div className={styles.warningMessage}>
+                                    Lưu ý: Đơn hàng sẽ hết hạn sau 60 phút kể từ khi đặt hàng nếu không thanh toán.
+                                </div>
+                            )}
+
                             <div className={styles.actions}>
                                 {/* Nếu chưa thanh toán thì hiện nút */}
-                                {order.paymentStatus === 0 && order.shippingStatus !== -1 && (
+                                {
+                                    order.paymentStatus === 'UNPAID' &&
+                                    order.shippingStatus !== 'CANCELLED' &&
+                                    order.shippingStatus !== 'EXPIRED' && (
                                     <button
                                         className={styles.payBtn}
                                         onClick={() => handlePayClick(order.id)}
@@ -104,6 +121,7 @@ const OrderHistoryPage = () => {
                 orderId={selectedOrderId}
                 open={openDetail}
                 onClose={() => setOpenDetail(false)}
+                onOrderCancelled={handleOrderCancelled}
             />
         </div>
     );

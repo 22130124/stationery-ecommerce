@@ -20,7 +20,7 @@ public class OrderController {
 
     @GetMapping("/admin")
     public ResponseEntity<List<OrderResponse>> getAllOrders() {
-        return ResponseEntity.ok(orderService.getAllOrders());
+        return ResponseEntity.ok(orderService.getOrders(null));
     }
 
     @GetMapping
@@ -60,9 +60,9 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
 
-    @PostMapping("/test")
-    public ResponseEntity<?> test(@RequestBody List<Integer> ids) {
-        List<ProductResponse> result = orderService.test(ids);
-        return ResponseEntity.ok(result);
+    @PutMapping("/set-expired/{orderId}")
+    public ResponseEntity<?> setExpired(@PathVariable Integer orderId) {
+        orderService.setExpired(orderId);
+        return ResponseEntity.ok().build();
     }
 }

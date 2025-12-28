@@ -171,6 +171,33 @@
     border-color: $primary-color;
   }
 
+  .disabledVariant {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #ccc;
+    background-color: #f5f5f5;
+
+    &:hover {
+      border-color: #ccc;
+    }
+  }
+
+  .outOfStockTag {
+    color: #999;
+    margin-left: 0.3rem;
+  }
+
+  .outOfStock {
+    color: #e74c3c;
+    font-weight: 600;
+  }
+
+  .outOfStockMessage {
+    color: #e74c3c;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+  }
+
   .quantitySelector {
     display: flex;
     align-items: center;

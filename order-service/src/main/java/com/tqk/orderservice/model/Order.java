@@ -30,10 +30,12 @@ public class Order {
     private int totalAmount;
 
     @Column(name = "shipping_status")
-    private Integer shippingStatus;
+    @Enumerated(EnumType.STRING)
+    private ShippingStatus shippingStatus;
 
     @Column(name = "payment_status")
-    private Integer paymentStatus;
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
 
     @Column(name = "created_at")
     @CreatedDate
@@ -46,16 +48,18 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    public OrderResponse convertToDto() {
-        OrderResponse orderResponse = new OrderResponse();
-        orderResponse.setId(id);
-        orderResponse.setAccountId(accountId);
-        orderResponse.setTotalAmount(totalAmount);
-        orderResponse.setShippingStatus(shippingStatus);
-        orderResponse.setPaymentStatus(paymentStatus);
-        orderResponse.setCreatedAt(createdAt);
-        orderResponse.setUpdatedAt(updatedAt);
-        orderResponse.setOrderItems(orderItems.stream().map(OrderItem::convertToDto).collect(Collectors.toList()));
-        return orderResponse;
+    public enum ShippingStatus {
+        PENDING,
+        WAITING_PAYMENT,
+        READY_TO_PICK,
+        SHIPPING,
+        DELIVERED,
+        CANCELLED,
+        EXPIRED
+    }
+
+    public enum PaymentStatus {
+        UNPAID,
+        PAID
     }
 }

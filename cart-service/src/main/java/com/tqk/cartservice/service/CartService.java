@@ -139,13 +139,13 @@ public class CartService {
     }
 
     @Transactional
-    public void resetCart(Integer accountId) {
+    public void resetCart(Integer accountId, List<Integer> itemIds) {
         // 1. Lấy cart của user
         Cart cart = cartRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new CartNotFoundException("Không tìm thấy giỏ hàng của tài khoản với id: " + accountId));
 
-        // 2. Xóa toàn bộ cart items
-        cart.getItems().clear();
+        // 2. Xóa các item trong danh sách được chỉ định
+        cartItemRepository.deleteByCartAndVariantIdIn(cart, itemIds);
     }
 
     private CartResponse convertCartToDto(Cart cart, List<CartItemResponse> cartItemResponseList) {

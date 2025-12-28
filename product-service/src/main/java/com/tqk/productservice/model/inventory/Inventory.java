@@ -1,5 +1,7 @@
-package com.tqk.productservice.model;
+package com.tqk.productservice.model.inventory;
 
+import com.tqk.productservice.model.product.Product;
+import com.tqk.productservice.model.product.ProductVariant;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,11 +11,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "product_inventory")
+@Table(name = "inventory")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-public class ProductInventory {
+public class Inventory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

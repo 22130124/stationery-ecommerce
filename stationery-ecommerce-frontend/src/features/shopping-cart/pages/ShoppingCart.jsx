@@ -289,8 +289,8 @@ const ShoppingCart = () => {
                 </div>
             ) : (
                 <div className={styles.emptyCart}>
-                    <p>Giỏ hàng trống rồi nè 😢</p>
-                    <a href="/">Tiếp tục mua sắm thôi nào 💕</a>
+                    <p>Giỏ hàng trống</p>
+                    <a href="/">Tiếp tục mua sắm</a>
                 </div>
             )}
         </div>

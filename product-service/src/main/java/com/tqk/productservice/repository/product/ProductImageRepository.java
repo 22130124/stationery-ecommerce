@@ -1,9 +1,8 @@
 package com.tqk.productservice.repository.product;
 
-import com.tqk.productservice.dto.response.ProductImageResponse;
-import com.tqk.productservice.model.Product;
-import com.tqk.productservice.model.ProductImage;
-import com.tqk.productservice.model.ProductVariant;
+import com.tqk.productservice.model.product.Product;
+import com.tqk.productservice.model.product.ProductImage;
+import com.tqk.productservice.model.product.ProductVariant;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

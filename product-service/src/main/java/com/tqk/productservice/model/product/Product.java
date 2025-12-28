@@ -1,4 +1,4 @@
-package com.tqk.productservice.model;
+package com.tqk.productservice.model.product;
 
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class UpdateOrderRequest {
-    private Integer status;
+    private String status;
 }

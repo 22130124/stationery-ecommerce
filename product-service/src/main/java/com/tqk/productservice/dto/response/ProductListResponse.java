@@ -1,6 +1,5 @@
 package com.tqk.productservice.dto.response;
 
-import com.tqk.productservice.model.Product;
 import lombok.Data;
 
 import java.util.ArrayList;

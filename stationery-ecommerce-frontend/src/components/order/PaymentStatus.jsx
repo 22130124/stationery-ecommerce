@@ -3,15 +3,13 @@ import React from 'react'
 
 const PaymentStatus = ({status}) => {
     const STATUS_TEXT = {
-        '0': 'Chưa thanh toán',
-        '1': 'Đã thanh toán',
-        '-1': 'Đã hủy',
+        'UNPAID': 'Chưa thanh toán',
+        'PAID': 'Đã thanh toán',
     }
 
     const STATUS_CLASS = {
-        '0': 'status-pending',
-        '1': 'status-done',
-        '-1': 'status-cancel',
+        'UNPAID': 'status-pending',
+        'PAID': 'status-done',
     }
 
     return (

@@ -43,15 +43,4 @@ public class OrderItem {
     @Column(name = "updated_at")
     @LastModifiedDate
     private LocalDateTime updatedAt;
-
-    public OrderItemResponse convertToDto() {
-        OrderItemResponse dto = new OrderItemResponse();
-        dto.setId(id);
-        dto.setOrderId(order.getId());
-        dto.setPrice(price);
-        dto.setQuantity(quantity);
-        dto.setCreatedAt(createdAt);
-        dto.setUpdatedAt(updatedAt);
-        return dto;
-    }
 }

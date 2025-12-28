@@ -3,17 +3,21 @@ import React from 'react'
 
 const ShippingStatus = ({status}) => {
     const STATUS_TEXT = {
-        '0': 'Đang lấy hàng',
-        '1': 'Đang giao hàng',
-        '2': 'Đã giao',
-        '-1': 'Đã hủy',
+        'WAITING_PAYMENT': 'Chờ thanh toán',
+        'READY_TO_PICK': 'Đang lấy hàng',
+        'SHIPPING': 'Đang giao hàng',
+        'DELIVERED': 'Đã giao',
+        'CANCELLED': 'Đã hủy',
+        'EXPIRED': 'Hết hạn'
     }
 
     const STATUS_CLASS = {
-        '0': 'status-pending',
-        '1': 'status-shipping',
-        '2': 'status-done',
-        '-1': 'status-cancel',
+        'WAITING_PAYMENT': 'status-pending',
+        'READY_TO_PICK': 'status-pending',
+        'SHIPPING': 'status-shipping',
+        'DELIVERED': 'status-done',
+        'CANCELLED': 'status-cancel',
+        'EXPIRED': 'status-cancel',
     }
 
     return (

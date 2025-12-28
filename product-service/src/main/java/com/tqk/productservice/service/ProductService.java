@@ -9,11 +9,19 @@ import com.tqk.productservice.dto.response.brand.BrandResponse;
 import com.tqk.productservice.dto.response.category.CategoryResponse;
 import com.tqk.productservice.dto.response.supplier.SupplierResponse;
 import com.tqk.productservice.exception.ProductNotFoundException;
-import com.tqk.productservice.model.*;
+import com.tqk.productservice.model.inventory.Inventory;
+import com.tqk.productservice.model.product.Product;
+import com.tqk.productservice.model.product.ProductImage;
+import com.tqk.productservice.model.product.ProductVariant;
+import com.tqk.productservice.model.product.ProductVariantColor;
 import com.tqk.productservice.repository.client.BrandClient;
-import com.tqk.productservice.repository.client.SupplierClient;
-import com.tqk.productservice.repository.product.*;
 import com.tqk.productservice.repository.client.CategoryClient;
+import com.tqk.productservice.repository.client.SupplierClient;
+import com.tqk.productservice.repository.inventory.InventoryRepository;
+import com.tqk.productservice.repository.product.ProductImageRepository;
+import com.tqk.productservice.repository.product.ProductRepository;
+import com.tqk.productservice.repository.product.ProductVariantColorRepository;
+import com.tqk.productservice.repository.product.ProductVariantRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,9 +39,9 @@ public class ProductService {
     private final ProductVariantRepository productVariantRepository;
     private final ProductImageRepository productImageRepository;
     private final ProductVariantColorRepository productVariantColorRepository;
-    private final ProductInventoryRepository productInventoryRepository;
+    private final InventoryRepository productInventoryRepository;
     private final CategoryClient categoryClient;
-    private final SupplierClient supplierlient;
+    private final SupplierClient supplierClient;
     private final BrandClient brandClient;
 
     private static final String CODE_PREFIX = "SP";
@@ -356,22 +364,22 @@ public class ProductService {
 
     public int getStock(Integer variantId) {
         ProductVariant productVariant = productVariantRepository.findById(variantId).orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm có id biến thể là: " + variantId));
-        ProductInventory productInventory = productInventoryRepository.findByProductVariant(productVariant);
-        return productInventory.getStock();
+        Inventory inventory = productInventoryRepository.findByProductVariant(productVariant);
+        return inventory.getStock();
     }
 
     public int updateInventory(String type, UpdateInventoryRequest request) {
         ProductVariant productVariant = productVariantRepository.findById(request.getVariantId()).orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm có id biến thể là: " + request.getVariantId()));
-        ProductInventory productInventory = productInventoryRepository.findByProductVariant(productVariant);
+        Inventory inventory = productInventoryRepository.findByProductVariant(productVariant);
         if (type.equalsIgnoreCase("replace")) {
-            productInventory.setStock(request.getQuantity());
+            inventory.setStock(request.getQuantity());
         } else if (type.equalsIgnoreCase("increase")) {
-            productInventory.setStock(productInventory.getStock() + request.getQuantity());
+            inventory.setStock(inventory.getStock() + request.getQuantity());
         } else if (type.equalsIgnoreCase("decrease")) {
-            productInventory.setStock(productInventory.getStock() - request.getQuantity());
+            inventory.setStock(inventory.getStock() - request.getQuantity());
         }
-        productInventoryRepository.save(productInventory);
-        return productInventory.getStock();
+        productInventoryRepository.save(inventory);
+        return inventory.getStock();
     }
 
     private ProductResponse convertProductToDto(Product product, ProductVariant specificVariant) {
@@ -413,7 +421,7 @@ public class ProductService {
 
         // Gán thông tin tên category, supplier, brand
         CategoryResponse category = categoryClient.getCategoryById(product.getCategoryId());
-        SupplierResponse supplier = supplierlient.getSupplierById(product.getSupplierId());
+        SupplierResponse supplier = supplierClient.getSupplierById(product.getSupplierId());
         BrandResponse brand = brandClient.getBrandById(product.getBrandId());
         dto.setCategory(category);
         dto.setSupplier(supplier);
@@ -422,7 +430,7 @@ public class ProductService {
         // Tính toán tổng số sản phẩm còn trong kho
         int totalStock = 0;
         for (ProductVariant variant : product.getVariants()) {
-            totalStock += variant.getProductInventory().getStock();
+            totalStock += variant.getInventory().getStock();
         }
         dto.setTotalStock(totalStock);
 
@@ -463,7 +471,7 @@ public class ProductService {
         }
         dto.setColors(colorResponseList);
 
-        dto.setStock(variant.getProductInventory().getStock());
+        dto.setStock(variant.getInventory().getStock());
         return dto;
     }
 

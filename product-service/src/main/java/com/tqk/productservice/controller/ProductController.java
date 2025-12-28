@@ -4,7 +4,6 @@ import com.tqk.productservice.dto.request.ProductRequest;
 import com.tqk.productservice.dto.request.UpdateInventoryRequest;
 import com.tqk.productservice.dto.response.ProductListResponse;
 import com.tqk.productservice.dto.response.ProductResponse;
-import com.tqk.productservice.model.Product;
 import com.tqk.productservice.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

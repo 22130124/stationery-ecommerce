@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -62,7 +63,7 @@ public class CartController {
     // Xóa toàn bộ items trong giỏ hàng
     @DeleteMapping("/reset-cart")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void resetCart(@RequestHeader("X-Account-Id") Integer accountId) {
-        cartService.resetCart(accountId);
+    public void resetCart(@RequestHeader("X-Account-Id") Integer accountId, @RequestBody List<Integer> itemIds) {
+        cartService.resetCart(accountId, itemIds);
     }
 }

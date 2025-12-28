@@ -1,10 +1,11 @@
 @import "../../styles/variables";
 
 .container {
-  max-width: 850px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 24px;
-  font-family: "Inter", "Segoe UI", sans-serif;
+  padding: 32px 20px;
+  background: #f7f8fa;
+  min-height: 100vh;
 }
 
 h2 {
@@ -49,14 +50,12 @@ h2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 14px;
-  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 12px;
 }
 
 .orderId {
-  font-weight: 700;
-  font-size: 18px;
-  color: #333;
+  font-size: 17px;
+  color: #111;
 }
 
 /* Badges container */
@@ -69,16 +68,11 @@ h2 {
 /* Info */
 .info {
   margin-top: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 24px;
   font-size: 15px;
   color: #444;
-
-  strong {
-    font-weight: 600;
-    color: #222;
-  }
 }
 
 /* Actions */
@@ -90,8 +84,8 @@ h2 {
 }
 
 /* Buttons */
-.detailBtn,
-.payBtn {
+.detailBtn, .payBtn {
+  max-width: 150px;
   padding: 8px 16px;
   border: none;
   border-radius: 8px;
@@ -117,4 +111,16 @@ h2 {
   &:hover {
     background: darken($primary-color, 10%);
   }
+}
+
+.warningMessage {
+  background-color: #fff4e5;
+  border: 1px solid #ffb302;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 12px 0;
+  font-size: 14px;
+  color: #d35400;
+  text-align: center;
+  font-weight: 500;
 }

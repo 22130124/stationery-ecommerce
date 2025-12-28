@@ -1,8 +1,6 @@
-package com.tqk.productservice.model;
+package com.tqk.productservice.model.product;
 
-import com.tqk.productservice.dto.response.ProductImageResponse;
-import com.tqk.productservice.dto.response.ProductVariantColorResponse;
-import com.tqk.productservice.dto.response.ProductVariantResponse;
+import com.tqk.productservice.model.inventory.Inventory;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -58,5 +56,5 @@ public class ProductVariant {
     private List<ProductVariantColor> colors = new ArrayList<>();
 
     @OneToOne(mappedBy = "productVariant")
-    private ProductInventory productInventory;
+    private Inventory inventory;
 }

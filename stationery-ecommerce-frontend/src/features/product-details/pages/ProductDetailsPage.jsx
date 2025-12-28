@@ -22,18 +22,32 @@ const ProductDetailsPage = () => {
         const fetchProduct = async () => {
             const data = await getProductBySlug(slug);
             if (!data) return
-            if (data && data.product) {
-                setProduct(data.product);
-                const defaultVariant = data.product.defaultVariant || data.product.variants?.[0];
-                if (defaultVariant) {
-                    setSelectedVariant(defaultVariant);
-                    setMainImage(defaultVariant.defaultImage?.url || defaultVariant.images?.[0]?.url || '');
-                }
+            const prod = data.product;
+            setProduct(prod);
+
+            // Tìm variant còn hàng đầu tiên để làm default
+            const availableVariants = prod.variants.filter(v => v.stock > 0);
+            const hasAvailable = availableVariants.length > 0;
+
+            let defaultVariant;
+            if (hasAvailable) {
+                // Ưu tiên defaultVariant nếu còn hàng, không thì lấy cái đầu tiên còn hàng
+                defaultVariant = prod.defaultVariant && prod.defaultVariant.stock > 0
+                    ? prod.defaultVariant
+                    : availableVariants[0];
+            } else {
+                // Không còn variant nào có hàng thì lấy default hoặc cái đầu
+                defaultVariant = prod.defaultVariant || prod.variants?.[0];
             }
+
+            setSelectedVariant(defaultVariant);
+            setMainImage(defaultVariant?.defaultImage?.url || defaultVariant?.images?.[0]?.url || '');
         };
 
         fetchProduct();
     }, [slug]);
+
+    console.log(product);
 
     const formatPrice = (price) =>
         price?.toLocaleString("vi-VN", {style: "currency", currency: "VND"}) || "";
@@ -47,8 +61,10 @@ const ProductDetailsPage = () => {
 
     // Hàm xử lý sự kiện
     const handleVariantSelect = (variant) => {
-        setSelectedVariant(variant);
-        setMainImage(variant.defaultImage?.url || variant.images?.[0]?.url || '');
+        if (variant.stock > 0) { // Chỉ cho chọn nếu còn hàng
+            setSelectedVariant(variant);
+            setMainImage(variant.defaultImage?.url || variant.images?.[0]?.url || '');
+        }
     };
 
     const handleQuantityChange = (amount) => {
@@ -56,6 +72,11 @@ const ProductDetailsPage = () => {
     };
 
     const handleAddToCartButtonClick = async () => {
+        if (selectedVariant.stock === 0) {
+            toast.error("Sản phẩm này đã hết hàng");
+            return;
+        }
+
         try {
             await addToCart({
                 productId: product.id,
@@ -73,7 +94,9 @@ const ProductDetailsPage = () => {
     };
 
     const handleBuyNowButtonClick = () => {
-        alert("Buy now");
+        if (selectedVariant.stock === 0) {
+            toast.error("Sản phẩm này đã hết hàng, không thể mua");
+        }
     }
 
     // Hiển thị trạng thái đang tải nếu chưa có dữ liệu
@@ -109,14 +132,22 @@ const ProductDetailsPage = () => {
 
                     <div className={styles.metaInfo}>
                         <div className={styles.metaDivider}>|</div>
-                        <div>Thương hiệu: <span className={styles.metaValue}>{product.brand?.name || "Chưa xác định"}</span></div>
+                        <div>Thương hiệu: <span
+                            className={styles.metaValue}>{product.brand?.name || "Chưa xác định"}</span></div>
                         <div className={styles.metaDivider}>|</div>
-                        <div>Danh mục: <span className={styles.metaValue}>{product.category?.name || "Chưa xác định"}</span></div>
+                        <div>Danh mục: <span
+                            className={styles.metaValue}>{product.category?.name || "Chưa xác định"}</span></div>
                         <div className={styles.metaDivider}>|</div>
                         <div>Màu sắc: <span className={styles.metaValue}>
                                 {selectedVariant.colors.map(item => item.color).join(", ")}
                             </span>
                         </div>
+                        <div className={styles.metaDivider}>|</div>
+                        {selectedVariant.stock === 0 ? (
+                            <div><span className={styles.metaValue}>Hết hàng</span></div>
+                        ) : (
+                            <div>Tồn kho: <span className={styles.metaValue}>{selectedVariant.stock}</span></div>
+                        )}
                     </div>
 
                     <div className={styles.priceSection}>
@@ -133,15 +164,24 @@ const ProductDetailsPage = () => {
                     <div className={styles.variantSection}>
                         <span className={styles.variantLabel}>Phân loại:</span>
                         <div className={styles.variantOptions}>
-                            {product.variants.map(variant => (
-                                <button
-                                    key={variant.id}
-                                    className={`${styles.variantButton} ${selectedVariant.id === variant.id ? styles.activeVariant : ''}`}
-                                    onClick={() => handleVariantSelect(variant)}
-                                >
-                                    {variant.name}
-                                </button>
-                            ))}
+                            {product.variants.map(variant => {
+                                const outOfStock = variant.stock === 0;
+                                return (
+                                    <button
+                                        key={variant.id}
+                                        className={`
+                                            ${styles.variantButton}
+                                            ${selectedVariant.id === variant.id ? styles.activeVariant : ''}
+                                            ${outOfStock ? styles.disabledVariant : ''}
+                                        `}
+                                        onClick={() => handleVariantSelect(variant)}
+                                        disabled={outOfStock}
+                                    >
+                                        {variant.name}
+                                        {outOfStock && <span className={styles.outOfStockTag}> (Hết hàng)</span>}
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
 
@@ -172,7 +212,7 @@ const ProductDetailsPage = () => {
                 />
             </div>
 
-            <RecommendedProducts productId={product.id} />
+            <RecommendedProducts productId={product.id}/>
         </div>
     );
 };
