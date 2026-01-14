@@ -22,6 +22,9 @@ import com.tqk.productservice.repository.product.ProductImageRepository;
 import com.tqk.productservice.repository.product.ProductRepository;
 import com.tqk.productservice.repository.product.ProductVariantColorRepository;
 import com.tqk.productservice.repository.product.ProductVariantRepository;
+import com.tqk.productservice.util.TextNormalizeUtil;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,6 +33,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -43,6 +47,7 @@ public class ProductService {
     private final CategoryClient categoryClient;
     private final SupplierClient supplierClient;
     private final BrandClient brandClient;
+    private final EntityManager entityManager;
 
     private static final String CODE_PREFIX = "SP";
     private static final int INITIAL_CODE_NUMBER = 1000;
@@ -351,17 +356,6 @@ public class ProductService {
         return categoryClient.getCategoryIdBySlug(slug);
     }
 
-    // Hàm truy vấn sản phẩm phục vụ cho tính năng chatbot
-    public List<ProductResponse> searchProducts(Integer categoryId, Integer brandId, List<String> colors, Integer minPrice, Integer maxPrice, List<String> extra) {
-        int hasColors = (colors != null && !colors.isEmpty()) ? 1 : 0;
-        List<Product> products = productRepository.searchProductsWithScore(categoryId, brandId, colors, minPrice, maxPrice, extra, hasColors);
-        List<ProductResponse> productResponseList = new ArrayList<>();
-        if (!products.isEmpty()) {
-            productResponseList = convertProductListToDto(products);
-        }
-        return productResponseList;
-    }
-
     public int getStock(Integer variantId) {
         ProductVariant productVariant = productVariantRepository.findById(variantId).orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm có id biến thể là: " + variantId));
         Inventory inventory = productInventoryRepository.findByProductVariant(productVariant);
@@ -437,7 +431,7 @@ public class ProductService {
         return dto;
     }
 
-    private List<ProductResponse> convertProductListToDto(List<Product> products) {
+    public List<ProductResponse> convertProductListToDto(List<Product> products) {
         List<ProductResponse> productResponseList = new ArrayList<>();
         for (Product product : products) {
             ProductResponse productResponse = convertProductToDto(product, null);

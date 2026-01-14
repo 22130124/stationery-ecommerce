@@ -1,29 +1,31 @@
-import styles from "./Header.module.scss";
-import { FaBars, FaBell, FaShoppingCart, FaUser, FaBoxOpen, FaSearch } from "react-icons/fa";
-import { IoIosArrowForward } from "react-icons/io";
-import { getActiveCategories } from "../../api/categoryApi";
-import { Link, useNavigate } from "react-router-dom";
-import {useEffect, useState} from "react";
+import styles from './Header.module.scss'
+import { FaBars, FaBell, FaShoppingCart, FaUser, FaBoxOpen, FaSearch } from 'react-icons/fa'
+import { IoIosArrowForward } from 'react-icons/io'
+import { getActiveCategories } from '../../api/categoryApi'
+import { Link, useNavigate } from 'react-router-dom'
+import {useEffect, useState} from 'react'
 
 const Header = () => {
-    const [hoveredMenu, setHoveredMenu] = useState(null);
-    const [categories, setCategories] = useState([]);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const navigate = useNavigate();
+    const [hoveredMenu, setHoveredMenu] = useState(null)
+    const [categories, setCategories] = useState([])
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [searchKeyword, setSearchKeyword] = useState('')
 
-    const handleMouseEnter = (menu) => setHoveredMenu(menu);
-    const handleMouseLeave = () => setHoveredMenu(null);
+    const navigate = useNavigate()
+
+    const handleMouseEnter = (menu) => setHoveredMenu(menu)
+    const handleMouseLeave = () => setHoveredMenu(null)
 
     useEffect(() => {
         const fetchCategories = async () => {
-            const data = await getActiveCategories();
-            setCategories(data);
-        };
-        fetchCategories();
+            const data = await getActiveCategories()
+            setCategories(data)
+        }
+        fetchCategories()
 
-        const token = localStorage.getItem("token");
-        setIsLoggedIn(!!token);
-    }, []);
+        const token = localStorage.getItem('token')
+        setIsLoggedIn(!!token)
+    }, [])
 
     const renderCategories = (categories, level = 0) => {
         return (
@@ -48,30 +50,43 @@ const Header = () => {
                     </li>
                 ))}
             </ul>
-        );
-    };
+        )
+    }
 
     const handleLogout = () => {
-        localStorage.removeItem("token");
-        setIsLoggedIn(false);
-        navigate("/login");
-    };
+        localStorage.removeItem('token')
+        setIsLoggedIn(false)
+        navigate('/login')
+    }
+
+    // Hàm xử lý tìm kiếm sản phẩm từ search bar
+    const handleSearch = () => {
+        const keyword = searchKeyword.trim()
+        if (!keyword) return
+
+        // Chuyển hướng đến trang product-list để xử lý search
+        navigate(`/product-list?search=${encodeURIComponent(keyword)}`)
+        
+        // Reset lại nội dung search bar
+        setSearchKeyword('')
+    }
+
 
     return (
         <header className={styles.header}>
             {/* Logo - dẫn về trang chủ */}
-            <Link className={styles.logo} to="/">Văn Phòng Phẩm</Link>
+            <Link className={styles.logo} to='/'>Văn Phòng Phẩm</Link>
 
             {/* Danh mục sản phẩm */}
             <div
                 className={styles.categoryMenu}
-                onMouseEnter={() => handleMouseEnter("category")}
+                onMouseEnter={() => handleMouseEnter('category')}
                 onMouseLeave={handleMouseLeave}
             >
                 <FaBars />
                 <span>Danh mục sản phẩm</span>
 
-                {hoveredMenu === "category" && (
+                {hoveredMenu === 'category' && (
                     <div className={styles.megaDropdown}>
                         {renderCategories(categories)}
                     </div>
@@ -80,21 +95,31 @@ const Header = () => {
 
             {/* Thanh tìm kiếm */}
             <div className={styles.searchBox}>
-                <input type="text" placeholder="Tìm kiếm sản phẩm, thương hiệu..." />
-                <button className={styles.searchButton}>
+                <input
+                    type='text'
+                    placeholder='Tìm kiếm sản phẩm...'
+                    value={searchKeyword}
+                    onChange={(e) => setSearchKeyword(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                />
+                <button
+                    className={styles.searchButton}
+                    onClick={handleSearch}
+                >
                     <FaSearch />
                 </button>
             </div>
 
+
             {/* Thông báo */}
             <div
                 className={styles.menuItem}
-                onMouseEnter={() => handleMouseEnter("notification")}
+                onMouseEnter={() => handleMouseEnter('notification')}
                 onMouseLeave={handleMouseLeave}
             >
                 <FaBell />
                 <span>Thông báo</span>
-                {hoveredMenu === "notification" && (
+                {hoveredMenu === 'notification' && (
                     <div className={styles.dropdown}>
                         <FaBoxOpen className={styles.emptyIcon} />
                         {isLoggedIn ? (
@@ -103,8 +128,8 @@ const Header = () => {
                             <>
                                 <p>Vui lòng đăng nhập để xem thông báo</p>
                                 <div className={styles.actions}>
-                                    <Link to="/login">Đăng nhập</Link>
-                                    <Link to="/signup">Đăng ký</Link>
+                                    <Link to='/login'>Đăng nhập</Link>
+                                    <Link to='/signup'>Đăng ký</Link>
                                 </div>
                             </>
                         )}
@@ -113,7 +138,7 @@ const Header = () => {
             </div>
 
             {/* Giỏ hàng */}
-            <Link className={styles.menuItem} to="/shopping-cart">
+            <Link className={styles.menuItem} to='/shopping-cart'>
                 <FaShoppingCart />
                 <span>Giỏ hàng</span>
                 {/* <span className={styles.cartBadge}>3</span> */} {/* Có thể thêm badge khi có số lượng */}
@@ -122,30 +147,30 @@ const Header = () => {
             {/* Tài khoản */}
             <div
                 className={styles.menuItem}
-                onMouseEnter={() => handleMouseEnter("user")}
+                onMouseEnter={() => handleMouseEnter('user')}
                 onMouseLeave={handleMouseLeave}
             >
                 <FaUser />
                 <span>Tài khoản</span>
-                {hoveredMenu === "user" && (
+                {hoveredMenu === 'user' && (
                     <div className={styles.dropdown}>
                         {isLoggedIn ? (
                             <>
-                                <button onClick={() => navigate("/profile")}>Hồ sơ cá nhân</button>
-                                <button onClick={() => navigate("/order-history")}>Lịch sử mua hàng</button>
+                                <button onClick={() => navigate('/profile')}>Hồ sơ cá nhân</button>
+                                <button onClick={() => navigate('/order-history')}>Lịch sử mua hàng</button>
                                 <button onClick={handleLogout}>Đăng xuất</button>
                             </>
                         ) : (
                             <>
-                                <button onClick={() => navigate("/login")}>Đăng nhập</button>
-                                <button onClick={() => navigate("/signup")}>Đăng ký tài khoản</button>
+                                <button onClick={() => navigate('/login')}>Đăng nhập</button>
+                                <button onClick={() => navigate('/signup')}>Đăng ký tài khoản</button>
                             </>
                         )}
                     </div>
                 )}
             </div>
         </header>
-    );
-};
+    )
+}
 
-export default Header;
+export default Header

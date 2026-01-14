@@ -28,6 +28,7 @@ public class SecurityConfig {
                         .pathMatchers("/auth/admin","/auth/admin/**").hasRole("ADMIN")
                         .pathMatchers("/auth", "/auth/**").permitAll()
                         .pathMatchers("/products", "/products/**").permitAll()
+                        .pathMatchers("/search", "/search/**").permitAll()
                         .pathMatchers("/categories", "/categories/**").permitAll()
                         .pathMatchers("/brands", "/brands/**").permitAll()
                         .pathMatchers("/suppliers", "/suppliers/**").permitAll()

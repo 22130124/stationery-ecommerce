@@ -5,6 +5,7 @@ import com.tqk.productservice.dto.request.UpdateInventoryRequest;
 import com.tqk.productservice.dto.response.ProductListResponse;
 import com.tqk.productservice.dto.response.ProductResponse;
 import com.tqk.productservice.service.ProductService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +16,9 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/products")
+@RequiredArgsConstructor
 public class ProductController {
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
 
     @GetMapping("/admin")
     public ResponseEntity<?> getAllForAdmin() {
@@ -57,7 +58,7 @@ public class ProductController {
     @GetMapping("/by-category")
     public ResponseEntity<?> getProductsByCategory(@RequestParam(name = "categorySlug", required = false) String categorySlug,
                                                    @RequestParam(name = "page", required = false, defaultValue = "1") int page,
-                                                   @RequestParam(name = "limit", required = false, defaultValue = "12") int size) {
+                                                   @RequestParam(name = "limit", required = false, defaultValue = "25") int size) {
         ProductListResponse result = productService.getByActiveStatusAndCategory(categorySlug, page, size);
         Map<String, Object> response = Map.of(
                 "products", result.getProducts(),
@@ -84,19 +85,6 @@ public class ProductController {
     public ResponseEntity<?> getCategoryIdBySlug(@PathVariable String slug) {
         Integer categoryId = productService.getCategoryIdBySlug(slug);
         return ResponseEntity.ok(categoryId);
-    }
-
-    // ========== AI SEARCH ===========
-    @GetMapping("/search-by-ai")
-    public ResponseEntity<?> searchProducts(@RequestParam(required = false) Integer categoryId,
-                                            @RequestParam(required = false) Integer brandId,
-                                            @RequestParam(required = false) List<String> colors,
-                                            @RequestParam(required = false) Integer minPrice,
-                                            @RequestParam(required = false) Integer maxPrice,
-                                            @RequestParam(required = false) List<String> extras
-    ) {
-        List<ProductResponse> products = productService.searchProducts(categoryId, brandId, colors, minPrice, maxPrice, extras);
-        return ResponseEntity.ok(products);
     }
 
     @GetMapping("/{variantId}/stock")

@@ -16,6 +16,7 @@ import styles from "./ProductListPage.module.scss";
 // APIs
 import {getActiveCategories} from "../../../api/categoryApi";
 import {getProductsByCategory, getProductsByCategoryAndPagination} from "../../../api/productApi";
+import {searchProducts} from "../../../api/searchApi";
 
 const ProductListPage = () => {
     const [searchParams, setSearchParams] = useSearchParams()
@@ -24,6 +25,7 @@ const ProductListPage = () => {
     const [products, setProducts] = useState([])
     const categoryParam = searchParams.get("category") ? searchParams.get("category") : "all"
     const pageParam = searchParams.get("page") ? parseInt(searchParams.get("page")) : "1"
+    const searchParam = searchParams.get("search");
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
     const PRODUCTS_PER_PAGE = 25;
@@ -32,8 +34,11 @@ const ProductListPage = () => {
     useEffect(() => {
         const newParams = new URLSearchParams(searchParams)
         const categoryParam = searchParams.get("category")
-        if(!categoryParam) {
-            newParams.set("category", "all")
+
+        if (!searchParam) {
+            if(!categoryParam) {
+                newParams.set("category", "all")
+            }
         }
         const pageParams = searchParams.get("page")
         if (!pageParams) {
@@ -51,17 +56,34 @@ const ProductListPage = () => {
 
     // Fetch products dựa trên các tham số trên url
     useEffect(() => {
-        const fetchProducts = async () => {
-            const data = await getProductsByCategory({
-                categorySlug: categoryParam,
-                page: pageParam,
-                limit: PRODUCTS_PER_PAGE,
-            })
-            setProducts(data.products)
-            setTotalPages(data.totalPages)
-            setTotalItems(data.totalItems)
+        const searchParam = searchParams.get("search");
+        if (!searchParam) {
+            const fetchProducts = async () => {
+                const data = await getProductsByCategory({
+                    categorySlug: categoryParam,
+                    page: pageParam,
+                    limit: PRODUCTS_PER_PAGE,
+                })
+                setProducts(data.products)
+                setTotalPages(data.totalPages)
+                setTotalItems(data.totalItems)
+            }
+            fetchProducts()
+        } else {
+            const fetchSearchProducts = async () => {
+                const data = await searchProducts({
+                    search: searchParam,
+                    page: pageParam,
+                    limit: PRODUCTS_PER_PAGE
+                });
+
+                setProducts(data.products || []);
+                setTotalPages(data.totalPages || 0);
+                setTotalItems(data.totalItems || 0);
+            }
+
+            fetchSearchProducts()
         }
-        fetchProducts()
     }, [searchParams, setSearchParams])
 
     const handlePageChange = (page) => {
@@ -93,7 +115,7 @@ const ProductListPage = () => {
 
                     {products && products.length === 0 ? (
                         <div className={styles.noProducts}>
-                            <p>Hiện chưa có sản phẩm nào</p>
+                            <p>Không tìm thấy sản phẩm</p>
                         </div>
                     ) : (
                         <div className={styles.productGrid}>

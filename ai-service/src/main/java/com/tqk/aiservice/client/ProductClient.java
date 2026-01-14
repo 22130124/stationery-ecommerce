@@ -9,7 +9,7 @@ import java.util.List;
 
 @FeignClient(name = "product-service", url = "http://product-service:8080")
 public interface ProductClient {
-    @GetMapping("/products/search-by-ai")
+    @GetMapping("/search/by-ai")
     List<ProductResponse> searchProducts(
             @RequestParam("categoryId") Integer categoryId,
             @RequestParam("brandId") Integer brandId,

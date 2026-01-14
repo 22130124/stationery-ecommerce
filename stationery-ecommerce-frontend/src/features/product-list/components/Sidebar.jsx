@@ -6,8 +6,9 @@ import {useSearchParams} from "react-router-dom";
 const Sidebar = ({categories = []}) => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [openingCategories, setOpeningCategories] = useState({});
+    const hasSearch = searchParams.has("search");
+    const selectedCategorySlug = hasSearch ? null : (searchParams.get("category") || 'all');
 
-    const selectedCategorySlug = searchParams.get("category") || 'all';
 
     const displayCategories = [
         {
@@ -42,6 +43,7 @@ const Sidebar = ({categories = []}) => {
         const newParams = new URLSearchParams(searchParams);
         newParams.set("category", slug);
         newParams.set("page", "1");
+        newParams.delete("search");
         setSearchParams(newParams);
     };
 
