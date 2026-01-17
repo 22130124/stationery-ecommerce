@@ -28,6 +28,7 @@
     "react-router-dom": "^7.9.4",
     "react-scripts": "5.0.1",
     "react-typing-effect": "^2.0.5",
+    "recharts": "^3.6.0",
     "sass": "^1.93.2",
     "web-vitals": "^2.1.4"
   },

@@ -1,4 +1,4 @@
-package com.tqk.orderservice.dto.request;
+package com.tqk.orderservice.dto.request.order;
 
 import lombok.Data;
 

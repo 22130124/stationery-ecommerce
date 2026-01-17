@@ -25,6 +25,7 @@ import CategoryManagementPage from "../features/admin-category-management/pages/
 import NotifyPage from "../components/notify-page/NotifyPage";
 import {ForgotPasswordPage} from "../features/auth/pages/ForgotPasswordPage";
 import {ResetPasswordPage} from "../features/auth/pages/ResetPasswordPage";
+import Dashboard from "../features/admin-dashboard/pages/DashboardOverview";
 
 const AppRoutes = () => {
     return (
@@ -40,6 +41,7 @@ const AppRoutes = () => {
             {/* Admin routes */}
             <Route element={<RequireAdminAuth />}>
                 <Route element={<AdminLayout />}>
+                    <Route path="/admin/dashboard" element={<Dashboard />} />
                     <Route path="/admin/product-management" element={<ProductManagementPage />} />
                     <Route path="/admin/order-management" element={<OrderManagementPage />} />
                     <Route path="/admin/supplier-management" element={<SupplierManagementPage />} />

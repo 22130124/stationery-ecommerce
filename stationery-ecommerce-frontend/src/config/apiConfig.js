@@ -14,6 +14,7 @@ export const API_URLS = {
     cart: `${API_URL}/cart`,
     profile: `${API_URL}/profiles`,
     order: `${API_URL}/orders`,
+    dashboard: `${API_URL}/dashboard`,
     payment: `${API_URL}/vnpay`,
     ai: `${API_URL}/ai`,
     recommend: `${API_URL}/recommend`,

@@ -1,0 +1,42 @@
+.card {
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.title {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.trend {
+  font-size: 12px;
+  font-weight: 600;
+  color: #16a34a;
+}
+
+.revenue {
+  border-left: 5px solid #6366f1;
+}
+
+.orders {
+  border-left: 5px solid #0ea5e9;
+}
+
+.users {
+  border-left: 5px solid #22c55e;
+}
+
+.stock {
+  border-left: 5px solid #f97316;
+}

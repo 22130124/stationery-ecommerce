@@ -10,5 +10,8 @@ import java.util.List;
 @FeignClient(name = "product-service", contextId = "productClient", url = "http://product-service:8080")
 public interface ProductClient {
     @PostMapping("/products/by-variant-ids")
+    List<ProductResponse> getProductsByVariantIds(@RequestBody List<Integer> ids);
+
+    @PostMapping("/products/by-ids")
     List<ProductResponse> getProductsByIds(@RequestBody List<Integer> ids);
 }

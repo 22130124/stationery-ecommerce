@@ -76,6 +76,11 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping(value = "/by-ids", consumes = "application/json")
+    public ResponseEntity<?> getProductsByIds(@RequestBody List<Integer> ids) {
+        return ResponseEntity.ok(productService.getProductsByIds(ids));
+    }
+
     @PostMapping(value = "/by-variant-ids", consumes = "application/json")
     public ResponseEntity<?> getProductsByVariantIds(@RequestBody List<Integer> variantIds) {
         return ResponseEntity.ok(productService.getProductsByVariantIds(variantIds));

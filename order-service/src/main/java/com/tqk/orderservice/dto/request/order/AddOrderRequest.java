@@ -1,6 +1,5 @@
-package com.tqk.orderservice.dto.request;
+package com.tqk.orderservice.dto.request.order;
 
-import com.tqk.orderservice.dto.response.order.OrderItemResponse;
 import lombok.Data;
 
 import java.util.List;

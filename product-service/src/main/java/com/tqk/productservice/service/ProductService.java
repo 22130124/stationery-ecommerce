@@ -22,9 +22,7 @@ import com.tqk.productservice.repository.product.ProductImageRepository;
 import com.tqk.productservice.repository.product.ProductRepository;
 import com.tqk.productservice.repository.product.ProductVariantColorRepository;
 import com.tqk.productservice.repository.product.ProductVariantRepository;
-import com.tqk.productservice.util.TextNormalizeUtil;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -33,7 +31,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -339,6 +336,21 @@ public class ProductService {
         productRepository.delete(product);
     }
 
+    // Phương thức lấy ra danh sách sản phẩm dựa vào danh sách id sản phẩm cho trước
+    public List<ProductResponse> getProductsByIds(List<Integer> ids) {
+        List<ProductResponse> productResponseList = new ArrayList<>();
+        Product product;
+        for (Integer id : ids) {
+            product = productRepository.findById(id).orElse(null);
+            if (product != null) {
+                ProductResponse productResponse = convertProductToDto(product, null);
+                productResponseList.add(productResponse);
+            }
+        }
+        return productResponseList;
+    }
+
+    // Phương thức lấy ra danh sách sản phẩm dựa vào danh sách id biến thể cho trước
     public List<ProductResponse> getProductsByVariantIds(List<Integer> variantIds) {
         List<ProductResponse> productResponseList = new ArrayList<>();
         Product product;

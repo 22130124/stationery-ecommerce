@@ -1,10 +1,9 @@
 package com.tqk.orderservice.controller;
 
-import com.tqk.orderservice.dto.request.AddOrderRequest;
-import com.tqk.orderservice.dto.request.UpdateOrderRequest;
+import com.tqk.orderservice.dto.request.order.AddOrderRequest;
+import com.tqk.orderservice.dto.request.order.UpdateOrderRequest;
 import com.tqk.orderservice.dto.response.order.OrderDetailResponse;
 import com.tqk.orderservice.dto.response.order.OrderResponse;
-import com.tqk.orderservice.dto.response.product.ProductResponse;
 import com.tqk.orderservice.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,8 +1,8 @@
 package com.tqk.orderservice.service;
 
-import com.tqk.orderservice.dto.request.AddOrderItemRequest;
-import com.tqk.orderservice.dto.request.AddOrderRequest;
-import com.tqk.orderservice.dto.request.UpdateOrderRequest;
+import com.tqk.orderservice.dto.request.order.AddOrderItemRequest;
+import com.tqk.orderservice.dto.request.order.AddOrderRequest;
+import com.tqk.orderservice.dto.request.order.UpdateOrderRequest;
 import com.tqk.orderservice.dto.request.inventory.ReserveRequest;
 import com.tqk.orderservice.dto.response.order.OrderDetailResponse;
 import com.tqk.orderservice.dto.response.order.OrderItemResponse;
@@ -81,7 +81,7 @@ public class OrderService {
             ids.add(item.getVariantId());
         }
         System.out.println("Variant Ids: " + ids);
-        List<ProductResponse> productResponseList = productClient.getProductsByIds(ids);
+        List<ProductResponse> productResponseList = productClient.getProductsByVariantIds(ids);
 
         System.out.println("Kết quả gọi API: " + !productResponseList.isEmpty());
 
@@ -111,9 +111,7 @@ public class OrderService {
         Map<Integer, Integer> mapItems = new HashMap<>();
         List<Integer> variantIds = new ArrayList<>();
         for (AddOrderItemRequest orderItem : request.getOrderItems()) {
-            totalAmount += orderItem.getPrice();
-            mapItems.put(orderItem.getVariantId(), orderItem.getQuantity());
-            variantIds.add(orderItem.getVariantId());
+            totalAmount += orderItem.getPrice() * orderItem.getQuantity();
         }
 
         // 2. Tạo Order
