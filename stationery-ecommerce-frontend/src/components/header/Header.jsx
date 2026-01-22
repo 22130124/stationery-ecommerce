@@ -1,21 +1,24 @@
 import styles from './Header.module.scss'
-import { FaBars, FaBell, FaShoppingCart, FaUser, FaBoxOpen, FaSearch } from 'react-icons/fa'
-import { IoIosArrowForward } from 'react-icons/io'
-import { getActiveCategories } from '../../api/categoryApi'
-import { Link, useNavigate } from 'react-router-dom'
+import {FaBars, FaBell, FaShoppingCart, FaUser, FaBoxOpen, FaSearch} from 'react-icons/fa'
+import {IoIosArrowForward} from 'react-icons/io'
+import {getActiveCategories} from '../../api/categoryApi'
+import {Link, useNavigate} from 'react-router-dom'
 import {useEffect, useState} from 'react'
+import {getProfile} from "../../api/profileApi";
 
 const Header = () => {
     const [hoveredMenu, setHoveredMenu] = useState(null)
     const [categories, setCategories] = useState([])
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [searchKeyword, setSearchKeyword] = useState('')
+    const [user, setUser] = useState(null)
 
     const navigate = useNavigate()
 
     const handleMouseEnter = (menu) => setHoveredMenu(menu)
     const handleMouseLeave = () => setHoveredMenu(null)
 
+    // Lấy danh sách danh mục
     useEffect(() => {
         const fetchCategories = async () => {
             const data = await getActiveCategories()
@@ -25,6 +28,28 @@ const Header = () => {
 
         const token = localStorage.getItem('token')
         setIsLoggedIn(!!token)
+    }, [])
+
+    // Lấy thông tin user
+    useEffect(() => {
+        const token = localStorage.getItem('token')
+        setIsLoggedIn(!!token)
+
+        if (!token) return
+
+        const fetchUser = async () => {
+            try {
+                const data = await getProfile()
+                setUser({
+                    email: token?.getEmail?.() || data.email, // tuỳ backend
+                    avatarUrl: data.avatarUrl,
+                })
+            } catch (err) {
+                console.error('Fetch user failed', err)
+            }
+        }
+
+        fetchUser()
     }, [])
 
     const renderCategories = (categories, level = 0) => {
@@ -38,7 +63,7 @@ const Header = () => {
                         >
                             <span className={cat.children?.length > 0 ? styles.hasChildren : ''}>
                                 {cat.name}
-                                {cat.children?.length > 0 && <IoIosArrowForward className={styles.arrow} />}
+                                {cat.children?.length > 0 && <IoIosArrowForward className={styles.arrow}/>}
                             </span>
                         </Link>
 
@@ -66,11 +91,19 @@ const Header = () => {
 
         // Chuyển hướng đến trang product-list để xử lý search
         navigate(`/product-list?search=${encodeURIComponent(keyword)}`)
-        
+
         // Reset lại nội dung search bar
         setSearchKeyword('')
     }
 
+    // Hàm rút ngắn email hiển thị
+    const shortenEmail = (email, maxLength = 18) => {
+        if (!email) return ''
+        if (email.length <= maxLength) return email
+
+        const [name, domain] = email.split('@')
+        return `${name.slice(0, 6)}...@${domain}`
+    }
 
     return (
         <header className={styles.header}>
@@ -83,7 +116,7 @@ const Header = () => {
                 onMouseEnter={() => handleMouseEnter('category')}
                 onMouseLeave={handleMouseLeave}
             >
-                <FaBars />
+                <FaBars/>
                 <span>Danh mục sản phẩm</span>
 
                 {hoveredMenu === 'category' && (
@@ -106,7 +139,7 @@ const Header = () => {
                     className={styles.searchButton}
                     onClick={handleSearch}
                 >
-                    <FaSearch />
+                    <FaSearch/>
                 </button>
             </div>
 
@@ -117,11 +150,11 @@ const Header = () => {
                 onMouseEnter={() => handleMouseEnter('notification')}
                 onMouseLeave={handleMouseLeave}
             >
-                <FaBell />
+                <FaBell/>
                 <span>Thông báo</span>
                 {hoveredMenu === 'notification' && (
                     <div className={styles.dropdown}>
-                        <FaBoxOpen className={styles.emptyIcon} />
+                        <FaBoxOpen className={styles.emptyIcon}/>
                         {isLoggedIn ? (
                             <p>Chưa có thông báo mới</p>
                         ) : (
@@ -139,9 +172,8 @@ const Header = () => {
 
             {/* Giỏ hàng */}
             <Link className={styles.menuItem} to='/shopping-cart'>
-                <FaShoppingCart />
+                <FaShoppingCart/>
                 <span>Giỏ hàng</span>
-                {/* <span className={styles.cartBadge}>3</span> */} {/* Có thể thêm badge khi có số lượng */}
             </Link>
 
             {/* Tài khoản */}
@@ -150,21 +182,49 @@ const Header = () => {
                 onMouseEnter={() => handleMouseEnter('user')}
                 onMouseLeave={handleMouseLeave}
             >
-                <FaUser />
-                <span>Tài khoản</span>
+                {isLoggedIn && user ? (
+                    <>
+                        <img
+                            src={user.avatarUrl || '/default-avatar.png'}
+                            alt="avatar"
+                            className={styles.headerAvatar}
+                        />
+                        <span className={styles.userEmail}>{shortenEmail(user.email)}</span>
+                    </>
+                ) : (
+                    <>
+                        <FaUser/>
+                        <span>Tài khoản</span>
+                    </>
+                )}
+
                 {hoveredMenu === 'user' && (
-                    <div className={styles.dropdown}>
+                    <div className={styles.userDropdown}>
                         {isLoggedIn ? (
                             <>
-                                <button onClick={() => navigate('/profile')}>Hồ sơ cá nhân</button>
-                                <button onClick={() => navigate('/order-history')}>Lịch sử mua hàng</button>
-                                <button onClick={handleLogout}>Đăng xuất</button>
+                                <div className={styles.userInfo}>
+                                    <FaUser className={styles.avatar}/>
+                                    <div>
+                                        <strong>Tài khoản của bạn</strong>
+                                        <span> Xem & quản lý</span>
+                                    </div>
+                                </div>
+
+                                <ul className={styles.userMenu}>
+                                    <li onClick={() => navigate('/profile')}>Hồ sơ cá nhân</li>
+                                    <li onClick={() => navigate('/order-history')}>Đơn hàng của tôi</li>
+                                    <li className={styles.logout} onClick={handleLogout}>
+                                        Đăng xuất
+                                    </li>
+                                </ul>
                             </>
                         ) : (
-                            <>
+                            <div className={styles.guestActions}>
                                 <button onClick={() => navigate('/login')}>Đăng nhập</button>
-                                <button onClick={() => navigate('/signup')}>Đăng ký tài khoản</button>
-                            </>
+                                <button className={styles.outline} onClick={() => navigate('/signup')}>
+                                    Đăng ký
+                                </button>
+                            </div>
                         )}
                     </div>
                 )}
