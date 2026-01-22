@@ -21,6 +21,9 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(unique = true, nullable = false)
+    private String code;
+
     @Column(name = "account_id")
     private Integer accountId;
 
@@ -59,5 +62,20 @@ public class Order {
     public enum PaymentStatus {
         UNPAID,
         PAID
+    }
+
+    // Hàm tạo ra mã code của đơn hàng
+    @PrePersist
+    public void generateOrderCode() {
+        if (this.code == null) {
+            String date = java.time.LocalDate.now()
+                    .format(java.time.format.DateTimeFormatter.BASIC_ISO_DATE);
+            String random = java.util.UUID.randomUUID()
+                    .toString()
+                    .substring(0, 6)
+                    .toUpperCase();
+
+            this.code = "HD-" + date + "-" + random;
+        }
     }
 }

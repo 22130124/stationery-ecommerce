@@ -6,6 +6,6 @@ import java.util.Map;
 
 @Data
 public class ReserveRequest {
-    private Integer orderId;
+    private String orderCode;
     private Map<Integer, Integer> items; // Map<variantId, quantity>
 }

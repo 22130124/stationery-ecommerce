@@ -5,7 +5,7 @@ const BASE_URL = API_URLS.order;
 
 export const getOrders = () => apiFetch(BASE_URL);
 
-export const getOrderDetail = (id) => apiFetch(`${BASE_URL}/${id}`);
+export const getOrderDetail = (orderCode) => apiFetch(`${BASE_URL}/${orderCode}`);
 
 export const createOrders = (payload) =>
     apiFetch(BASE_URL, {
@@ -15,13 +15,13 @@ export const createOrders = (payload) =>
 
 export const getAllOrders = () => apiFetch(`${BASE_URL}/admin`);
 
-export const updateOrderStatus = (id, status) =>
-    apiFetch(`${BASE_URL}/admin/${id}`, {
+export const updateOrderStatus = (orderCode, status) =>
+    apiFetch(`${BASE_URL}/admin/${orderCode}`, {
         method: "PUT",
         body: JSON.stringify({ status }),
     });
 
-export const cancelOrder = (id) =>
-    apiFetch(`${BASE_URL}/cancel/${id}`, {
+export const cancelOrder = (orderCode) =>
+    apiFetch(`${BASE_URL}/cancel/${orderCode}`, {
         method: "PUT",
     });

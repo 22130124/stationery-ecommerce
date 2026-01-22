@@ -21,8 +21,8 @@ public class VnPayController {
     private final VnPayService vnPayService;
 
     @PostMapping("/pay")
-    public ResponseEntity<?> pay(@RequestParam Integer orderId) {
-        String paymentUrl = orderService.createPaymentUrl(orderId);
+    public ResponseEntity<?> pay(@RequestParam String orderCode) {
+        String paymentUrl = orderService.createPaymentUrl(orderCode);
         Map<String, String> response = Map.of("paymentUrl", paymentUrl);
         return ResponseEntity.ok(response);
     }
@@ -52,6 +52,7 @@ public class VnPayController {
             String redirectUrl =
                     feBaseUrl
                     + "?type=error"
+                    + "&redirect=/order-history"
                     + "&message=" + URLEncoder.encode(result.getMessage(), StandardCharsets.UTF_8);
 
             response.sendRedirect(redirectUrl);

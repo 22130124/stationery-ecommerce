@@ -10,27 +10,27 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface StockReservationRepository extends JpaRepository<StockReservation, Integer> {
-    List<StockReservation> findByOrderId(Integer orderId);
+    List<StockReservation> findByOrderCode(String orderCode);
 
-    boolean existsByOrderIdAndVariantId(Integer orderId, Integer variantId);
+    boolean existsByOrderCodeAndVariantId(String orderCode, Integer variantId);
 
     @Modifying
     @Query("""
         update StockReservation
         set status = 'CONFIRMED'
-        where orderId = :orderId
+        where orderCode = :orderCode
         and status = 'RESERVED'
         """)
-    void confirmByOrderId(@Param("orderId") Integer orderId);
+    void confirmByOrderCode(@Param("orderCode") String orderCode);
 
     @Modifying
     @Query("""
         update StockReservation
         set status = 'RELEASED'
-        where orderId = :orderId
+        where orderCode = :orderCode
         and status = 'RESERVED'
         """)
-    void releaseByOrderId(@Param("orderId") Integer orderId);
+    void releaseByOrderCode(@Param("orderCode") String orderCode);
 
     @Query("""
         SELECT r

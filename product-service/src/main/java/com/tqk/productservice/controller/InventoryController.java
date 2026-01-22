@@ -18,15 +18,15 @@ public class InventoryController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/confirm/{orderId}")
-    public ResponseEntity<?> confirm(@PathVariable("orderId") Integer orderId) {
-        inventoryService.confirm(orderId);
+    @PutMapping("/confirm/{orderCode}")
+    public ResponseEntity<?> confirm(@PathVariable("orderCode") String orderCode) {
+        inventoryService.confirm(orderCode);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/release/{orderId}")
-    public ResponseEntity<?> release(@PathVariable("orderId") Integer orderId) {
-        inventoryService.release(orderId);
+    @PutMapping("/release/{orderCode}")
+    public ResponseEntity<?> release(@PathVariable("orderCode") String orderCode) {
+        inventoryService.release(orderCode);
         return ResponseEntity.ok().build();
     }
 }

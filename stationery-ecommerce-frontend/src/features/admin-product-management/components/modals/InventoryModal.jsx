@@ -13,7 +13,7 @@ const InventoryModal = ({open, product, onClose, onUpdate}) => {
                 id: v.id,
                 name: v.name,
                 currentStock: v.stock,
-                changeType: 'replace',
+                changeType: 'increase',
                 quantity: v.stock
             })))
         }

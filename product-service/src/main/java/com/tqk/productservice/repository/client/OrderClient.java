@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 @FeignClient(name = "order-service", url = "http://order-service:8080")
 public interface OrderClient {
-    @PutMapping("/orders/set-expired/{orderId}")
-    BrandResponse setExpired(@PathVariable Integer orderId);
+    @PutMapping("/orders/set-expired/{orderCode}")
+    BrandResponse setExpired(@PathVariable String orderCode);
 }

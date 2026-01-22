@@ -4,7 +4,7 @@ import React from 'react'
 const ShippingStatus = ({status}) => {
     const STATUS_TEXT = {
         'WAITING_PAYMENT': 'Chờ thanh toán',
-        'READY_TO_PICK': 'Đang lấy hàng',
+        'READY_TO_PICK': 'Chờ lấy hàng',
         'SHIPPING': 'Đang giao hàng',
         'DELIVERED': 'Đã giao',
         'CANCELLED': 'Đã hủy',

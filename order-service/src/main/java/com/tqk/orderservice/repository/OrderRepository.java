@@ -7,10 +7,12 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Integer> {
     List<Order> findByAccountIdOrderByCreatedAtDesc(Integer accountId);
 
+    Optional<Order> findByCode(String orderId);
     /**
      * Tính doanh thu theo ngày
      * Gộp các đơn hàng PAID theo từng ngày và tính tổng tiền mỗi ngày

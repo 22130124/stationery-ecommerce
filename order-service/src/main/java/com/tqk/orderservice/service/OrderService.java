@@ -1,9 +1,9 @@
 package com.tqk.orderservice.service;
 
+import com.tqk.orderservice.dto.request.inventory.ReserveRequest;
 import com.tqk.orderservice.dto.request.order.AddOrderItemRequest;
 import com.tqk.orderservice.dto.request.order.AddOrderRequest;
 import com.tqk.orderservice.dto.request.order.UpdateOrderRequest;
-import com.tqk.orderservice.dto.request.inventory.ReserveRequest;
 import com.tqk.orderservice.dto.response.order.OrderDetailResponse;
 import com.tqk.orderservice.dto.response.order.OrderItemResponse;
 import com.tqk.orderservice.dto.response.order.OrderResponse;
@@ -24,9 +24,11 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.ZoneId;
 import java.util.*;
 
-import static com.tqk.orderservice.model.Order.PaymentStatus.*;
+import static com.tqk.orderservice.model.Order.PaymentStatus.PAID;
+import static com.tqk.orderservice.model.Order.PaymentStatus.UNPAID;
 import static com.tqk.orderservice.model.Order.ShippingStatus.*;
 
 @Service
@@ -40,8 +42,8 @@ public class OrderService {
     private final ProductClient productClient;
     private final InventoryClient inventoryClient;
 
-    // Hàm lấy ra danh sách đơn hàng theo account id
-    public List<OrderResponse> getOrders(Integer accountId) {
+    // Hàm lấy ra danh sách đơn hàng theo account id/null nếu muốn lấy tất cả đơn hàng trong hệ thống
+    public List<OrderDetailResponse> getOrders(Integer accountId) {
         List<Order> orders;
 
         // Nếu không truyền vào accountId, mặc định lấy ra danh sách tất cả đơn hàng
@@ -58,18 +60,13 @@ public class OrderService {
 
         // Nếu orders không rỗng thì tiến hành convert sang dto để trả về kết quả
         List<OrderResponse> orderResponseList = new ArrayList<>();
-        for (Order order : orders) {
-            OrderResponse orderResponse = convertOrderToDto(order);
-            orderResponseList.add(orderResponse);
-        }
-
-        return orderResponseList;
+        return convertOrdersToDto(orders);
     }
 
     // Hàm lấy ra thông tin chi tiết của một đơn hàng
-    public OrderDetailResponse getOrderDetail(Integer id) {
+    public OrderDetailResponse getOrderDetail(String orderCode) {
         // Lấy ra thông tin order từ database
-        Order order = orderRepository.findById(id)
+        Order order = orderRepository.findByCode(orderCode)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
 
         // Lấy thông tin về profile người dùng mua hàng
@@ -80,10 +77,7 @@ public class OrderService {
         for (OrderItem item : order.getOrderItems()) {
             ids.add(item.getVariantId());
         }
-        System.out.println("Variant Ids: " + ids);
         List<ProductResponse> productResponseList = productClient.getProductsByVariantIds(ids);
-
-        System.out.println("Kết quả gọi API: " + !productResponseList.isEmpty());
 
         // Chuyển đổi đơn hàng hiện tại sang Dto
         OrderResponse orderResponse = convertOrderToDto(order);
@@ -109,25 +103,28 @@ public class OrderService {
         // Đồng thời tạo danh sách các variantIds để phục vụ resetCart sau khi tạo đơn hàng
         int totalAmount = 0;
         Map<Integer, Integer> mapItems = new HashMap<>();
+
         List<Integer> variantIds = new ArrayList<>();
         for (AddOrderItemRequest orderItem : request.getOrderItems()) {
             totalAmount += orderItem.getPrice() * orderItem.getQuantity();
+            mapItems.put(orderItem.getVariantId(), orderItem.getQuantity());
+            variantIds.add(orderItem.getVariantId());
         }
 
         // 2. Tạo Order
         Order order = new Order();
         order.setAccountId(accountId);
         order.setTotalAmount(totalAmount);
-        order.setShippingStatus(PENDING);
+        order.setShippingStatus(READY_TO_PICK);
         order.setPaymentStatus(UNPAID);
         order = orderRepository.save(order);
 
         // 3. Tạo reserve request để yêu cầu kho hàng giữ số lượng sản phẩm cho đơn hàng này
         ReserveRequest reserveRequest = new ReserveRequest();
-        reserveRequest.setOrderId(order.getId());
+        reserveRequest.setOrderCode(order.getCode());
         reserveRequest.setItems(mapItems);
         try {
-            // 4. Gọi API đến kho hàng
+            // 4. Gọi API đến kho hàng để yêu cầu giữ sản phẩm để chờ thanh toán
             inventoryClient.reserve(reserveRequest);
 
             // Cập nhật trạng thái đơn hàng thành ready-to-pick
@@ -159,11 +156,12 @@ public class OrderService {
         }
     }
 
+
     // Hàm cập nhật trạng thái giao hàng
     @Transactional
-    public OrderResponse updateShippingStatus(Integer accountId, Integer id, UpdateOrderRequest request) {
+    public OrderResponse updateShippingStatus(String orderCode, UpdateOrderRequest request) {
         // 1. Lấy order
-        Order order = orderRepository.findById(id)
+        Order order = orderRepository.findByCode(orderCode)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
 
         // 2. Cập nhật trạng thái
@@ -175,7 +173,7 @@ public class OrderService {
                 order.setShippingStatus(DELIVERED);
                 break;
             case "CANCELLED":
-                inventoryClient.release(order.getId());
+                inventoryClient.release(order.getCode());
                 order.setShippingStatus(CANCELLED);
                 break;
         }
@@ -188,11 +186,11 @@ public class OrderService {
 
     // Hàm cập nhật trạng thái đơn hàng khi thanh toán thành công
     @Transactional
-    public void updatePaymentSucess(Integer orderId) {
-        Order order = orderRepository.findById(orderId)
+    public void updatePaymentSucess(String orderCode) {
+        Order order = orderRepository.findByCode(orderCode)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
 
-        inventoryClient.confirm(order.getId());
+        inventoryClient.confirm(order.getCode());
 
         order.setPaymentStatus(PAID);
         order.setShippingStatus(READY_TO_PICK);
@@ -201,9 +199,9 @@ public class OrderService {
 
     // Hàm xử lý hủy đơn hàng
     @Transactional
-    public OrderResponse cancelOrder(Integer accountId, Integer orderId) {
+    public OrderResponse cancelOrder(Integer accountId, String orderCode) {
         // 1. Lấy order
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findByCode(orderCode)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
 
         // 2. Kiểm tra quyền sở hữu
@@ -217,7 +215,7 @@ public class OrderService {
         }
 
         // 4. Gọi tới inventory để release số lượng
-        inventoryClient.release(order.getId());
+        inventoryClient.release(order.getCode());
 
         // 5. Cập nhật trạng thái
         order.setShippingStatus(CANCELLED);
@@ -227,15 +225,15 @@ public class OrderService {
     }
 
     // Hàm tạo yêu cầu thanh toán
-    public String createPaymentUrl(Integer orderId) {
+    public String createPaymentUrl(String orderCode) {
         // Lấy thông tin đơn hàng
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+        Order order = orderRepository.findByCode(orderCode)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng có code là " + orderCode));
 
         // số tiền thanh toán
         int amount = order.getTotalAmount();
 
-        return vnPayService.createPaymentUrl(orderId, amount);
+        return vnPayService.createPaymentUrl(orderCode, amount);
     }
 
     // Hàm xử lý kết quả thanh toán
@@ -245,11 +243,11 @@ public class OrderService {
         int result = vnPayService.verifyPayment(params);
 
         if (result == 1) { // Thành công
-            Integer orderId = Integer.parseInt(params.get("vnp_TxnRef"));
+            String orderCode = params.get("vnp_TxnRef");
 
-            updatePaymentSucess(orderId);
+            updatePaymentSucess(orderCode);
 
-            return new PaymentResult(true, "Thanh toán thành công cho đơn hàng: " + orderId);
+            return new PaymentResult(true, "Thanh toán thành công cho đơn hàng: " + orderCode);
         }
 
         if (result == 0) {
@@ -259,15 +257,31 @@ public class OrderService {
         return new PaymentResult(false, "Lỗi xác thực chữ ký");
     }
 
+    // Hàm cập nhật trạng thái hết hạn cho đơn hàng
+    @Transactional
+    public void setExpired(String orderCode) {
+        Order order = orderRepository.findByCode(orderCode)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng có code là " + orderCode));
+        order.setShippingStatus(EXPIRED);
+        orderRepository.save(order);
+    }
+
     // Hàm chuyển đổi đơn hàng sang dto
-    public OrderResponse convertOrderToDto(Order order) {
+    private OrderResponse convertOrderToDto(Order order) {
         OrderResponse orderResponse = new OrderResponse();
         orderResponse.setId(order.getId());
+        orderResponse.setCode(order.getCode());
         orderResponse.setAccountId(order.getAccountId());
         orderResponse.setTotalAmount(order.getTotalAmount());
         orderResponse.setShippingStatus(order.getShippingStatus().name());
         orderResponse.setPaymentStatus(order.getPaymentStatus().name());
         orderResponse.setCreatedAt(order.getCreatedAt());
+        orderResponse.setCreatedAt(
+                order.getCreatedAt()
+                        .atZone(ZoneId.of("UTC"))
+                        .withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
+                        .toLocalDateTime()
+        );
         orderResponse.setUpdatedAt(order.getUpdatedAt());
 
         List<OrderItemResponse> orederItemList = new ArrayList<>();
@@ -281,7 +295,7 @@ public class OrderService {
     }
 
     // Hàm chuyển đổi item trong đơn hàng sang dto
-    public OrderItemResponse convertOrderItemToDto(OrderItem orderItem) {
+    private OrderItemResponse convertOrderItemToDto(OrderItem orderItem) {
         OrderItemResponse dto = new OrderItemResponse();
         dto.setId(orderItem.getId());
         dto.setOrderId(orderItem.getOrder().getId());
@@ -292,10 +306,12 @@ public class OrderService {
         return dto;
     }
 
-    // Hàm cập nhật trạng thái hết hạn cho đơn hàng
-    public void setExpired(Integer orderId) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
-        order.setShippingStatus(EXPIRED);
-        orderRepository.save(order);
+    // Hàm tạo danh sách List<OrderDetailResponse>
+    private List<OrderDetailResponse> convertOrdersToDto(List<Order> orders) {
+        List<OrderDetailResponse> response = new ArrayList<>();
+        for (Order order : orders) {
+            response.add(getOrderDetail(order.getCode()));
+        }
+        return response;
     }
 }

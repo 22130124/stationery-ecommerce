@@ -25,7 +25,7 @@ public class VnPayService {
     @Value("${vnpay.return-url}")
     private String returnUrl;
 
-    public String createPaymentUrl(Integer orderId, int amount) {
+    public String createPaymentUrl(String orderCode, int amount) {
         try {
             int finalAmount = amount * 100;
 
@@ -35,8 +35,8 @@ public class VnPayService {
             params.put("vnp_TmnCode", tmnCode);
             params.put("vnp_Amount", String.valueOf(finalAmount));
             params.put("vnp_CurrCode", "VND");
-            params.put("vnp_TxnRef", String.valueOf(orderId));
-            params.put("vnp_OrderInfo", "Thanh toan don hang " + orderId);
+            params.put("vnp_TxnRef", orderCode);
+            params.put("vnp_OrderInfo", "Thanh toan don hang " + orderCode);
             params.put("vnp_OrderType", "other");
             params.put("vnp_Locale", "vn");
             params.put("vnp_ReturnUrl", returnUrl);

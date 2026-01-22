@@ -29,8 +29,8 @@ public class InventoryService {
             // Lấy ra giá trị variantID
             variantId = entry.getKey();
 
-            // Nếu đã reserve cho variantId của orderId này thì không reserve lại nữa
-            if (stockReservationRepository.existsByOrderIdAndVariantId(request.getOrderId(), variantId)) {
+            // Nếu đã reserve cho variantId của orderCode này thì không reserve lại nữa
+            if (stockReservationRepository.existsByOrderCodeAndVariantId(request.getOrderCode(), variantId)) {
                 continue; // đã reserve rồi
             }
 
@@ -50,7 +50,7 @@ public class InventoryService {
 
             // Giữ số lượng đã bị trừ cho đơn hàng hiện tại
             StockReservation stockReservation = new StockReservation();
-            stockReservation.setOrderId(request.getOrderId());
+            stockReservation.setOrderCode(request.getOrderCode());
             stockReservation.setVariantId(variantId);
             stockReservation.setQuantity(quantity);
             stockReservation.setStatus(RESERVED);
@@ -60,13 +60,13 @@ public class InventoryService {
     }
 
     @Transactional
-    public void confirm(Integer orderId) {
-        stockReservationRepository.confirmByOrderId(orderId);
+    public void confirm(String orderCode) {
+        stockReservationRepository.confirmByOrderCode(orderCode);
     }
 
     @Transactional
-    public void release(Integer orderId) {
-        List<StockReservation> stockReservations = stockReservationRepository.findByOrderId(orderId);
+    public void release(String orderCode) {
+        List<StockReservation> stockReservations = stockReservationRepository.findByOrderCode(orderCode);
         // Cộng lại số lượng đã vào kho ban đầu
         for (StockReservation stockReservation : stockReservations) {
             if (stockReservation.getStatus() == RESERVED) {
@@ -77,6 +77,6 @@ public class InventoryService {
         }
 
         // Cập nhật trạng thái released trong bảng stock reservations
-        stockReservationRepository.releaseByOrderId(orderId);
+        stockReservationRepository.releaseByOrderCode(orderCode);
     }
 }

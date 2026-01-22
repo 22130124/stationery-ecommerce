@@ -12,9 +12,9 @@ public interface InventoryClient {
     @PostMapping("/inventory/reserve")
     void reserve(@RequestBody ReserveRequest request);
 
-    @PutMapping("/inventory/release/{orderId}")
-    void release(@PathVariable Integer orderId);
+    @PutMapping("/inventory/release/{orderCode}")
+    void release(@PathVariable String orderCode);
 
-    @PutMapping("/inventory/confirm/{orderId}")
-    void confirm(@PathVariable Integer orderId);
+    @PutMapping("/inventory/confirm/{orderCode}")
+    void confirm(@PathVariable String orderCode);
 }

@@ -17,8 +17,8 @@ public class StockReservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "order_id")
-    private Integer orderId;
+    @Column(name = "order_code")
+    private String orderCode;
 
     @Column(name = "variant_id")
     private Integer variantId;

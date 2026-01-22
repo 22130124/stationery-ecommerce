@@ -41,7 +41,7 @@ public class StockReservationScheduler {
             stockReservationRepository.save(stockReservation);
 
             // Cập nhật trạng thái hết hạn cho đơn hàng
-            orderClient.setExpired(stockReservation.getOrderId());
+            orderClient.setExpired(stockReservation.getOrderCode());
         }
     }
 }

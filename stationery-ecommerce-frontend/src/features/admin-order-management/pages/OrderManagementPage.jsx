@@ -1,6 +1,6 @@
 // src/features/admin-order-management/pages/OrderManagementPage.jsx
 import React, {useEffect, useState} from 'react';
-import {Table, Modal, Select} from 'antd';
+import {Table, Modal} from 'antd';
 import styles from './OrderManagementPage.module.scss';
 import toast from 'react-hot-toast';
 import {cancelOrder, getAllOrders, updateOrderStatus} from '../../../api/orderApi';
@@ -9,65 +9,48 @@ import ShippingStatus from "../../../components/order/ShippingStatus";
 import PaymentStatus from "../../../components/order/PaymentStatus";
 
 const OrderManagementPage = () => {
-    const [orders, setOrders] = useState([]);
+    const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState("");
-    const [selectedOrder, setSelectedOrder] = useState(null);
-    const [editOrder, setEditOrder] = useState(null);
-    const [selectedOrderId, setSelectedOrderId] = useState(null);
+    const [selectedOrderCode, setSelectedOrderCode] = useState(null);
 
     const {confirm} = Modal;
 
-    const STATUS_TEXT = {
-        "0": 'Đang lấy hàng',
-        "1": 'Đang giao hàng',
-        "2": 'Đã giao',
-        "-1": 'Đã hủy',
-    };
-
     const getNextStatus = (current) => {
         switch (current) {
-            case 1:
-                return 2;
-            case 2:
-                return 3;
-            case 3:
-                return null;
+            case 'READY_TO_PICK':
+                return 'SHIPPING';
+            case 'SHIPPING':
+                return 'DELIVERED';
+            case 'WAITING_PAYMENT':
+                return 'WAITING_PAYMENT';
             default:
                 return null;
         }
     };
 
-    // Fetch orders
+    // Fetch data
     useEffect(() => {
-        const fetchOrders = async () => {
+        const fetchData = async () => {
             setLoading(true);
-            const data = await getAllOrders();
-            if (!data) {
-                setLoading(false);
-                return
-            }
-            setOrders(data);
-            setLoading(false);
-        }
+            const res = await getAllOrders();
+            if (!res) return setLoading(false);
 
-        fetchOrders();
+            const normalized = res.map(item => ({
+                ...item.order,
+                profile: item.profile
+            }));
+
+            setData(normalized);
+            setLoading(false);
+        };
+
+        fetchData();
     }, []);
 
-    const handleStatusChange = async (orderId, newStatus) => {
-            const data = await updateOrderStatus(orderId, newStatus)
-            if (!data) return
-            setOrders(prev =>
-                prev.map(o =>
-                    o.id === orderId ? {...o, shippingStatus: newStatus} : o
-                )
-            );
-            toast.dismiss()
-            toast.success('Cập nhật trạng thái thành công');
-    };
-
+    // Hàm hiển thị modal xác nhận hủy đơn hàng
     const showCancelConfirm = (order) => {
-        if (order.shippingStatus === 2) {
+        if (order.shippingStatus === 'DELIVERED' || order.shippingStatus === 'CANCELLED') {
             toast.dismiss()
             toast.error('Trạng thái này không thể cập nhật thêm');
             return;
@@ -75,14 +58,15 @@ const OrderManagementPage = () => {
 
         confirm({
             title: 'Hủy đơn hàng',
-            content: `Bạn có chắc hủy đơn hàng #${order.id}?`,
+            content: `Bạn có chắc hủy đơn hàng #${order.code}?`,
             okText: 'Xác nhận',
             okType: 'danger',
             cancelText: 'Hủy',
-            onOk: () => handleStatusChange(order.id, 0),
+            onOk: () => handleStatusChange(order.code, 'CANCELLED'),
         });
     };
 
+    // Hàm hiển thị modal xác nhận cập nhật trạng thái đơn hàng
     const openStatusModal = (order) => {
         const next = getNextStatus(order.shippingStatus);
 
@@ -92,15 +76,35 @@ const OrderManagementPage = () => {
             return;
         }
 
+        if (next === 'WAITING_PAYMENT') {
+            toast.dismiss()
+            toast('Đơn hàng này đang chờ thanh toán');
+            return;
+        }
+
         confirm({
             title: 'Xác nhận cập nhật',
-            content: `Xác nhận cập nhật trạng thái đơn hàng thành '${STATUS_TEXT[next]}'?`,
+            content: `Xác nhận cập nhật trạng thái đơn hàng thành '${next}'?`,
             okText: 'Xác nhận',
             cancelText: 'Hủy',
-            onOk: () => handleStatusChange(order.id, next),
+            onOk: () => handleStatusChange(order.code, next),
         });
     };
 
+    // Hàm cập nhật trạng thái đơn hàng
+    const handleStatusChange = async (orderCode, newStatus) => {
+        const res = await updateOrderStatus(orderCode, newStatus)
+        if (!res) return
+        setData(prev =>
+            prev.map(o =>
+                o.code === orderCode ? {...o, shippingStatus: newStatus} : o
+            )
+        );
+        toast.dismiss()
+        toast.success('Cập nhật trạng thái thành công');
+    };
+
+    // Hàm định dạng tiền tệ
     const formatCurrency = (value) => {
         return value?.toLocaleString('vi-VN', {
             style: 'currency',
@@ -108,22 +112,43 @@ const OrderManagementPage = () => {
         });
     };
 
-    const filteredData = orders.filter(order =>
-        order.id.toString().includes(searchText) ||
-        order.accountId.toString().includes(searchText)
-    );
+    const filteredData = data.filter(order => {
+        const text = searchText.toLowerCase();
+
+        return (
+            order.code.toLowerCase().includes(text) ||
+            order.profile?.fullName?.toLowerCase().includes(text) ||
+            order.profile?.email?.toLowerCase().includes(text) ||
+            order.profile?.phone?.includes(text)
+        );
+    });
+
 
     const columns = [
         {
             title: 'Mã đơn',
-            dataIndex: 'id',
-            key: 'id',
-            sorter: (a, b) => a.id - b.id,
+            dataIndex: 'code',
+            key: 'code',
         },
         {
-            title: 'Mã tài khoản',
-            dataIndex: 'accountId',
-            key: 'accountId',
+            title: 'Khách hàng',
+            key: 'customer',
+            render: (_, record) => {
+                const profile = record.profile;
+                return (
+                    <div>
+                        <div style={{fontWeight: 600}}>
+                            {profile?.fullName || '---'}
+                        </div>
+                        <div style={{fontSize: 12, color: '#666'}}>
+                            {profile?.email}
+                        </div>
+                        <div style={{fontSize: 12, color: '#999'}}>
+                            {profile?.phone}
+                        </div>
+                    </div>
+                );
+            },
         },
         {
             title: 'Tổng tiền',
@@ -136,21 +161,27 @@ const OrderManagementPage = () => {
             title: 'Giao hàng',
             dataIndex: 'shippingStatus',
             key: 'shippingStatus',
-            render: (status) => {
-                return (
-                    <ShippingStatus status={status}/>
-                )
-            }
+            filters: [
+                {text: 'Chờ thanh toán', value: 'WAITING_PAYMENT'},
+                {text: 'Chờ lấy hàng', value: 'READY_TO_PICK'},
+                {text: 'Đang giao', value: 'SHIPPING'},
+                {text: 'Đã giao', value: 'DELIVERED'},
+                {text: 'Đã hủy', value: 'CANCELLED'},
+                {text: 'Hết hạn', value: 'EXPIRED'},
+            ],
+            onFilter: (value, record) => record.shippingStatus === value,
+            render: (status) => <ShippingStatus status={status}/>
         },
         {
             title: 'Thanh toán',
             dataIndex: 'paymentStatus',
             key: 'paymentStatus',
-            render: (status) => {
-                return (
-                    <PaymentStatus status={status}/>
-                )
-            }
+            filters: [
+                { text: 'Chưa thanh toán', value: 'UNPAID' },
+                { text: 'Đã thanh toán', value: 'PAID' },
+            ],
+            onFilter: (value, record) => record.paymentStatus === value,
+            render: (status) => <PaymentStatus status={status} />
         },
         {
             title: 'Ngày tạo',
@@ -167,7 +198,7 @@ const OrderManagementPage = () => {
                 <div className={styles.actions}>
                     <button
                         className={styles.detailBtn}
-                        onClick={() => setSelectedOrderId(record.id)}
+                        onClick={() => setSelectedOrderCode(record.code)}
                     >
                         Chi tiết
                     </button>
@@ -201,7 +232,7 @@ const OrderManagementPage = () => {
                 <input
                     type='text'
                     className={styles.searchInput}
-                    placeholder='Tìm theo mã đơn hoặc mã tài khoản...'
+                    placeholder='Tìm theo mã đơn, tên, email, SĐT...'
                     onChange={(e) => setSearchText(e.target.value)}
                 />
             </div>
@@ -209,7 +240,7 @@ const OrderManagementPage = () => {
             <Table
                 columns={columns}
                 dataSource={filteredData}
-                rowKey='id'
+                rowKey='code'
                 loading={loading}
                 pagination={{
                     pageSize: 10,
@@ -221,9 +252,9 @@ const OrderManagementPage = () => {
 
             {/* Modal chi tiết đơn hàng */}
             <OrderDetailModal
-                orderId={selectedOrderId}
-                open={!!selectedOrderId}
-                onClose={() => setSelectedOrderId(null)}
+                orderCode={selectedOrderCode}
+                open={!!selectedOrderCode}
+                onClose={() => setSelectedOrderCode(null)}
             />
         </div>
     );

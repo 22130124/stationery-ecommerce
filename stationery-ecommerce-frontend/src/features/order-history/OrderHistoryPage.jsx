@@ -9,50 +9,39 @@ import {useNavigate} from "react-router-dom";
 import shippingStatus from "../../components/order/ShippingStatus";
 
 const OrderHistoryPage = () => {
-    const [orders, setOrders] = useState([]);
+    const [data, setData] = useState([]);
     const [openDetail, setOpenDetail] = useState(false);
-    const [selectedOrderId, setSelectedOrderId] = useState(null);
+    const [selectedOrderCode, setSelectedOrderCode] = useState(null);
 
     useEffect(() => {
         const fetchOrders = async () => {
             const data = await getOrders();
-            setOrders(data);
+            setData(data);
+            console.log("Data", data);
         };
         fetchOrders();
     }, []);
 
-    const formatDateVN = (isoString) => {
-        if (!isoString) return "";
-
-        const normalized = isoString.endsWith("Z") ? isoString : isoString + "Z";
-
-        const date = new Date(normalized);
-
-        return new Intl.DateTimeFormat("vi-VN", {
-            timeZone: "Asia/Ho_Chi_Minh",
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-        }).format(date);
-    };
-
-    const handlePayClick = async (orderId) => {
-        const response = await pay(orderId)
+    const handlePayClick = async (orderCode) => {
+        const response = await pay(orderCode)
         const paymentUrl = response.paymentUrl
         if (paymentUrl) {
             window.location.href = paymentUrl;
         }
     }
 
-    const handleOrderCancelled = (orderId) => {
-        setOrders(prev =>
-            prev.map(order =>
-                order.id === orderId
-                    ? { ...order, shippingStatus: 'CANCELLED' }
-                    : order
+    const handleOrderCancelled = (orderCode) => {
+        setData(prev =>
+            prev.map(item =>
+                item.order.code === orderCode
+                    ? {
+                        ...item,
+                        order: {
+                            ...item.order,
+                            shippingStatus: 'CANCELLED'
+                        }
+                    }
+                    : item
             )
         )
     }
@@ -60,65 +49,71 @@ const OrderHistoryPage = () => {
     return (
         <div className={styles.container}>
             <h2>Lịch sử đơn hàng</h2>
-            {orders.length === 0 ? (
+            {data.length === 0 ? (
                 <p className={styles.empty}>Chưa có đơn hàng nào.</p>
             ) : (
                 <ul className={styles.list}>
-                    {orders.map((order) => (
-                        <li key={order.id} className={styles.card}>
-                            <div className={styles.header}>
-                                <span className={styles.orderId}>#{order.id}</span>
-                                <div className={styles.orderStatusBadges}>
-                                    <ShippingStatus status={order.shippingStatus}/>
-                                </div>
-                            </div>
+                    {data.map((item) => {
+                            const order = item.order;
+                            return (
+                                <li key={order.code} className={styles.card}>
+                                    <div className={styles.header}>
+                                        <span className={styles.orderCode}>{order.code}</span>
 
-                            <div className={styles.info}>
-                                <div>
-                                    <strong>Ngày tạo:</strong> {formatDateVN(order.createdAt)}
-                                </div>
-                                <div>
-                                    <strong>Tổng tiền:</strong> {order.totalAmount.toLocaleString("vi-VN")}₫
-                                </div>
-                            </div>
+                                        <div className={styles.orderStatusBadges}>
+                                            <ShippingStatus status={order.shippingStatus}/>
+                                        </div>
+                                    </div>
 
-                            {order.shippingStatus === 'WAITING_PAYMENT' && order.paymentStatus === 'UNPAID' &&(
-                                <div className={styles.warningMessage}>
-                                    Lưu ý: Đơn hàng sẽ hết hạn sau 60 phút kể từ khi đặt hàng nếu không thanh toán.
-                                </div>
-                            )}
+                                    <div className={styles.info}>
+                                        <div>
+                                            <strong>Ngày tạo:</strong>{" "}
+                                            {new Date(order.createdAt).toLocaleString("vi-VN")}
+                                        </div>
+                                        <div>
+                                            <strong>Tổng tiền:</strong> {order.totalAmount.toLocaleString("vi-VN")}₫
+                                        </div>
+                                    </div>
 
-                            <div className={styles.actions}>
-                                {/* Nếu chưa thanh toán thì hiện nút */}
-                                {
-                                    order.paymentStatus === 'UNPAID' &&
-                                    order.shippingStatus !== 'CANCELLED' &&
-                                    order.shippingStatus !== 'EXPIRED' && (
-                                    <button
-                                        className={styles.payBtn}
-                                        onClick={() => handlePayClick(order.id)}
-                                    >
-                                        Thanh toán
-                                    </button>
-                                )}
+                                    {order.shippingStatus === 'WAITING_PAYMENT' && order.paymentStatus === 'UNPAID' && (
+                                        <div className={styles.warningMessage}>
+                                            Lưu ý: Đơn hàng sẽ hết hạn sau 60 phút kể từ khi đặt hàng nếu không thanh toán.
+                                        </div>
+                                    )}
 
-                                <button
-                                    className={styles.detailBtn}
-                                    onClick={() => {
-                                        setSelectedOrderId(order.id);
-                                        setOpenDetail(true);
-                                    }}
-                                >
-                                    Chi tiết
-                                </button>
-                            </div>
-                        </li>
-                    ))}
+                                    <div className={styles.actions}>
+                                        {/* Nếu chưa thanh toán thì hiện nút */}
+                                        {
+                                            order.paymentStatus === 'UNPAID' &&
+                                            order.shippingStatus !== 'CANCELLED' &&
+                                            order.shippingStatus !== 'EXPIRED' && (
+                                                <button
+                                                    className={styles.payBtn}
+                                                    onClick={() => handlePayClick(order.code)}
+                                                >
+                                                    Thanh toán
+                                                </button>
+                                            )}
+
+                                        <button
+                                            className={styles.detailBtn}
+                                            onClick={() => {
+                                                setSelectedOrderCode(order.code);
+                                                setOpenDetail(true);
+                                            }}
+                                        >
+                                            Chi tiết
+                                        </button>
+                                    </div>
+                                </li>
+                            )
+                        }
+                    )}
                 </ul>
             )}
 
             <OrderDetailModal
-                orderId={selectedOrderId}
+                orderCode={selectedOrderCode}
                 open={openDetail}
                 onClose={() => setOpenDetail(false)}
                 onOrderCancelled={handleOrderCancelled}

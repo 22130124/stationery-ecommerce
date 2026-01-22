@@ -7,18 +7,18 @@ import PaymentStatus from "../../../components/order/PaymentStatus";
 import {Link} from "react-router-dom";
 import toast from "react-hot-toast";
 
-const OrderDetailModal = ({orderId, open, onClose, onOrderCancelled }) => {
+const OrderDetailModal = ({orderCode, open, onClose, onOrderCancelled }) => {
     const [loading, setLoading] = useState(false)
     const [orderDetail, setOrderDetail] = useState(null)
     const [profileDetail, setProfileDetail] = useState(null)
     const {confirm} = Modal;
 
     useEffect(() => {
-        if (!orderId) return
+        if (!orderCode) return
 
         const fetchDetail = async () => {
             setLoading(true)
-            const data = await getOrderDetail(orderId)
+            const data = await getOrderDetail(orderCode)
             if (!data) {
                 setLoading(false)
                 return
@@ -29,18 +29,16 @@ const OrderDetailModal = ({orderId, open, onClose, onOrderCancelled }) => {
         }
 
         fetchDetail()
-    }, [orderId])
-    console.log('orderDetail', orderDetail)
-    console.log('profileDetail', profileDetail)
+    }, [orderCode])
 
     const handleCancel = async () => {
-        const data = await cancelOrder(orderDetail.id)
+        const data = await cancelOrder(orderDetail.code)
         if (!data) return
         setOrderDetail({
             ...orderDetail,
             shippingStatus: 'CANCELLED'
         })
-        onOrderCancelled?.(orderDetail.id)
+        onOrderCancelled?.(orderDetail.code)
         toast.dismiss()
         toast.success('Huỷ đơn hàng thành công', {
             duration: 1000
@@ -61,7 +59,7 @@ const OrderDetailModal = ({orderId, open, onClose, onOrderCancelled }) => {
     return (
         <Modal
             open={open}
-            title={<>Chi tiết đơn hàng <span style={{opacity: 0.6}}>#{orderId}</span></>}
+            title={<>Chi tiết đơn hàng <span style={{opacity: 0.6}}>#{orderCode}</span></>}
             onCancel={onClose}
             footer={null}
             width={650}
@@ -124,9 +122,17 @@ const OrderDetailModal = ({orderId, open, onClose, onOrderCancelled }) => {
                             </thead>
                             <tbody>
                             {orderDetail.orderItems?.map(item => (
-                                <tr key={item.id}>
+                                <tr key={item.code}>
                                     <td><img src={item.product.defaultImage.url} alt="Ảnh sản phẩm" className={styles.productImage}/></td>
-                                    <td><Link to={`/product-detail/${item.product.slug}`}>{item.product.name} ({item.product.defaultVariant.name})</Link></td>
+                                    <td>
+                                        <Link
+                                            to={`/product-detail/${item.product.slug}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            {item.product.name} ({item.product.defaultVariant.name})
+                                        </Link>
+                                    </td>
                                     <td>{item.quantity}</td>
                                     <td>{item.price.toLocaleString('vi-VN', {
                                         style: 'currency',
