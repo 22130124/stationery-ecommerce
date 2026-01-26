@@ -83,7 +83,8 @@ public class AIService {
         // Gọi Gemini để phân tích prompt
         GeminiResponse geminiResponse = analyzePrompt(prompt);
 
-        // Nếu Gemini kết luận yêu cầu mới nhất của người dùng không liên quan tới các yêu cầu trước thì chỉ phân tích yêu cầu mới
+        // Nếu Gemini kết luận yêu cầu mới nhất của người dùng không liên
+        // quan tới các yêu cầu trước thì chỉ phân tích yêu cầu mới
         return searchProducts(geminiResponse);
     }
 

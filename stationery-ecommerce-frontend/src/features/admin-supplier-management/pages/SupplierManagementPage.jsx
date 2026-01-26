@@ -125,7 +125,7 @@ const SupplierManagementPage = () => {
                         className={styles.detailBtn}
                         onClick={() => openBrandModal(record)}
                     >
-                        Chi tiết
+                        Xem thương hiệu
                     </button>
 
                     <button

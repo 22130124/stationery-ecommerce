@@ -36,6 +36,7 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<?> createOrder(@RequestHeader("X-Account-Id") Integer accountId, @RequestBody AddOrderRequest orderRequest) {
+        System.out.println("Đã vào API");
         OrderResponse order = orderService.createOrder(accountId, orderRequest);
         return ResponseEntity.ok(order);
     }

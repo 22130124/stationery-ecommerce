@@ -29,6 +29,17 @@ const OrderManagementPage = () => {
         }
     };
 
+    const getShippingStatusText = (shippingStatus) => {
+        switch (shippingStatus) {
+            case 'SHIPPING':
+                return 'Đang giao hàng';
+            case 'DELIVERED':
+                return 'Đã giao';
+            default:
+                return null;
+        }
+    }
+
     // Fetch data
     useEffect(() => {
         const fetchData = async () => {
@@ -84,7 +95,7 @@ const OrderManagementPage = () => {
 
         confirm({
             title: 'Xác nhận cập nhật',
-            content: `Xác nhận cập nhật trạng thái đơn hàng thành '${next}'?`,
+            content: `Xác nhận cập nhật trạng thái đơn hàng thành '${getShippingStatusText(next)}'?`,
             okText: 'Xác nhận',
             cancelText: 'Hủy',
             onOk: () => handleStatusChange(order.code, next),

@@ -100,7 +100,7 @@ const AccountManagementPage = () => {
         { title: "ID", dataIndex: "id", key: "id", sorter: (a, b) => a.id - b.id },
         { title: "Email", dataIndex: "email", key: "email" },
         {
-            title: "Role",
+            title: "Quyền hạn",
             dataIndex: "role",
             key: "role",
             render: (role, record) => (
