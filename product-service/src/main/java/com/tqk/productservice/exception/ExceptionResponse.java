@@ -1,13 +1,13 @@
-package com.tqk.profileservice.exception;
+package com.tqk.productservice.exception;
 
 import lombok.Data;
 
 @Data
-public class ErrorResponse {
+public class ExceptionResponse {
     private String code;
     private String message;
 
-    public ErrorResponse(String code, String message) {
+    public ExceptionResponse(String code, String message) {
         this.code = code;
         this.message = message;
     }

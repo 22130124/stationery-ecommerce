@@ -56,6 +56,7 @@ export async function apiFetch(url, options = {}) {
         const errorCode = data?.code;
         const messageResponse = data?.message;
         const message = ERROR_MESSAGES[errorCode] || messageResponse || "Đã có lỗi xảy ra. Vui lòng thử lại sau";
+        toast.dismiss()
         toast.error(message);
         throw {code: errorCode, message, raw: data};
     }

@@ -14,7 +14,6 @@ public class ProductRequest {
     private String origin;
     private String description;
     private Product.ProductStatus status;
-    private List<ProductImageRequest> images;
     private List<ProductVariantRequest> variants;
     private int stock;
 }

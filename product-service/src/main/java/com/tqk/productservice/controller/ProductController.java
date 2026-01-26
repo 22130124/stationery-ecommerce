@@ -62,6 +62,11 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping
+    public ResponseEntity<?> getActiveProducts() {
+        return ResponseEntity.ok(productService.getActiveProducts());
+    }
+
     @GetMapping("/by-slug/{slug}")
     public ResponseEntity<?> getProductBySlug(@PathVariable("slug") String slug) {
         ProductResponse product = productService.getBySlug(slug);

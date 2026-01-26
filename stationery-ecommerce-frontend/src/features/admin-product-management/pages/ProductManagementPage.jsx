@@ -1,118 +1,124 @@
-import React, {useState, useEffect} from 'react';
-import {Table, Modal} from 'antd';
-import styles from './ProductManagementPage.module.scss';
-import ProductFormModal from "../components/modals/ProductFormModal";
-import {addProduct, deleteProduct, getAllProducts, updateProduct} from "../../../api/productApi";
-import toast from "react-hot-toast";
-import InventoryModal from "../components/modals/InventoryModal";
+import React, {useState, useEffect} from 'react'
+import {Table, Modal} from 'antd'
+import styles from './ProductManagementPage.module.scss'
+import ProductFormModal from '../components/modals/ProductFormModal'
+import {addProduct, deleteProduct, getAllProducts, updateProduct} from '../../../api/productApi'
+import toast from 'react-hot-toast'
+import InventoryModal from '../components/modals/InventoryModal'
 
 const ProductManagementPage = () => {
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [searchText, setSearchText] = useState('');
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [editingProduct, setEditingProduct] = useState(null);
-    const [isInventoryModalVisible, setIsInventoryModalVisible] = useState(false);
+    const [products, setProducts] = useState([])
+    const [loading, setLoading] = useState(false)
+    const [searchText, setSearchText] = useState('')
+    const [isModalVisible, setIsModalVisible] = useState(false)
+    const [editingProduct, setEditingProduct] = useState(null)
+    const [isInventoryModalVisible, setIsInventoryModalVisible] = useState(false)
 
-    const {confirm} = Modal;
+    const {confirm} = Modal
 
     // Hàm fetch products khi mới vào trang
     useEffect(() => {
         const fetchProducts = async () => {
-            setLoading(true);
-            const data = await getAllProducts();
-            if(!data) {
+            setLoading(true)
+            const data = await getAllProducts()
+            if (!data) {
                 setLoading(false)
                 return
             }
             setProducts(data.products)
             setLoading(false)
         }
-        fetchProducts();
-    }, []);
+        fetchProducts()
+    }, [])
 
     console.log(products)
 
-    const showAddModal = () => {
-        setIsModalVisible(true);
-    };
+    const showCreateModal = () => {
+        setIsModalVisible(true)
+    }
 
     // Hàm xử lý thêm sản phẩm mới
-    const handleAddProduct = async (values) => {
+    const handleCreateProduct = async (values) => {
         try {
-            const data = await addProduct(values);
+            toast.dismiss()
+            toast.loading('Đang xử lý thêm sản phẩm. Vui lòng đợi...', {
+                toasterId: 'loading'
+            })
+            const data = await addProduct(values)
             if (!data) return
-            console.log("createdProduct:", data.product)
-            setProducts(prev => [...prev, data.product]);
-            setIsModalVisible(false);
+            console.log('createdProduct:', data.product)
+            setProducts(prev => [...prev, data.product])
+            setIsModalVisible(false)
             toast.success('Lưu thông tin sản phẩm thành công')
         } catch (error) {
-            toast.error('Lưu thông tin sản phẩm thất bại. Vui lòng thử lại sau');
+            toast.dismiss('loading')
         }
-    };
+    }
 
     // Hàm xử lý sửa thông tin sản phẩm
-    const handleEditProduct = async (values) => {
-        if (!editingProduct) return;
+    const handleUpdateProduct = async (values) => {
+        if (!editingProduct) return
+        toast.loading('Đang xử lý cập nhật thông tin sản phẩm. Vui lòng đợi...', {
+            toasterId: 'loading'
+        })
         try {
-            const data = await updateProduct(editingProduct.id, values);
-            const updatedProduct = data.updatedProduct;
+            const data = await updateProduct(editingProduct.id, values)
+            const updatedProduct = data.updatedProduct
             setProducts(prev =>
                 prev.map(p => (p.id === updatedProduct.id ? updatedProduct : p))
-            );
-            setIsModalVisible(false);
-            setEditingProduct(null);
+            )
+            setIsModalVisible(false)
+            setEditingProduct(null)
             toast.success('Lưu thông tin sản phẩm thành công')
         } catch (error) {
-            toast.error('Lưu thông tin sản phẩm thất bại. Vui lòng thử lại sau');
         }
-    };
+    }
 
     const handleDeleteProduct = async (id) => {
         const response = await deleteProduct(id)
         toast.dismiss()
         setProducts(prev =>
             prev.filter(p => p.id !== id)
-        );
+        )
         toast.success('Xóa sản phẩm thành công', {duration: 3000})
     }
 
     const showDeleteConfirm = (product, onOk) => {
         confirm({
             title: 'Xóa sản phẩm',
-            content: `Bạn có chắc chắn muốn xóa sản phẩm "${product.name}" không?`,
+            content: `Bạn có chắc chắn muốn xóa sản phẩm '${product.name}' không?`,
             okText: 'Xác nhận',
             okType: 'danger',
             cancelText: 'Hủy',
             onOk,
-        });
-    };
+        })
+    }
 
     const showInventoryModal = (product) => {
-        setEditingProduct(product); // dùng luôn editingProduct
-        setIsInventoryModalVisible(true);
-    };
+        setEditingProduct(product) // dùng luôn editingProduct
+        setIsInventoryModalVisible(true)
+    }
 
     // Hàm chỉnh định dạng tiền VND
     const formatCurrency = (value) => {
-        if (!value) return '';
-        return value.toLocaleString('vi-VN', {style: 'currency', currency: 'VND'});
-    };
+        if (!value) return ''
+        return value.toLocaleString('vi-VN', {style: 'currency', currency: 'VND'})
+    }
 
     // Helper function để tạo options cho bộ lọc từ dữ liệu
     const getColumnFilterOptions = (dataIndex) => {
-        if (!products) return [];
-        const uniqueValues = [...new Set(products.map(p => p[dataIndex]?.name).filter(Boolean))];
+        if (!products) return []
+        const uniqueValues = [...new Set(products.map(p => p[dataIndex]?.name).filter(Boolean))]
         return uniqueValues.map(value => ({
             text: value,
             value: value,
-        }));
-    };
+        }))
+    }
 
     const filteredData = products.filter(item =>
         (item.name?.toLowerCase().includes(searchText.toLowerCase()) || false) ||
         (item.code?.toLowerCase().includes(searchText.toLowerCase()) || false)
-    );
+    )
 
     // Định nghĩa các cột cho bảng
     const columns = [
@@ -164,12 +170,12 @@ const ProductManagementPage = () => {
             title: 'Giá bán',
             key: 'price',
             sorter: (a, b) => {
-                const priceA = a.defaultVariant.discountPrice || a.defaultVariant.basePrice;
-                const priceB = b.defaultVariant.discountPrice || b.defaultVariant.basePrice;
-                return priceA - priceB;
+                const priceA = a.defaultVariant.discountPrice || a.defaultVariant.basePrice
+                const priceB = b.defaultVariant.discountPrice || b.defaultVariant.basePrice
+                return priceA - priceB
             },
             render: (_, record) => {
-                const {basePrice, discountPrice} = record.defaultVariant;
+                const {basePrice, discountPrice} = record.defaultVariant
                 return (
                     <div className={styles.priceCell}>
                         <span className={styles.currentPrice}>{formatCurrency(discountPrice || basePrice)}</span>
@@ -177,7 +183,7 @@ const ProductManagementPage = () => {
                             <span className={styles.originalPrice}>{formatCurrency(basePrice)}</span>
                         )}
                     </div>
-                );
+                )
             }
         },
         {
@@ -213,8 +219,8 @@ const ProductManagementPage = () => {
                     <button
                         className={`${styles.actionBtn} ${styles.editBtn}`}
                         onClick={() => {
-                            setEditingProduct(record);
-                            setIsModalVisible(true);
+                            setEditingProduct(record)
+                            setIsModalVisible(true)
                         }}
                     >
                         Chi tiết
@@ -234,7 +240,7 @@ const ProductManagementPage = () => {
                 </div>
             ),
         },
-    ];
+    ]
 
     return (
         <div className={styles.pageContainer}>
@@ -245,12 +251,12 @@ const ProductManagementPage = () => {
 
             <div className={styles.actionBar}>
                 <input
-                    type="text"
+                    type='text'
                     className={styles.searchInput}
-                    placeholder="Tìm kiếm theo tên, mã sản phẩm..."
+                    placeholder='Tìm kiếm theo tên, mã sản phẩm...'
                     onChange={e => setSearchText(e.target.value)}
                 />
-                <button className={styles.addButton} onClick={showAddModal}>
+                <button className={styles.addButton} onClick={showCreateModal}>
                     + Thêm sản phẩm
                 </button>
             </div>
@@ -259,7 +265,7 @@ const ProductManagementPage = () => {
                 <Table
                     columns={columns}
                     dataSource={filteredData}
-                    rowKey="id"
+                    rowKey='id'
                     loading={loading}
                     pagination={{
                         pageSize: 10,
@@ -267,7 +273,7 @@ const ProductManagementPage = () => {
                         pageSizeOptions: ['10', '20', '50'],
                         showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} sản phẩm`
                     }}
-                    scroll={{ x: 'max-content' }}
+                    scroll={{x: 'max-content'}}
                     bordered
                 />
             </div>
@@ -276,10 +282,10 @@ const ProductManagementPage = () => {
                     visible={isModalVisible}
                     editingProduct={editingProduct}
                     onClose={() => {
-                        setIsModalVisible(false);
-                        setEditingProduct(null);
+                        setIsModalVisible(false)
+                        setEditingProduct(null)
                     }}
-                    onSubmit={editingProduct ? handleEditProduct : handleAddProduct}
+                    onSubmit={editingProduct ? handleUpdateProduct : handleCreateProduct}
                 />
             )}
             {isInventoryModalVisible && editingProduct && (
@@ -287,8 +293,8 @@ const ProductManagementPage = () => {
                     open={isInventoryModalVisible}
                     product={editingProduct}
                     onClose={() => {
-                        setIsInventoryModalVisible(false);
-                        setEditingProduct(null);
+                        setIsInventoryModalVisible(false)
+                        setEditingProduct(null)
                     }}
                     onUpdate={(updatedVariants) => {
                         setProducts(prev =>
@@ -297,50 +303,56 @@ const ProductManagementPage = () => {
                                     ? {
                                         ...p,
                                         variants: p.variants.map(v => {
-                                            const updated = updatedVariants.find(u => u.id === v.id);
-                                            if (!updated) return v;
+                                            const updated = updatedVariants.find(u => u.id === v.id)
+                                            if (!updated) return v
 
-                                            let newStock = v.stock;
+                                            let newStock = v.stock
                                             switch (updated.changeType) {
                                                 case 'replace':
-                                                    newStock = updated.quantity;
-                                                    break;
+                                                    newStock = updated.quantity
+                                                    break
                                                 case 'increase':
-                                                    newStock = v.stock + updated.quantity;
-                                                    break;
+                                                    newStock = v.stock + updated.quantity
+                                                    break
                                                 case 'decrease':
-                                                    newStock = v.stock - updated.quantity;
-                                                    break;
+                                                    newStock = v.stock - updated.quantity
+                                                    break
                                             }
 
                                             return {
                                                 ...v,
                                                 stock: newStock
-                                            };
+                                            }
                                         }),
                                         totalStock: updatedVariants.reduce((sum, u) => {
-                                            const original = p.variants.find(v => v.id === u.id);
-                                            let newStock = original?.stock || 0;
+                                            const original = p.variants.find(v => v.id === u.id)
+                                            let newStock = original?.stock || 0
                                             switch (u.changeType) {
-                                                case 'replace': newStock = u.quantity; break;
-                                                case 'increase': newStock += u.quantity; break;
-                                                case 'decrease': newStock -= u.quantity; break;
+                                                case 'replace':
+                                                    newStock = u.quantity;
+                                                    break
+                                                case 'increase':
+                                                    newStock += u.quantity;
+                                                    break
+                                                case 'decrease':
+                                                    newStock -= u.quantity;
+                                                    break
                                             }
-                                            return sum + newStock;
+                                            return sum + newStock
                                         }, 0)
                                     }
                                     : p
                             )
-                        );
+                        )
 
-                        setEditingProduct(null);
+                        setEditingProduct(null)
                     }}
 
                 />
             )}
 
         </div>
-    );
-};
+    )
+}
 
-export default ProductManagementPage;
+export default ProductManagementPage

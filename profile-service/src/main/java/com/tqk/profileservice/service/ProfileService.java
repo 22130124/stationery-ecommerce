@@ -3,8 +3,7 @@ package com.tqk.profileservice.service;
 import com.tqk.profileservice.dto.request.AvatarUpdateRequest;
 import com.tqk.profileservice.dto.request.ProfileUpdateRequest;
 import com.tqk.profileservice.dto.response.ProfileResponse;
-import com.tqk.profileservice.exception.ErrorCode;
-import com.tqk.profileservice.exception.ProfileNotFoundException;
+import com.tqk.profileservice.exception.ExceptionCode;
 import com.tqk.profileservice.model.Profile;
 import com.tqk.profileservice.repository.ProfileRepository;
 import com.tqk.profileservice.repository.client.AccountClient;
@@ -46,7 +45,7 @@ public class ProfileService {
 
         // Kiểm tra trùng lặp số điện thoại
         if (profileRepository.existsByPhone(request.getPhone()) && !profile.getPhone().equalsIgnoreCase(request.getPhone())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorCode.PHONE_ALREADY_EXISTS.name());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ExceptionCode.PHONE_ALREADY_EXISTS.name());
         }
 
         profile.setPhone(request.getPhone());

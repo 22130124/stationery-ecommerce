@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
-    Optional<Product> findBySlug(String slug);
+    Optional<Product> findBySlugAndStatusNot(String slug, Product.ProductStatus status);
 
     Product findTopByOrderByIdDesc();
 
@@ -22,6 +22,10 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     Page<Product> findByCategoryIdAndStatusNot(Integer categoryId, Product.ProductStatus status, Pageable pageable);
 
     Page<Product> findByStatus(Product.ProductStatus status, Pageable pageable);
+
+    List<Product> findByStatus(Product.ProductStatus status);
+
+    boolean existsBySlugAndStatusNot(String slug, Product.ProductStatus status);
 
     @Query(value = """
             SELECT DISTINCT p.*

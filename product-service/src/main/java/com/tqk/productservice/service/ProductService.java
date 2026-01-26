@@ -8,7 +8,7 @@ import com.tqk.productservice.dto.response.*;
 import com.tqk.productservice.dto.response.brand.BrandResponse;
 import com.tqk.productservice.dto.response.category.CategoryResponse;
 import com.tqk.productservice.dto.response.supplier.SupplierResponse;
-import com.tqk.productservice.exception.ProductNotFoundException;
+import com.tqk.productservice.exception.ExceptionCode;
 import com.tqk.productservice.model.inventory.Inventory;
 import com.tqk.productservice.model.product.Product;
 import com.tqk.productservice.model.product.ProductImage;
@@ -28,7 +28,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -104,8 +106,19 @@ public class ProductService {
 
     // Hàm lấy ra sản phẩm theo slug
     public ProductResponse getBySlug(String slug) {
-        Product product = productRepository.findBySlug(slug).orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm với slug: " + slug));
+        Product product = productRepository.findBySlugAndStatusNot(slug, DELETED).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, ExceptionCode.PRODUCT_NOT_FOUND.name()));
         return convertProductToDto(product, null);
+    }
+
+    /**
+     * Hàm lấy ra danh sách các sản phẩm đang hoạt động (status = ACTIVE)
+     * Không phân trang
+     * Mục đích: Sử dụng cho chức năng gợi ý sản phẩm
+     */
+    public List<ProductResponse> getActiveProducts() {
+        List<Product> products = productRepository.findByStatus(ACTIVE);
+        return convertProductListToDto(products);
     }
 
     // Hàm tạo sản phẩm mới
@@ -115,6 +128,10 @@ public class ProductService {
         Product product = new Product();
         product.setCode(generateProductCode());
         product.setName(request.getName());
+        // Kiểm tra xem có trùng slug hay không
+        if (productRepository.existsBySlugAndStatusNot(request.getSlug(), DELETED)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ExceptionCode.SLUG_ALREADY_EXISTS.name());
+        }
         product.setSlug(request.getSlug());
         product.setCategoryId(request.getCategoryId());
         product.setSupplierId(request.getSupplierId());
@@ -141,9 +158,12 @@ public class ProductService {
             ProductVariant savedVariant = productVariantRepository.save(variant);
 
             // Lưu Product Images cho Variant
-            if (variantRequest.getImages() != null && !variantRequest.getImages().isEmpty()) {
-                saveProductImages(variantRequest.getImages(), savedProduct, savedVariant);
+            // Kiểm tra nếu request thiếu ảnh biến thể
+            if (variantRequest.getImages() == null || variantRequest.getImages().isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ExceptionCode.MISSING_VARIANT_IMAGE.name());
             }
+
+            saveProductImages(variantRequest.getImages(), savedProduct, savedVariant);
 
             // Lưu màu sắc của variant
             if (variantRequest.getColors() != null && !variantRequest.getColors().isEmpty()) {
@@ -162,13 +182,6 @@ public class ProductService {
             inventoryService.addNewVariant(savedVariant);
         }
 
-        // Lưu Product Images (Ảnh chung)
-        if (request.getImages() != null && !request.getImages().
-
-                isEmpty()) {
-            saveProductImages(request.getImages(), savedProduct, null);
-        }
-
         // Cập nhật variants
         savedProduct.setVariants(savedVariants);
 
@@ -179,8 +192,8 @@ public class ProductService {
     // Hàm cập nhật thông tin mới cho sản phẩm
     @Transactional
     public ProductResponse updateProduct(Integer productId, ProductRequest productRequest) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm với id: " + productId));
+        Product product = productRepository.findById(productId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, ExceptionCode.PRODUCT_NOT_FOUND.name()));
 
         // Cập nhật thông tin chung
         product.setName(productRequest.getName());
@@ -220,7 +233,8 @@ public class ProductService {
             ProductVariant variant;
             if (variantRequest.getId() != null) {
                 variant = productVariantRepository.findById(variantRequest.getId())
-                        .orElseThrow(() -> new ProductNotFoundException("Không tìm thấy biến thể với id: " + variantRequest.getId()));
+                        .orElseThrow(() ->
+                                new ResponseStatusException(HttpStatus.NOT_FOUND, ExceptionCode.VARIANT_NOT_FOUND.name()));
             } else {
                 variant = new ProductVariant();
                 variant.setProduct(updatedProduct);
@@ -235,11 +249,14 @@ public class ProductService {
             ProductVariant savedVariant = productVariantRepository.save(variant);
 
             // Xử lý ảnh
-            if (variantRequest.getImages() != null && !variantRequest.getImages().isEmpty()) {
-                List<ProductImage> oldImages = productImageRepository.findByVariant(savedVariant);
-                productImageRepository.deleteAll(oldImages);
-                saveProductImages(variantRequest.getImages(), updatedProduct, savedVariant);
+            // Kiểm tra nếu request thiếu ảnh biến thể
+            if (variantRequest.getImages() == null || variantRequest.getImages().isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ExceptionCode.MISSING_VARIANT_IMAGE.name());
             }
+
+            List<ProductImage> oldImages = productImageRepository.findByVariant(savedVariant);
+            productImageRepository.deleteAll(oldImages);
+            saveProductImages(variantRequest.getImages(), updatedProduct, savedVariant);
 
             // Xử lý màu sắc
             if (variantRequest.getColors() != null && !variantRequest.getColors().isEmpty()) {
@@ -258,13 +275,6 @@ public class ProductService {
         }
 
         updatedProduct.setVariants(updatedVariants);
-
-        // Cập nhật ảnh chung
-        if (productRequest.getImages() != null && !productRequest.getImages().isEmpty()) {
-            List<ProductImage> oldCommonImages = productImageRepository.findByProductAndVariantIsNull(updatedProduct);
-            productImageRepository.deleteAll(oldCommonImages);
-            saveProductImages(productRequest.getImages(), updatedProduct, null);
-        }
 
         return convertProductToDto(updatedProduct, null);
     }
@@ -304,7 +314,7 @@ public class ProductService {
                     int lastNumber = Integer.parseInt(numberPart);
                     nextNumber = lastNumber + 1;
                 } catch (NumberFormatException e) {
-                    throw new NumberFormatException("Invalid product code");
+                    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionCode.INVALID_PRODUCT_CODE.name());
                 }
             }
         }
@@ -313,10 +323,14 @@ public class ProductService {
         return CODE_PREFIX + nextNumber;
     }
 
+    /**
+     * Phuơng thức xử lý yêu cầu xóa sản phẩm
+     * Chỉ gán status là DELETED, không xóa hoàn toàn ra khỏi cơ sở dữ liệu
+     */
     @Transactional
     public void deleteProduct(Integer productId) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm với id: " + productId));
+        Product product = productRepository.findById(productId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, ExceptionCode.PRODUCT_NOT_FOUND.name()));
 
         product.setStatus(DELETED);
         productRepository.save(product);
@@ -342,8 +356,12 @@ public class ProductService {
         Product product;
         ProductVariant variant;
         for (Integer variantId : variantIds) {
-            variant = productVariantRepository.findById(variantId).orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm có id biến thể là: " + variantId));
+            variant = productVariantRepository.findById(variantId).orElseThrow(() ->
+                    new ResponseStatusException(HttpStatus.NOT_FOUND, ExceptionCode.VARIANT_NOT_FOUND.name()));
             product = variant.getProduct();
+            if (product == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, ExceptionCode.PRODUCT_NOT_FOUND.name());
+            }
             ProductResponse productResponse = convertProductToDto(product, variant);
             productResponseList.add(productResponse);
         }
@@ -355,20 +373,44 @@ public class ProductService {
     }
 
     public int getStock(Integer variantId) {
-        ProductVariant productVariant = productVariantRepository.findById(variantId).orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm có id biến thể là: " + variantId));
+        ProductVariant productVariant = productVariantRepository.findById(variantId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, ExceptionCode.VARIANT_NOT_FOUND.name()));
         Inventory inventory = productInventoryRepository.findByProductVariant(productVariant);
+        if (inventory == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ExceptionCode.INVENTORY_NOT_FOUND.name());
+        }
         return inventory.getStock();
     }
 
+    /**
+     * Phương thức cập nhật số lượng biến thể trong kho
+     * Bao gồm:
+     * - replace: thay thế số lượng cũ bằng số lượng mới
+     * - increase: tăng thêm số lượng
+     * - decrease: giảm bớt số lượng
+     */
     public int updateInventory(String type, UpdateInventoryRequest request) {
-        ProductVariant productVariant = productVariantRepository.findById(request.getVariantId()).orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm có id biến thể là: " + request.getVariantId()));
-        Inventory inventory = productInventoryRepository.findByProductVariant(productVariant);
-        if (type.equalsIgnoreCase("replace")) {
-            inventory.setStock(request.getQuantity());
-        } else if (type.equalsIgnoreCase("increase")) {
-            inventory.setStock(inventory.getStock() + request.getQuantity());
-        } else if (type.equalsIgnoreCase("decrease")) {
-            inventory.setStock(inventory.getStock() - request.getQuantity());
+        // Tìm biến thể cần cập nhật số lượng trong kho
+        ProductVariant productVariant = productVariantRepository.findById(request.getVariantId()).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, ExceptionCode.VARIANT_NOT_FOUND.name()));
+        // Lấy ra đối tượng kho của biến thể
+        Inventory inventory = productVariant.getInventory();
+        if (inventory == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ExceptionCode.INVENTORY_NOT_FOUND.name());
+        }
+        // Kiểm tra kiểu cập nhật (replace/increse/decrease)
+        switch (type.toLowerCase()) {
+            case "replace":
+                inventory.setStock(request.getQuantity());
+                break;
+            case "increase":
+                inventory.setStock(inventory.getStock() + request.getQuantity());
+                break;
+            case "decrease":
+                inventory.setStock(inventory.getStock() - request.getQuantity());
+                break;
+            default:
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ExceptionCode.INVALID_UPDATE_STOCK_TYPE.name());
         }
         productInventoryRepository.save(inventory);
         return inventory.getStock();

@@ -1,15 +1,17 @@
 package com.tqk.productservice.service;
 
 import com.tqk.productservice.dto.request.inventory.ReserveRequest;
-import com.tqk.productservice.exception.OutOfStockException;
+import com.tqk.productservice.exception.ExceptionCode;
 import com.tqk.productservice.model.inventory.Inventory;
 import com.tqk.productservice.model.inventory.StockReservation;
 import com.tqk.productservice.model.product.ProductVariant;
 import com.tqk.productservice.repository.inventory.InventoryRepository;
 import com.tqk.productservice.repository.inventory.StockReservationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,7 +46,7 @@ public class InventoryService {
 
             // Nếu không đủ số lượng thì ném lỗi
             if (stock < quantity) {
-                throw new OutOfStockException("Số lượng sản phẩm không đủ");
+                throw new ResponseStatusException(HttpStatus.CONFLICT, ExceptionCode.OUT_OF_STOCK.name());
             }
 
             // Nếu đủ số lượng thì trừ số lượng trong kho

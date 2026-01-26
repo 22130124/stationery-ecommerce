@@ -1,4 +1,4 @@
-package com.tqk.profileservice.exception;
+package com.tqk.productservice.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
