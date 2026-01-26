@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import static com.tqk.profileservice.model.Profile.ProfileStatus.COMPLETED;
+
 @Service
 @RequiredArgsConstructor
 public class ProfileService {
@@ -53,7 +55,7 @@ public class ProfileService {
 
         // Nếu profile đã đầy đủ thông tin thì đánh dấu là đã hoàn thiện profile
         if (profile.getFullName() != null && profile.getAddress() != null && profile.getPhone() != null ) {
-            profile.setCompletedStatus(true);
+            profile.setStatus(COMPLETED);
         }
 
         profileRepository.save(profile);
@@ -79,7 +81,7 @@ public class ProfileService {
         dto.setAddress(profile.getAddress());
         dto.setAvatarUrl(profile.getAvatarUrl());
         dto.setAvatarPublicId(profile.getAvatarPublicId());
-        dto.setCompletedStatus(profile.isCompletedStatus());
+        dto.setStatus(profile.getStatus());
         dto.setCreatedAt(profile.getCreatedAt());
         dto.setUpdatedAt(profile.getUpdatedAt());
         return dto;

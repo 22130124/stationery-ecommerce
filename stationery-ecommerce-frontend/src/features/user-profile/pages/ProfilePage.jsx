@@ -30,7 +30,7 @@ export default function ProfilePage() {
                 })
             }
 
-            if (!data.completedStatus) {
+            if (data.status === 'INCOMPLETED') {
                 setEditing(true)
                 toast('Vui lòng hoàn thiện hồ sơ để không bị gián đoạn trải nghiệm mua hàng', {
                     duration: Infinity,

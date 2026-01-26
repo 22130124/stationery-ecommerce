@@ -38,8 +38,9 @@ public class Profile {
     @Column(name = "avatar_public_id")
     private String avatarPublicId;
 
-    @Column(name = "completed_status")
-    private boolean completedStatus;
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private ProfileStatus status;
 
     @Column(name = "created_at")
     @CreatedDate
@@ -48,4 +49,6 @@ public class Profile {
     @Column(name = "updated_at")
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public enum ProfileStatus {COMPLETED, INCOMPLETED}
 }

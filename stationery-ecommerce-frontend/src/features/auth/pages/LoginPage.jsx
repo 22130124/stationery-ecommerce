@@ -57,7 +57,7 @@ const LoginPage = () => {
                         // Nếu tài khoản đăng nhập vừa được đăng ký thì chuyển hướng vào trang hồ sơ cá nhân để cập nhật thông tin cá nhân
                         const profile = await getProfile()
                         console.log(profile)
-                        if (!profile.completedStatus) {
+                        if (profile.status === 'INCOMPLETED') {
                             navigate('/profile')
                             return
                         }

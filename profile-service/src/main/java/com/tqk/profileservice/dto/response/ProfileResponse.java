@@ -1,5 +1,6 @@
 package com.tqk.profileservice.dto.response;
 
+import com.tqk.profileservice.model.Profile;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -14,7 +15,7 @@ public class ProfileResponse {
     private String address;
     private String avatarUrl;
     private String avatarPublicId;
-    private boolean completedStatus;
+    private Profile.ProfileStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
