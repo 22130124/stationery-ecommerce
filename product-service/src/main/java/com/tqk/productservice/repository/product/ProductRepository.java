@@ -17,11 +17,11 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     Product findTopByOrderByIdDesc();
 
-    Page<Product> findByCategoryIdAndActiveStatusTrue(Integer categoryId, Pageable pageable);
+    List<Product> findByStatusNot(Product.ProductStatus productStatus);
 
-    Page<Product> findByActiveStatusTrue(Pageable pageable);
+    Page<Product> findByCategoryIdAndStatusNot(Integer categoryId, Product.ProductStatus status, Pageable pageable);
 
-    List<Product> findByActiveStatusTrue();
+    Page<Product> findByStatus(Product.ProductStatus status, Pageable pageable);
 
     @Query(value = """
             SELECT DISTINCT p.*

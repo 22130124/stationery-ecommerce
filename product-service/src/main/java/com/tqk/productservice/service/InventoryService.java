@@ -2,7 +2,9 @@ package com.tqk.productservice.service;
 
 import com.tqk.productservice.dto.request.inventory.ReserveRequest;
 import com.tqk.productservice.exception.OutOfStockException;
+import com.tqk.productservice.model.inventory.Inventory;
 import com.tqk.productservice.model.inventory.StockReservation;
+import com.tqk.productservice.model.product.ProductVariant;
 import com.tqk.productservice.repository.inventory.InventoryRepository;
 import com.tqk.productservice.repository.inventory.StockReservationRepository;
 import lombok.RequiredArgsConstructor;
@@ -78,5 +80,15 @@ public class InventoryService {
 
         // Cập nhật trạng thái released trong bảng stock reservations
         stockReservationRepository.releaseByOrderCode(orderCode);
+    }
+
+    @Transactional
+    public void addNewVariant(ProductVariant variant) {
+        Inventory inventory = new Inventory();
+        inventory.setProduct(variant.getProduct());
+        inventory.setProductVariant(variant);
+        inventory.setStock(0);
+        inventoryRepository.save(inventory);
+        variant.setInventory(inventory);
     }
 }

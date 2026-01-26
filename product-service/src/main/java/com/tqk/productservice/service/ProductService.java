@@ -33,6 +33,9 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.tqk.productservice.model.product.Product.ProductStatus.ACTIVE;
+import static com.tqk.productservice.model.product.Product.ProductStatus.DELETED;
+
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -48,10 +51,11 @@ public class ProductService {
 
     private static final String CODE_PREFIX = "SP";
     private static final int INITIAL_CODE_NUMBER = 1000;
+    private final InventoryService inventoryService;
 
     // Hàm lấy ra danh sách sản phẩm đang hoạt động (activeStatus = true)
     public List<ProductResponse> getAllForAdmin() {
-        List<Product> products = productRepository.findAll();
+        List<Product> products = productRepository.findByStatusNot(DELETED);
         List<ProductResponse> productResponseList = new ArrayList<>();
         if (!products.isEmpty()) {
             productResponseList = convertProductListToDto(products);
@@ -64,12 +68,12 @@ public class ProductService {
         try {
             Pageable pageable = PageRequest.of(page - 1, size);
             Page<Product> productPage;
-            if (categorySlug.equalsIgnoreCase("ALL")) {
-                return getProductsByActiveStatusAndPageable(page, size);
+            if (categorySlug.equalsIgnoreCase("all")) {
+                return getProductsByStatusAndPageable(ACTIVE, page, size);
             }
             Integer categoryId = categoryClient.getCategoryIdBySlug(categorySlug);
 
-            productPage = productRepository.findByCategoryIdAndActiveStatusTrue(categoryId, pageable);
+            productPage = productRepository.findByCategoryIdAndStatusNot(categoryId, DELETED, pageable);
 
             ProductListResponse productListResponse = new ProductListResponse();
 
@@ -84,10 +88,10 @@ public class ProductService {
         }
     }
 
-    public ProductListResponse getProductsByActiveStatusAndPageable(int page, int size) {
+    public ProductListResponse getProductsByStatusAndPageable(Product.ProductStatus status, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Product> productPage;
-        productPage = productRepository.findByActiveStatusTrue(pageable);
+        productPage = productRepository.findByStatus(status, pageable);
 
         ProductListResponse productListResponse = new ProductListResponse();
         productListResponse.setProducts(convertProductListToDto(productPage.getContent()));
@@ -98,17 +102,6 @@ public class ProductService {
         return productListResponse;
     }
 
-    public List<ProductResponse> getProductsByActiveStatus() {
-        List<Product> products = productRepository.findByActiveStatusTrue();
-
-        List<ProductResponse> productResponseList = new ArrayList<>();
-        if (!products.isEmpty()) {
-            productResponseList = convertProductListToDto(products);
-        }
-
-        return productResponseList;
-    }
-
     // Hàm lấy ra sản phẩm theo slug
     public ProductResponse getBySlug(String slug) {
         Product product = productRepository.findBySlug(slug).orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm với slug: " + slug));
@@ -117,26 +110,26 @@ public class ProductService {
 
     // Hàm tạo sản phẩm mới
     @Transactional
-    public ProductResponse createProduct(ProductRequest productRequest) {
+    public ProductResponse createProduct(ProductRequest request) {
         // Tạo và lưu Product Entity
         Product product = new Product();
         product.setCode(generateProductCode());
-        product.setName(productRequest.getName());
-        product.setSlug(productRequest.getSlug());
-        product.setCategoryId(productRequest.getCategoryId());
-        product.setSupplierId(productRequest.getSupplierId());
-        product.setBrandId(productRequest.getBrandId());
-        product.setActiveStatus(true);
+        product.setName(request.getName());
+        product.setSlug(request.getSlug());
+        product.setCategoryId(request.getCategoryId());
+        product.setSupplierId(request.getSupplierId());
+        product.setBrandId(request.getBrandId());
+        product.setStatus(request.getStatus() == null ? ACTIVE : request.getStatus());
         product.setRating(0);
-        product.setOrigin(productRequest.getOrigin());
-        product.setDescription(productRequest.getDescription());
+        product.setOrigin(request.getOrigin());
+        product.setDescription(request.getDescription());
 
         Product savedProduct = productRepository.save(product);
 
         // Lưu Product Variants
         List<ProductVariant> savedVariants = new ArrayList<>();
 
-        for (ProductVariantRequest variantRequest : productRequest.getVariants()) {
+        for (ProductVariantRequest variantRequest : request.getVariants()) {
             ProductVariant variant = new ProductVariant();
             variant.setProduct(savedProduct);
             variant.setName(variantRequest.getName());
@@ -164,13 +157,16 @@ public class ProductService {
             }
 
             savedVariants.add(savedVariant);
+
+            // Tạo dữ liệu trong kho cho biến thể
+            inventoryService.addNewVariant(savedVariant);
         }
 
         // Lưu Product Images (Ảnh chung)
-        if (productRequest.getImages() != null && !productRequest.getImages().
+        if (request.getImages() != null && !request.getImages().
 
                 isEmpty()) {
-            saveProductImages(productRequest.getImages(), savedProduct, null);
+            saveProductImages(request.getImages(), savedProduct, null);
         }
 
         // Cập nhật variants
@@ -322,18 +318,8 @@ public class ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Không tìm thấy sản phẩm với id: " + productId));
 
-        // Xóa tất cả biến thể, ảnh, màu sắc liên quan
-        List<ProductVariant> variants = productVariantRepository.findByProduct(product);
-        for (ProductVariant variant : variants) {
-            List<ProductImage> variantImages = productImageRepository.findByVariant(variant);
-            productImageRepository.deleteAll(variantImages);
-            List<ProductVariantColor> variantColors = productVariantColorRepository.findByVariant(variant);
-            productVariantColorRepository.deleteAll(variantColors);
-        }
-        productVariantRepository.deleteAll(variants);
-
-        // Xóa sản phẩm
-        productRepository.delete(product);
+        product.setStatus(DELETED);
+        productRepository.save(product);
     }
 
     // Phương thức lấy ra danh sách sản phẩm dựa vào danh sách id sản phẩm cho trước
@@ -397,7 +383,7 @@ public class ProductService {
         dto.setOrigin(product.getOrigin());
         dto.setSlug(product.getSlug());
         dto.setRating(product.getRating());
-        dto.setActiveStatus(product.isActiveStatus());
+        dto.setStatus(product.getStatus());
         dto.setCreatedAt(product.getCreatedAt());
         dto.setUpdatedAt(product.getUpdatedAt());
 
@@ -502,6 +488,7 @@ public class ProductService {
     private ProductVariantColorResponse convertColorToDto(ProductVariantColor color) {
         ProductVariantColorResponse dto = new ProductVariantColorResponse();
         dto.setId(color.getId());
+        dto.setColor(color.getColor());
         dto.setColor(color.getColor());
         return dto;
     }

@@ -48,10 +48,8 @@ const LoginPage = () => {
 
             setTimeout(async () => {
                 if (role === 'ADMIN') {
-                    navigate('/admin/product-management')
+                    navigate('/admin/dashboard')
                 } else {
-                    const searchParams = new URLSearchParams(location.search)
-
                     // Nếu có redirectPath
                     if (redirectPath) {
                         navigate(redirectPath)

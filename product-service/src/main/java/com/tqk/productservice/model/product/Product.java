@@ -1,5 +1,6 @@
 package com.tqk.productservice.model.product;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -48,8 +49,9 @@ public class Product {
     @Column(name = "rating")
     private double rating;
 
-    @Column(name = "active_status")
-    private boolean activeStatus;
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private ProductStatus status = ProductStatus.ACTIVE;
 
     @Column(name = "created_at")
     @CreatedDate
@@ -64,4 +66,15 @@ public class Product {
 
     @OneToMany(mappedBy = "product")
     private List<ProductImage> images = new ArrayList<>();
+
+    public enum ProductStatus {
+        ACTIVE,
+        INACTIVE,
+        DELETED;
+
+        @JsonCreator
+        public static ProductStatus from(String value) {
+            return ProductStatus.valueOf(value.toUpperCase());
+        }
+    }
 }

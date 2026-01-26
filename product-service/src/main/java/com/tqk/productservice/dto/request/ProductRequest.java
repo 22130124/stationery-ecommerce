@@ -1,5 +1,6 @@
 package com.tqk.productservice.dto.request;
 
+import com.tqk.productservice.model.product.Product;
 import lombok.Data;
 import java.util.List;
 
@@ -12,6 +13,7 @@ public class ProductRequest {
     private Integer categoryId;
     private String origin;
     private String description;
+    private Product.ProductStatus status;
     private List<ProductImageRequest> images;
     private List<ProductVariantRequest> variants;
     private int stock;

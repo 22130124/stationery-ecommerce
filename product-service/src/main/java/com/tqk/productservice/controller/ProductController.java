@@ -48,13 +48,6 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
-
-    @GetMapping()
-    public ResponseEntity<?> getProductsByActiveStatus() {
-        List<ProductResponse> products = productService.getProductsByActiveStatus();
-        return ResponseEntity.ok(products);
-    }
-
     @GetMapping("/by-category")
     public ResponseEntity<?> getProductsByCategory(@RequestParam(name = "categorySlug", required = false) String categorySlug,
                                                    @RequestParam(name = "page", required = false, defaultValue = "1") int page,
