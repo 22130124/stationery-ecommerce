@@ -3,12 +3,15 @@ package com.tqk.profileservice.service;
 import com.tqk.profileservice.dto.request.AvatarUpdateRequest;
 import com.tqk.profileservice.dto.request.ProfileUpdateRequest;
 import com.tqk.profileservice.dto.response.ProfileResponse;
+import com.tqk.profileservice.exception.ErrorCode;
 import com.tqk.profileservice.exception.ProfileNotFoundException;
 import com.tqk.profileservice.model.Profile;
 import com.tqk.profileservice.repository.ProfileRepository;
 import com.tqk.profileservice.repository.client.AccountClient;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -16,19 +19,34 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
     private final AccountClient accountClient;
 
-    public void createProfile(Integer accountId) {
+    public Profile createProfile(Integer accountId) {
         Profile profile = new Profile();
         profile.setAccountId(accountId);
         profileRepository.save(profile);
+        return profile;
     }
 
-    public ProfileResponse getProfileByAccountId(Integer accountId) {
-        Profile profile = profileRepository.findByAccountId(accountId).orElseThrow(() -> new ProfileNotFoundException("Không tìm thấy hồ sơ người dùng có account id là " + accountId));
+    /**
+     * Tìm profile của accountId tương ứng
+     * Nếu trường hợp profile chưa tồn tại thì tạo profile mới (emtpy) cho accountId này
+     */
+    public ProfileResponse getProfileResponseByAccountId(Integer accountId) {
+        Profile profile = profileRepository.findByAccountId(accountId).orElseGet(() -> createProfile(accountId));
         return convertToDto(profile);
     }
 
+    public Profile getProfileByAccountId(Integer accountId) {
+        return profileRepository.findByAccountId(accountId).orElseGet(() -> createProfile(accountId));
+    }
+
     public ProfileResponse updateProfle(Integer accountId, ProfileUpdateRequest request) {
-        Profile profile = profileRepository.findByAccountId(accountId).orElseThrow(() -> new ProfileNotFoundException("Không tìm thấy hồ sơ người dùng có account id là " + accountId));
+        Profile profile = getProfileByAccountId(accountId);
+
+        // Kiểm tra trùng lặp số điện thoại
+        if (profileRepository.existsByPhone(request.getPhone()) && !profile.getPhone().equalsIgnoreCase(request.getPhone())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ErrorCode.PHONE_ALREADY_EXISTS.name());
+        }
+
         profile.setPhone(request.getPhone());
         profile.setAddress(request.getAddress());
         profile.setFullName(request.getFullName());
@@ -43,7 +61,7 @@ public class ProfileService {
     }
 
     public ProfileResponse updateAvatar(Integer accountId, AvatarUpdateRequest request) {
-        Profile profile = profileRepository.findByAccountId(accountId).orElseThrow(() -> new ProfileNotFoundException("Không tìm thấy hồ sơ người dùng có account id là " + accountId));
+        Profile profile = getProfileByAccountId(accountId);
         profile.setAvatarUrl(request.getAvatarUrl());
         profile.setAvatarPublicId(request.getAvatarPublicId());
         profileRepository.save(profile);

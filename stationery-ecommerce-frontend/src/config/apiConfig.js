@@ -1,5 +1,6 @@
 // apiConfig.js
 import toast from "react-hot-toast";
+import {ERROR_MESSAGES} from "../error/errorMessages";
 
 export const API_URL = "http://localhost:8080";
 
@@ -50,8 +51,13 @@ export async function apiFetch(url, options = {}) {
 
     const data = await response.json();
 
+    // Xử lý các lỗi khác
     if (!response.ok) {
-        throw new Error(data.message || "Đã có lỗi xảy ra");
+        const errorCode = data?.code;
+        const messageResponse = data?.message;
+        const message = ERROR_MESSAGES[errorCode] || messageResponse || "Đã có lỗi xảy ra. Vui lòng thử lại sau";
+        toast.error(message);
+        throw {code: errorCode, message, raw: data};
     }
 
     return data;

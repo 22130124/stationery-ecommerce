@@ -93,7 +93,10 @@ export default function ProfilePage() {
         if (!profile.phone?.trim()) return toast.error('Vui lòng nhập số điện thoại')
         if (!profile.address?.trim()) return toast.error('Vui lòng nhập địa chỉ')
 
-        toast.loading('Đang lưu thông tin...', { duration: 0 })
+        toast.loading('Đang lưu thông tin...', {
+            id: 'update-info',
+            duration: 0,
+        });
 
         try {
             const payload = {
@@ -109,8 +112,9 @@ export default function ProfilePage() {
             toast.dismiss()
             toast.success('Lưu thành công')
         } catch (err) {
-            toast.dismiss()
-            toast.error('Có lỗi xảy ra rồi, thử lại sau')
+
+        } finally {
+            toast.dismiss('update-info')
         }
     }
 

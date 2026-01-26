@@ -16,13 +16,13 @@ public class ProfileController {
 
     @GetMapping("/current")
     public ResponseEntity<?> getCurrenProfile(@RequestHeader("X-Account-Id") Integer accountId) {
-        ProfileResponse profile = profileService.getProfileByAccountId(accountId);
+        ProfileResponse profile = profileService.getProfileResponseByAccountId(accountId);
         return ResponseEntity.ok(profile);
     }
 
     @GetMapping("/by-account/{accountId}")
     public ResponseEntity<?> getProfileByAccountId(@PathVariable Integer accountId) {
-        ProfileResponse profile = profileService.getProfileByAccountId(accountId);
+        ProfileResponse profile = profileService.getProfileResponseByAccountId(accountId);
         return ResponseEntity.ok(profile);
     }
 
