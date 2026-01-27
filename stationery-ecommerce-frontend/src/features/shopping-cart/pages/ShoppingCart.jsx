@@ -7,6 +7,7 @@ import { Modal, Checkbox, Spin } from 'antd';
 import toast from 'react-hot-toast';
 import { createOrders } from '../../../api/orderApi';
 import { getProfile } from '../../../api/profileApi';
+import {pay} from "../../../api/paymentApi";
 
 const { confirm } = Modal;
 
@@ -141,7 +142,7 @@ const ShoppingCart = () => {
         }
 
         const profileData = await getProfile();
-        if (!profileData.completedStatus) {
+        if (profileData.status === 'INCOMPLETED') {
             navigate('/profile');
             return;
         }
@@ -160,11 +161,31 @@ const ShoppingCart = () => {
         const data = await createOrders({ orderItems });
         if (data) {
             toast.success('Tạo đơn hàng thành công!', { id: toastId });
-            navigate('/order-history');
+
+            // Hiển thị modal hỏi thanh toán
+            Modal.confirm({
+                title: 'Thanh toán đơn hàng',
+                content: 'Bạn có muốn thanh toán đơn hàng này ngay bây giờ không?',
+                okText: 'Thanh toán ngay',
+                cancelText: 'Để sau',
+                onOk: () => {handlePay(data.code)},
+                onCancel: () => {
+                    // Xem lịch sử đơn hàng
+                    navigate('/order-history');
+                },
+            });
         } else {
-            toast.error('Có lỗi xảy ra', { id: toastId });
+            toast.dismiss(toastId)
         }
     };
+
+    const handlePay = async (orderCode) => {
+        const response = await pay(orderCode)
+        const paymentUrl = response.paymentUrl
+        if (paymentUrl) {
+            window.location.href = paymentUrl;
+        }
+    }
 
     const formatCurrency = (amount) => {
         return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });

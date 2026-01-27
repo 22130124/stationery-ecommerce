@@ -134,12 +134,12 @@ public class CartService {
     }
 
     @Transactional
-    public void resetCart(Integer accountId, List<Integer> itemIds) {
+    public void resetCart(Integer accountId, List<Integer> variantIds) {
         // 1. Lấy cart của user
         Cart cart = cartRepository.findByAccountId(accountId).orElseGet(() -> createEmptyCart(accountId));
 
         // 2. Xóa các item trong danh sách được chỉ định
-        cartItemRepository.deleteByCartAndIdIn(cart, itemIds);
+        cartItemRepository.deleteByCartAndVariantIdIn(cart, variantIds);
     }
 
     private CartResponse convertCartToDto(Cart cart, List<CartItemResponse> cartItemResponseList) {

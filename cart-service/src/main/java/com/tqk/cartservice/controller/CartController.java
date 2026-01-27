@@ -63,7 +63,7 @@ public class CartController {
     // Xóa toàn bộ items trong giỏ hàng
     @DeleteMapping("/reset-cart")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void resetCart(@RequestHeader("X-Account-Id") Integer accountId, @RequestBody List<Integer> itemIds) {
-        cartService.resetCart(accountId, itemIds);
+    public void resetCart(@RequestHeader("X-Account-Id") Integer accountId, @RequestBody List<Integer> variantIds) {
+        cartService.resetCart(accountId, variantIds);
     }
 }
