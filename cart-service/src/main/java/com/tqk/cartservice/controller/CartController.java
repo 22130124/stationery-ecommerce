@@ -31,14 +31,14 @@ public class CartController {
     public ResponseEntity<?> addOrUpdateCartItem(
             @RequestHeader("X-Account-Id") Integer accountId,
             @RequestBody AddCartItemRequest request) {
-        CartResponse cart = cartService.addCartItem(accountId, request);
-        return ResponseEntity.ok(Map.of("cart", cart));
+        cartService.addCartItem(accountId, request);
+        return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{itemId}")
+    @PutMapping("/{variantId}")
     public ResponseEntity<?> updateCartItem(
             @RequestHeader("X-Account-Id") Integer accountId,
-            @PathVariable Integer itemId,
+            @PathVariable Integer variantId,
             @RequestBody Map<String, Integer> body) {
 
         Integer newQuantity = body.get("quantity");
@@ -46,16 +46,16 @@ public class CartController {
             return ResponseEntity.badRequest().body(Map.of("error", "Không có giá trị nào để cập nhật giỏ hàng"));
         }
 
-        CartResponse cart = cartService.updateCartItem(accountId, itemId, newQuantity);
+        CartResponse cart = cartService.updateCartItem(accountId, variantId, newQuantity);
         return ResponseEntity.ok(Map.of("cart", cart));
     }
 
     // Xóa một item trong giỏ hàng
-    @DeleteMapping("/{itemId}")
+    @DeleteMapping("/{variantId}")
     public ResponseEntity<?> removeCartItem(
-            @RequestHeader("X-Account-Id") Integer accountId, @PathVariable Integer itemId) {
+            @RequestHeader("X-Account-Id") Integer accountId, @PathVariable Integer variantId) {
 
-        CartResponse cart = cartService.removeCartItem(accountId, itemId);
+        CartResponse cart = cartService.removeCartItem(accountId, variantId);
         Map<String, Object> response = Map.of("cart", cart);
         return ResponseEntity.ok(response);
     }

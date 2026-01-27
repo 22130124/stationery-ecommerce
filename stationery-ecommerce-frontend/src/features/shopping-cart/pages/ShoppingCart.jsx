@@ -14,20 +14,38 @@ const ShoppingCart = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const [cart, setCart] = useState({});
     const [cartItems, setCartItems] = useState([]);
     const [selectedItems, setSelectedItems] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [totalPrice, setTotalPrice] = useState(0);
+    const buyNowVariantId = location.state?.buyNowVariantId;
+    const [isBuyNow, setIsBuyNow] = useState(false);
 
+    // Phương thức xử lý logic khi mới truy cập trang giỏ hàng
     useEffect(() => {
         const fetchCart = async () => {
             setLoading(true);
             const data = await getCart();
             if (data) {
-                setCart(data.cart);
-                setCartItems(data.cart.items || []);
-                setSelectedItems(data.cart.items?.map(item => item.id) || []);
+                const items = data.cart.items || []
+                setCartItems(items);
+
+                // Kiểm tra nếu là truy cập trang giỏ hàng thông qua nút mua ngay
+                if (buyNowVariantId) {
+                    setIsBuyNow(true);
+                    // Chỉ select đúng sản phẩm mua ngay
+                    const targetItem = items.find(item => String(item.variantId) === String(buyNowVariantId));
+
+                    if (targetItem) {
+                        // Nếu tìm thấy, set mảng chứa chính xác ID lấy từ item (để đảm bảo đúng kiểu dữ liệu)
+                        setSelectedItems([targetItem.variantId]);
+                    }
+
+                    // Xóa state sau khi dùng
+                    navigate(location.pathname, { replace: true, state: null });
+                } else {
+                    // Vào giỏ hàng bình thường
+                    setSelectedItems(items.map(item => item.variantId));
+                }
             }
             setLoading(false);
         };
@@ -37,7 +55,7 @@ const ShoppingCart = () => {
     // Tính tổng tiền chỉ của các sản phẩm được chọn
     const selectedTotal = useMemo(() => {
         return cartItems
-            .filter(item => selectedItems.includes(item.id))
+            .filter(item => selectedItems.includes(item.variantId))
             .reduce((sum, item) => sum + item.finalPrice * item.quantity, 0);
     }, [cartItems, selectedItems]);
 
@@ -50,31 +68,29 @@ const ShoppingCart = () => {
         };
     };
 
-    const handleUpdateQuantityApi = async (itemId, quantity) => {
+    const handleUpdateQuantityApi = async (variantId, quantity) => {
         if (quantity < 1) return;
-        const data = await updateCartItem(itemId, quantity);
+        const data = await updateCartItem(variantId, quantity);
         if (data) {
-            setCart(data.cart);
             setCartItems(data.cart.items);
         }
     };
 
     const debouncedUpdate = useDebounce(handleUpdateQuantityApi, 400);
 
-    const handleQuantityChange = (itemId, newQuantity) => {
+    const handleQuantityChange = (variantId, newQuantity) => {
         if (newQuantity < 1) return;
         setCartItems(prev =>
-            prev.map(item => (item.id === itemId ? { ...item, quantity: newQuantity } : item))
+            prev.map(item => (item.variantId === variantId ? { ...item, quantity: newQuantity } : item))
         );
-        debouncedUpdate(itemId, newQuantity);
+        debouncedUpdate(variantId, newQuantity);
     };
 
-    const handleRemoveItem = async (itemId) => {
-        const newCartData = await removeCartItem(itemId);
+    const handleRemoveItem = async (variantId) => {
+        const newCartData = await removeCartItem(variantId);
         if (newCartData) {
-            setCart(newCartData.cart);
             setCartItems(newCartData.cart.items);
-            setSelectedItems(prev => prev.filter(id => id !== itemId));
+            setSelectedItems(prev => prev.filter(selectedId => selectedId !== variantId));
         }
     };
 
@@ -89,8 +105,8 @@ const ShoppingCart = () => {
             cancelText: 'Hủy',
             onOk: async () => {
                 // Xóa lần lượt
-                for (const id of selectedItems) {
-                    await handleRemoveItem(id);
+                for (const variantId of selectedItems) {
+                    await handleRemoveItem(variantId);
                 }
                 toast.success('Đã xóa các sản phẩm đã chọn');
             },
@@ -99,17 +115,17 @@ const ShoppingCart = () => {
 
     const handleSelectAll = (e) => {
         if (e.target.checked) {
-            setSelectedItems(cartItems.map(item => item.id));
+            setSelectedItems(cartItems.map(item => item.variantId));
         } else {
             setSelectedItems([]);
         }
     };
 
-    const handleSelectItem = (itemId) => {
+    const handleSelectItem = (variantId) => {
         setSelectedItems(prev =>
-            prev.includes(itemId)
-                ? prev.filter(id => id !== itemId)
-                : [...prev, itemId]
+            prev.includes(variantId)
+                ? prev.filter(selectedId => selectedId !== variantId)
+                : [...prev, variantId]
         );
     };
 
@@ -133,7 +149,7 @@ const ShoppingCart = () => {
         const toastId = toast.loading('Đang tạo đơn hàng...');
 
         const orderItems = cartItems
-            .filter(item => selectedItems.includes(item.id))
+            .filter(item => selectedItems.includes(item.variantId))
             .map(item => ({
                 productId: item.productId,
                 variantId: item.variantId,
@@ -155,13 +171,13 @@ const ShoppingCart = () => {
     };
 
     const CartItem = ({ item }) => {
-        const isSelected = selectedItems.includes(item.id);
+        const isSelected = selectedItems.includes(item.variantId);
 
         return (
             <div className={`${styles.cartItem} ${isSelected ? styles.selected : ''}`}>
                 <Checkbox
                     checked={isSelected}
-                    onChange={() => handleSelectItem(item.id)}
+                    onChange={() => handleSelectItem(item.variantId)}
                     className={styles.itemCheckbox}
                 />
 
@@ -185,14 +201,14 @@ const ShoppingCart = () => {
                 </div>
 
                 <div className={styles.itemQuantity}>
-                    <button onClick={() => handleQuantityChange(item.id, item.quantity - 1)}>-</button>
+                    <button onClick={() => handleQuantityChange(item.variantId, item.quantity - 1)}>-</button>
                     <input
                         type="number"
                         value={item.quantity}
-                        onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 1)}
+                        onChange={(e) => handleQuantityChange(item.variantId, parseInt(e.target.value) || 1)}
                         min="1"
                     />
-                    <button onClick={() => handleQuantityChange(item.id, item.quantity + 1)}>+</button>
+                    <button onClick={() => handleQuantityChange(item.variantId, item.quantity + 1)}>+</button>
                 </div>
 
                 <div className={styles.itemTotal}>
@@ -208,7 +224,7 @@ const ShoppingCart = () => {
                                 okText: 'Xóa',
                                 okType: 'danger',
                                 cancelText: 'Hủy',
-                                onOk: () => handleRemoveItem(item.id),
+                                onOk: () => handleRemoveItem(item.variantId),
                             })
                         }
                         className={styles.removeButton}
@@ -240,8 +256,8 @@ const ShoppingCart = () => {
                     <div className={styles.cartItemsList}>
                         <div className={styles.listControls}>
                             <Checkbox
-                                checked={selectedItems.length === cartItems.length && cartItems.length > 0}
-                                indeterminate={selectedItems.length > 0 && selectedItems.length < cartItems.length}
+                                checked={!isBuyNow && selectedItems.length === cartItems.length && cartItems.length > 0}
+                                indeterminate={!isBuyNow && selectedItems.length > 0 && selectedItems.length < cartItems.length}
                                 onChange={handleSelectAll}
                             >
                                 Chọn tất cả
@@ -262,7 +278,7 @@ const ShoppingCart = () => {
                         </div>
 
                         {cartItems.map(item => (
-                            <CartItem key={item.id} item={item} />
+                            <CartItem key={item.variantId} item={item} />
                         ))}
                     </div>
 

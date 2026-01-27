@@ -1,6 +1,6 @@
 // src/features/product-details/pages/ProductDetailsPage.jsx
 import {useEffect, useState} from "react";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {getProductBySlug} from "../../../api/productApi";
 import styles from "./ProductDetailsPage.module.scss";
 import DOMPurify from 'dompurify'
@@ -14,6 +14,7 @@ const ProductDetailsPage = () => {
     const [selectedVariant, setSelectedVariant] = useState(null);
     const [mainImage, setMainImage] = useState('');
     const [quantity, setQuantity] = useState(1);
+    const navigate = useNavigate();
 
     // Hàm fetch thông tin sản phẩm
     useEffect(() => {
@@ -71,12 +72,13 @@ const ProductDetailsPage = () => {
         setQuantity(prev => Math.max(1, prev + amount));
     };
 
-    const handleAddToCartButtonClick = async () => {
+    const handleAddToCart = async () => {
         if (selectedVariant.stock === 0) {
             toast.error("Sản phẩm này đã hết hàng");
             return;
         }
 
+        toast.loading('Đang thêm sản phẩm vào giỏ hàng...', {toasterId: 'loading'})
         try {
             await addToCart({
                 productId: product.id,
@@ -84,7 +86,8 @@ const ProductDetailsPage = () => {
                 quantity: quantity,
             });
         } catch (error) {
-            console.error(error);
+        } finally {
+            toast.dismiss('loading')
         }
 
         toast.dismiss();
@@ -93,11 +96,31 @@ const ProductDetailsPage = () => {
         );
     };
 
-    const handleBuyNowButtonClick = () => {
+    const handleBuyNow = async () => {
         if (selectedVariant.stock === 0) {
             toast.error("Sản phẩm này đã hết hàng, không thể mua");
+            return;
         }
-    }
+
+        toast.loading('Đang thêm sản phẩm vào giỏ hàng...', {toasterId: 'loading'})
+        try {
+            await addToCart({
+                productId: product.id,
+                variantId: selectedVariant.id,
+                quantity,
+            });
+
+            navigate('/shopping-cart', {
+                state: {
+                    buyNowVariantId: selectedVariant.id,
+                },
+            });
+        } catch (error) {
+            console.log(error);
+        } finally {
+            toast.dismiss('loading')
+        }
+    };
 
     // Hiển thị trạng thái đang tải nếu chưa có dữ liệu
     if (!product || !selectedVariant) {
@@ -195,10 +218,10 @@ const ProductDetailsPage = () => {
                     </div>
 
                     <div className={styles.actionButtons}>
-                        <button className={styles.addToCartButton} onClick={handleAddToCartButtonClick}>Thêm vào giỏ
+                        <button className={styles.addToCartButton} onClick={handleAddToCart}>Thêm vào giỏ
                             hàng
                         </button>
-                        <button className={styles.buyNowButton} onClick={handleBuyNowButtonClick}>Mua ngay</button>
+                        <button className={styles.buyNowButton} onClick={handleBuyNow}>Mua ngay</button>
                     </div>
                 </div>
             </div>

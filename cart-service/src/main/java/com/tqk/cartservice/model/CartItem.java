@@ -6,6 +6,7 @@ import com.tqk.cartservice.dto.response.product.ProductVariantResponse;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -30,9 +31,10 @@ public class CartItem {
     private int quantity;
 
     @Column(name = "added_at")
+    @LastModifiedDate
     private LocalDateTime addedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "cart_id")
     private Cart cart;
 

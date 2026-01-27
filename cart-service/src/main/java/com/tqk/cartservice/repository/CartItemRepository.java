@@ -13,6 +13,13 @@ public interface CartItemRepository extends JpaRepository<CartItem,Integer> {
 
     Optional<CartItem> findByCartIdAndVariantId(Integer id, Integer variantId);
 
+    List<CartItem> findByCartOrderByAddedAtDesc(Cart card);
+
     @Transactional
-    void deleteByCartAndVariantIdIn(Cart card, List<Integer> variantIds);
+    void deleteByCartAndIdIn(Cart cart, List<Integer> ids);
+
+    @Transactional
+    void deleteByCartAndVariantId(Cart cart, Integer variantId);
+
+    List<CartItem> findByCart(Cart cart);
 }

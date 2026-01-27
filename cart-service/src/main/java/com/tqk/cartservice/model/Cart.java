@@ -34,7 +34,7 @@ public class Cart {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "cart")
     private List<CartItem> items = new ArrayList<>();
 
     public CartResponse convertToDto() {

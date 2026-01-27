@@ -49,7 +49,12 @@ export async function apiFetch(url, options = {}) {
         }, 5000);
     }
 
-    const data = await response.json();
+    let data = null;
+
+    if (response.status !== 204) {
+        const text = await response.text();
+        data = text ? JSON.parse(text) : null;
+    }
 
     // Xử lý các lỗi khác
     if (!response.ok) {
