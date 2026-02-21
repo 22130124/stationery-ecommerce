@@ -2,3 +2,4 @@ Flask
 gunicorn
 sentence-transformers
 numpy
+requests

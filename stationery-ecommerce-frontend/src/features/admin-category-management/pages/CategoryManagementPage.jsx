@@ -14,6 +14,7 @@ const CategoryManagementPage = () => {
 
     const { confirm } = Modal;
 
+    // Fetch categories
     useEffect(() => {
         fetchCategories();
     }, []);
@@ -24,18 +25,21 @@ const CategoryManagementPage = () => {
         setLoading(false);
         if (!data) return;
         setCategories(data);
-    };
+    }
 
+    // Mở modal để thêm mới danh mục
     const openCreateModal = () => {
         setModalMode("create");
         setSelectedCategory(null);
     };
 
+    // Mở modal để chỉnh sửa thông tin danh mục
     const openEditModal = (category) => {
         setModalMode("edit");
         setSelectedCategory(category);
     };
 
+    // Xử lý xóa danh mục
     const handleDelete = (category) => {
         confirm({
             title: "Xóa danh mục",
@@ -52,6 +56,7 @@ const CategoryManagementPage = () => {
         });
     };
 
+    // Xử lý submit thêm mới/chỉnh sửa danh mục
     const handleSubmit = async (formData) => {
         let result = null;
 
@@ -111,13 +116,13 @@ const CategoryManagementPage = () => {
         },
         {
             title: "Trạng thái",
-            dataIndex: "activeStatus",
-            key: "activeStatus",
+            dataIndex: "status",
+            key: "status",
             render: (v) =>
-                v ? (
+                v === 'ACTIVE' ? (
                     <span className={styles.active}>Hoạt động</span>
                 ) : (
-                    <span className={styles.inactive}>Ẩn</span>
+                    <span className={styles.inactive}>Đã ẩn</span>
                 )
         },
         {

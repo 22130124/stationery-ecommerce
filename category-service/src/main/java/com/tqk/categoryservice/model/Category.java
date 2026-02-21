@@ -1,5 +1,6 @@
 package com.tqk.categoryservice.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.tqk.categoryservice.dto.response.CategoryResponse;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -8,6 +9,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,19 +35,29 @@ public class Category {
     @Column(name = "slug", unique = true)
     private String slug;
 
-    @Column(name = "active_status")
-    private boolean activeStatus;
+    @Column(name = "status")
+    private CategoryStatus status;
 
     @CreatedDate
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @LastModifiedDate
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @OneToMany(mappedBy = "parent")
     private List<Category> children = new ArrayList<>();
+
+    public enum CategoryStatus {
+        ACTIVE,
+        INACTIVE;
+
+        @JsonCreator
+        public static CategoryStatus from(String value) {
+            return CategoryStatus.valueOf(value.toUpperCase());
+        }
+    }
 
     public CategoryResponse convertToDto() {
         CategoryResponse dto = new CategoryResponse();
@@ -53,7 +65,7 @@ public class Category {
         dto.setParentId(this.parent != null ? this.parent.getId() : null);
         dto.setName(this.name);
         dto.setSlug(this.slug);
-        dto.setActiveStatus(this.activeStatus);
+        dto.setStatus(String.valueOf(this.status));
         dto.setCreatedAt(this.createdAt);
         dto.setUpdatedAt(this.updatedAt);
         List<CategoryResponse> childrenDto = new ArrayList<>();

@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.tqk.categoryservice.model.Category.CategoryStatus.ACTIVE;
+
 @Service
 public class CategoryService {
     private final CategoryRepository categoryRepository;
@@ -22,7 +24,7 @@ public class CategoryService {
     }
 
     public List<CategoryResponse> getActiveCategories() {
-        List<Category> categories = categoryRepository.findByActiveStatusTrueAndParentIsNull();
+        List<Category> categories = categoryRepository.findByStatusAndParentIsNull(ACTIVE);
         List<CategoryResponse> categoriesDto = new ArrayList<>();
         categories.forEach(category -> categoriesDto.add(category.convertToDto()));
         return categoriesDto;
@@ -50,8 +52,16 @@ public class CategoryService {
         Category category = new Category();
         category.setName(request.getName());
         category.setSlug(request.getSlug());
-        category.setParent(categoryRepository.findById(request.getParentId()).orElse(null));
-        category.setActiveStatus(request.isActiveStatus());
+
+        // Kiểm tra parentId:
+        // Nếu parentId == null --> Danh mục cần tạo mới chính là root
+        // Nếu parentId != null --> Danh mục cân tạo mới chính là danh mục con
+        if (request.getParentId() != null) {
+            category.setParent(categoryRepository.findById(request.getParentId()).orElse(null));
+        }
+
+        //Gán giá trị status (ACTIVE/INACTIVE) cho danh mục
+        category.setStatus(Category.CategoryStatus.valueOf(request.getStatus()));
         categoryRepository.save(category);
         return category.convertToDto();
     }
@@ -66,7 +76,7 @@ public class CategoryService {
         } else {
             category.setParent(null);
         }
-        category.setActiveStatus(request.isActiveStatus());
+        category.setStatus(Category.CategoryStatus.valueOf(request.getStatus()));
         categoryRepository.save(category);
         return category.convertToDto();
     }
