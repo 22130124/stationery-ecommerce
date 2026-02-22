@@ -19,7 +19,7 @@ const SupplierManagementPage = () => {
     const [supplierModalOpen, setSupplierModalOpen] = useState(false);
     const [editingSupplier, setEditingSupplier] = useState(null);
     const [supplierName, setSupplierName] = useState("");
-    const [supplierActive, setSupplierActive] = useState(true);
+    const [supplierStatus, setSupplierStatus] = useState("INACTIVE");
 
     const {confirm} = Modal;
 
@@ -44,26 +44,32 @@ const SupplierManagementPage = () => {
     const openSupplierModal = (supplier = null) => {
         setEditingSupplier(supplier);
         setSupplierName(supplier?.name || "");
-        setSupplierActive(supplier?.activeStatus ?? true);
+        setSupplierStatus(supplier?.status || "INACTIVE");
         setSupplierModalOpen(true);
     };
 
     // Hàm xử lý lưu thay đổi thông tin supplier
     const handleSaveSupplier = async () => {
-        const payload = {name: supplierName, activeStatus: supplierActive};
-
-        if (editingSupplier) {
-            await updateSupplier(editingSupplier.id, payload);
-            toast.dismiss()
-            toast.success("Cập nhật nhà cung cấp thành công");
-        } else {
-            await createSupplier(payload);
-            toast.dismiss()
-            toast.success("Thêm nhà cung cấp thành công");
+        const payload = {
+            name: supplierName,
+            status: supplierStatus
         }
 
-        setSupplierModalOpen(false);
-        loadSuppliers();
+        try {
+            if (editingSupplier) {
+                await updateSupplier(editingSupplier.id, payload);
+                toast.dismiss()
+                toast.success("Cập nhật nhà cung cấp thành công");
+            } else {
+                await createSupplier(payload);
+                toast.dismiss()
+                toast.success("Thêm nhà cung cấp thành công");
+            }
+            setSupplierModalOpen(false);
+            loadSuppliers();
+        } catch (error) {
+            console.log(error)
+        }
     };
 
     const showDeleteConfirm = (id) => {
@@ -104,10 +110,10 @@ const SupplierManagementPage = () => {
         },
         {
             title: "Trạng thái",
-            dataIndex: "activeStatus",
-            render: (active) => (
-                <span className={active ? styles.active : styles.inactive}>
-                    {active ? "Hoạt động" : "Ngừng hoạt động"}
+            dataIndex: "status",
+            render: (status) => (
+                <span className={status === 'ACTIVE' ? styles.active : styles.inactive}>
+                    {status === 'ACTIVE' ? "Hoạt động" : "Đã ẩn"}
                 </span>
             )
         },
@@ -200,8 +206,8 @@ const SupplierManagementPage = () => {
                     <span>Hoạt động:</span>
 
                     <StatusToggle
-                        active={supplierActive}
-                        onToggle={() => setSupplierActive((prev) => !prev)}
+                        active={supplierStatus === 'ACTIVE'}
+                        onToggle={() => setSupplierStatus((prev) => prev === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE')}
                     />
                 </div>
             </Modal>

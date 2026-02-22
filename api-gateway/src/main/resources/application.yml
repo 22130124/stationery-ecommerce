@@ -37,7 +37,7 @@ spring:
             - Path=/suppliers/**
 
         - id: brand_route
-          uri: http://brand-service:8080
+          uri: http://supplier-service:8080
           predicates:
             - Path=/brands/**
 

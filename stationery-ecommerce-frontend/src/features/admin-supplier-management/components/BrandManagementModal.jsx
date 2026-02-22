@@ -8,7 +8,7 @@ import StatusToggle from "../../../components/status-badge/StatusToggle";
 const BrandManagementModal = ({open, onClose, supplier}) => {
     const [brands, setBrands] = useState([]);
     const [brandName, setBrandName] = useState("");
-    const [brandActive, setBrandActive] = useState(true);
+    const [brandStatus, setBrandStatus] = useState('INACTIVE');
     const [editingBrand, setEditingBrand] = useState(null);
     const [loading, setLoading] = useState(false);
 
@@ -28,21 +28,25 @@ const BrandManagementModal = ({open, onClose, supplier}) => {
     };
 
     const handleSaveBrand = async () => {
-        if (editingBrand) {
-            await updateBrand(editingBrand.id, {name: brandName, activeStatus: brandActive});
-            toast.success("Cập nhật thương hiệu thành công!");
-        } else {
-            await createBrand({
-                supplierId: supplier.id,
-                name: brandName,
-                activeStatus: brandActive
-            });
-            toast.success("Thêm thương hiệu thành công!");
+        try {
+            if (editingBrand) {
+                await updateBrand(editingBrand.id, {name: brandName, status: brandStatus});
+                toast.success("Cập nhật thương hiệu thành công!");
+            } else {
+                await createBrand({
+                    supplierId: supplier.id,
+                    name: brandName,
+                    status: brandStatus
+                });
+                toast.success("Thêm thương hiệu thành công!");
+            }
+            setBrandName("");
+            setBrandStatus('INACTIVE');
+            setEditingBrand(null);
+            loadBrands();
+        } catch (error) {
+            console.log(error);
         }
-        setBrandName("");
-        setBrandActive(true);
-        setEditingBrand(null);
-        loadBrands();
     };
 
     const showDeleteConfirm = (id) => {
@@ -80,8 +84,8 @@ const BrandManagementModal = ({open, onClose, supplier}) => {
                 <div className={styles.switchRow}>
                     <span>Hoạt động:</span>
                     <StatusToggle
-                        active={brandActive}
-                        onToggle={() => setBrandActive(prev => !prev)}
+                        active={brandStatus === 'ACTIVE'}
+                        onToggle={() => setBrandStatus(prev => prev === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE')}
                     />
                 </div>
 
@@ -95,8 +99,8 @@ const BrandManagementModal = ({open, onClose, supplier}) => {
                     <li key={b.id}>
                         <div>
                             <strong>{b.name}</strong>
-                            <span className={b.activeStatus ? styles.active : styles.inactive}>
-                                {b.activeStatus ? " (Hoạt động)" : " (Ngừng)"}
+                            <span className={b.status === 'ACTIVE' ? styles.active : styles.inactive}>
+                                {b.status === 'ACTIVE' ? " (Hoạt động)" : " (Đã ẩn)"}
                             </span>
                         </div>
 
@@ -106,7 +110,7 @@ const BrandManagementModal = ({open, onClose, supplier}) => {
                                 onClick={() => {
                                     setEditingBrand(b);
                                     setBrandName(b.name);
-                                    setBrandActive(b.activeStatus);
+                                    setBrandStatus(b.status);
                                 }}
                             >
                                 Sửa
