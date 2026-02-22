@@ -30,6 +30,9 @@ public class ProductImage {
     @Column(name = "url")
     private String url;
 
+    @Column(name = "public_id")
+    private String publicId;
+
     @Column(name = "defaultStatus")
     private boolean defaultStatus;
 

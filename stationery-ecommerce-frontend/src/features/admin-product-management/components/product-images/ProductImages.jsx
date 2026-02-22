@@ -65,7 +65,7 @@ const ProductImages = ({value = [], onChange, onUploadingChange, allowSetDefault
                 const res = await uploadImage(img.file);
                 updatedImages = updatedImages.map(i =>
                     i.fingerprint === img.fingerprint
-                        ? {...i, url: res.secure_url, public_id: res.public_id, uploading: false}
+                        ? {...i, url: res.secure_url, publicId: res.public_id, uploading: false}
                         : i
                 );
                 onChange?.(updatedImages);
@@ -94,9 +94,9 @@ const ProductImages = ({value = [], onChange, onUploadingChange, allowSetDefault
         setOpened(null);
 
         // Xóa ảnh trên server nếu có public_id
-        if (img.public_id) {
+        if (img.publicId) {
             try {
-                await deleteImage(img.public_id);
+                await deleteImage(img.publicId);
             } catch (err) {
                 toast.dismiss()
                 toast.error("Xóa ảnh thất bại")

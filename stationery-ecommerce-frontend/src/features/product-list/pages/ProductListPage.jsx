@@ -28,7 +28,7 @@ const ProductListPage = () => {
     const searchParam = searchParams.get("search");
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
-    const PRODUCTS_PER_PAGE = 25;
+    const PRODUCTS_PER_PAGE = 12;
 
     // Fetch categories và thêm các param cần thiết trên url (nếu thiếu)
     useEffect(() => {

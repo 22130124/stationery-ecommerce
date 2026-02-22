@@ -44,6 +44,7 @@ const ProductManagementPage = () => {
             toast.loading('Đang xử lý thêm sản phẩm. Vui lòng đợi...', {
                 toasterId: 'loading'
             })
+            console.log(values)
             const data = await addProduct(values)
             if (!data) return
             console.log('createdProduct:', data.product)
@@ -196,16 +197,16 @@ const ProductManagementPage = () => {
         },
         {
             title: 'Trạng thái',
-            dataIndex: 'activeStatus',
+            dataIndex: 'status',
             key: 'status',
             filters: [
-                {text: 'Đang bán', value: true},
-                {text: 'Ngừng bán', value: false},
+                {text: 'Đang bán', value: 'ACTIVE'},
+                {text: 'Ngừng bán', value: 'INACTIVE'},
             ],
             onFilter: (value, record) => record.activeStatus === value,
-            render: (activeStatus) => (
-                <span className={activeStatus ? styles.activeStatus : styles.inactiveStatus}>
-                    {activeStatus ? 'Đang bán' : 'Ngừng bán'}
+            render: (status) => (
+                <span className={status === 'ACTIVE' ? styles.activeStatus : styles.inactiveStatus}>
+                    {status === 'ACTIVE' ? 'Đang bán' : 'Đã ẩn'}
                 </span>
             ),
         },

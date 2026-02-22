@@ -2,6 +2,7 @@ import React, {useEffect, useState, useMemo} from "react";
 import {Modal, Select, Input} from "antd";
 import styles from "./CategoryModal.module.scss";
 import StatusToggle from "../../../components/status-badge/StatusToggle";
+import {slugify} from "../../../utils/slugify";
 
 const CategoryModal = ({open, onClose, onSubmit, mode, category, categories}) => {
     const initialForm = () => ({
@@ -84,19 +85,6 @@ const CategoryModal = ({open, onClose, onSubmit, mode, category, categories}) =>
             })
         )
     }
-
-    // Hàm chuyển đổi từ tên danh mục thành slug tương ứng
-    const slugify = (text) => {
-        return text
-            .toLowerCase()
-            .normalize("NFD") // tách dấu khỏi chữ
-            .replace(/[\u0300-\u036f]/g, "") // xoá dấu
-            .replace(/đ/g, "d") // xử lý riêng chữ đ
-            .replace(/[^a-z0-9\s-]/g, "") // bỏ ký tự đặc biệt
-            .trim()
-            .replace(/\s+/g, "-") // space -> -
-            .replace(/-+/g, "-"); // gộp nhiều - thành 1
-    };
 
     return (
         <Modal

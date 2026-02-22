@@ -128,15 +128,11 @@ public class ProductService {
         Product product = new Product();
         product.setCode(generateProductCode());
         product.setName(request.getName());
-        // Kiểm tra xem có trùng slug hay không
-        if (productRepository.existsBySlugAndStatusNot(request.getSlug(), DELETED)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, ExceptionCode.SLUG_ALREADY_EXISTS.name());
-        }
         product.setSlug(request.getSlug());
         product.setCategoryId(request.getCategoryId());
         product.setSupplierId(request.getSupplierId());
         product.setBrandId(request.getBrandId());
-        product.setStatus(request.getStatus() == null ? ACTIVE : request.getStatus());
+        product.setStatus(Product.ProductStatus.valueOf(request.getStatus()));
         product.setRating(0);
         product.setOrigin(request.getOrigin());
         product.setDescription(request.getDescription());
@@ -238,6 +234,11 @@ public class ProductService {
             } else {
                 variant = new ProductVariant();
                 variant.setProduct(updatedProduct);
+                Inventory inventory = new Inventory();
+                inventory.setProduct(product);
+                inventory.setProductVariant(variant);
+                productInventoryRepository.save(inventory);
+                variant.setInventory(inventory);
             }
 
             variant.setName(variantRequest.getName());
@@ -287,6 +288,7 @@ public class ProductService {
             productImage.setProduct(product);
             productImage.setVariant(variant);
             productImage.setUrl(imageRequest.getUrl());
+            productImage.setPublicId(imageRequest.getPublicId());
             productImage.setDefaultStatus(imageRequest.getDefaultStatus());
             ProductImage savedImage = productImageRepository.save(productImage);
             savedImages.add(savedImage);

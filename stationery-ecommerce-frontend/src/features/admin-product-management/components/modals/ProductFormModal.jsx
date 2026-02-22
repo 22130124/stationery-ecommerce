@@ -10,6 +10,7 @@ import {getBrandsBySupplierId} from '../../../../api/brandApi'
 import ProductImages from '../product-images/ProductImages'
 import ProductVariantsForm from '../product-variants-form/ProductVariantsForm'
 import styles from './ProductFormModal.module.scss'
+import {slugify} from "../../../../utils/slugify";
 
 const {Option} = Select
 
@@ -116,150 +117,172 @@ const ProductFormModal = ({visible, onClose, onSubmit, editingProduct}) => {
         setImagesUploading(uploading)
     }
 
-    return (
-        <Modal
-            title={editingProduct ? 'Chi tiết sản phẩm' : 'Thêm sản phẩm mới'}
-            open={visible}
-            onCancel={handleClose}
-            footer={null}
-            width={800}
-        >
-            <Form
-                form={form}
-                layout='vertical'
-                onFinish={onSubmit}
-                initialValues={{
-                    name: '',
-                    slug: '',
-                    variants: [
-                        {
-                            name: '',
-                            basePrice: null,
-                            discountPrice: null,
-                            colors: [],
-                            activeStatus: true,
-                            defaultStatus: true,
-                            images: [],
-                        },
-                    ],
-                }}
+    // Hàm xử lý khi nhập tên sản phẩm
+    const handleProductNameChange = (event) => {
+        const name = event.target.value
+        form.setFieldsValue({
+            slug: slugify(name)
+        })
+    }
+
+        return (
+            <Modal
+                title={editingProduct ? 'Chi tiết sản phẩm' : 'Thêm sản phẩm mới'}
+                open={visible}
+                onCancel={handleClose}
+                footer={null}
+                width={800}
             >
-                <Form.Item
-                    name='name'
-                    label='Tên sản phẩm'
-                    rules={[{required: true, message: 'Vui lòng nhập tên sản phẩm'}]}
+                <Form
+                    form={form}
+                    layout='vertical'
+                    onFinish={onSubmit}
+                    initialValues={{
+                        name: '',
+                        slug: '',
+                        variants: [
+                            {
+                                name: '',
+                                basePrice: null,
+                                discountPrice: null,
+                                colors: [],
+                                activeStatus: true,
+                                defaultStatus: true,
+                                images: [],
+                            },
+                        ],
+                    }}
                 >
-                    <Input/>
-                </Form.Item>
-
-                <Form.Item
-                    name='slug'
-                    label='Slug'
-                    rules={[{required: true, message: 'Vui lòng nhập slug'}]}
-                >
-                    <Input/>
-                </Form.Item>
-
-                <Form.Item
-                    name='supplierId'
-                    label='Nhà cung cấp'
-                    rules={[{required: true, message: 'Vui lòng chọn nhà cung cấp'}]}
-                >
-                    <Select
-                        showSearch
-                        placeholder='Chọn hoặc tìm kiếm nhà cung cấp'
-                        onChange={handleSupplierChange}
-                        value={selectedSupplierId}
+                    <Form.Item
+                        name='name'
+                        label='Tên sản phẩm'
+                        rules={[{required: true, message: 'Vui lòng nhập tên sản phẩm'}]}
                     >
-                        {suppliers.map(supplier => (
-                            <Option key={supplier.id} value={supplier.id}>
-                                {supplier.name}  {/* Hiển thị tên nhà cung cấp */}
-                            </Option>
-                        ))}
-                    </Select>
-                </Form.Item>
+                        <Input
+                            onChange={handleProductNameChange}
+                        />
+                    </Form.Item>
 
-                <Form.Item
-                    name='brandId'
-                    label='Thương hiệu'
-                    rules={[{required: true, message: 'Vui lòng chọn thương hiệu'}]}
-                >
-                    <Select
-                        showSearch
-                        placeholder='Chọn hoặc tìm kiếm thương hiệu'
-                        disabled={!selectedSupplierId} // Vô hiệu hóa khi chưa chọn supplier
-                        filterOption={(input, option) =>
-                            option?.children?.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                        }
-                        notFoundContent={selectedSupplierId ? 'Không có thương hiệu nào' : 'Chọn nhà cung cấp trước'}
+                    <Form.Item
+                        name='slug'
+                        label='Slug'
+                        rules={[{required: true, message: 'Vui lòng nhập slug'}]}
                     >
-                        {brands.map((brand) => (
-                            <Option key={brand.id} value={brand.id}>
-                                {brand.name}
-                            </Option>
-                        ))}
-                    </Select>
-                </Form.Item>
+                        <Input/>
+                    </Form.Item>
 
-                <Form.Item
-                    name='categoryId'
-                    label='Danh mục'
-                    rules={[{required: true, message: 'Vui lòng chọn danh mục'}]}
-                >
-                    <TreeSelect
-                        treeData={categoryTreeData}
-                        placeholder='Chọn danh mục cho sản phẩm'
-                        allowClear
-                        treeExpandAction='click'
-                    />
-                </Form.Item>
-
-                <Form.Item
-                    name='origin'
-                    label='Xuất xứ'
-                    rules={[{required: true, message: 'Vui lòng chọn xuất xứ'}]}
-                >
-                    <Select
-                        showSearch
-                        placeholder='Chọn quốc gia'
-                        filterOption={(input, option) =>
-                            option.children.toLowerCase().includes(input.toLowerCase())
-                        }
+                    <Form.Item
+                        name='supplierId'
+                        label='Nhà cung cấp'
+                        rules={[{required: true, message: 'Vui lòng chọn nhà cung cấp'}]}
                     >
-                        {countryNames.map((country) => (
-                            <Option key={country} value={country}>
-                                {country}
-                            </Option>
-                        ))}
-                    </Select>
-                </Form.Item>
-
-                <Form.Item
-                    name='description'
-                    label='Mô tả sản phẩm'
-                >
-                    <ReactQuill
-                        theme='snow'
-                        placeholder='Nhập mô tả sản phẩm...'
-                    />
-                </Form.Item>
-
-                <ProductVariantsForm form={form} handleImagesUploadingChange={handleImagesUploadingChange}/>
-
-                <Form.Item>
-                    <div style={{display: 'flex', justifyContent: 'flex-end', gap: '8px'}}>
-                        <button id={styles.cancelBtn} type='button' onClick={handleClose}>Hủy</button>
-                        <button id={styles.submitBtn}
-                                type='submit'
-                                disabled={imagesUploading}
+                        <Select
+                            showSearch
+                            placeholder='Chọn hoặc tìm kiếm nhà cung cấp'
+                            onChange={handleSupplierChange}
+                            value={selectedSupplierId}
                         >
-                            {imagesUploading ? 'Đang tải ảnh...' : (editingProduct ? 'Lưu thay đổi' : 'Tạo sản phẩm')}
-                        </button>
-                    </div>
-                </Form.Item>
-            </Form>
-        </Modal>
-    )
-}
+                            {suppliers.map(supplier => (
+                                <Option key={supplier.id} value={supplier.id}>
+                                    {supplier.name} {/* Hiển thị tên nhà cung cấp */}
+                                </Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
 
-export default ProductFormModal
+                    <Form.Item
+                        name='brandId'
+                        label='Thương hiệu'
+                        rules={[{required: true, message: 'Vui lòng chọn thương hiệu'}]}
+                    >
+                        <Select
+                            showSearch
+                            placeholder='Chọn hoặc tìm kiếm thương hiệu'
+                            disabled={!selectedSupplierId} // Vô hiệu hóa khi chưa chọn supplier
+                            filterOption={(input, option) =>
+                                option?.children?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                            }
+                            notFoundContent={selectedSupplierId ? 'Không có thương hiệu nào' : 'Chọn nhà cung cấp trước'}
+                        >
+                            {brands.map((brand) => (
+                                <Option key={brand.id} value={brand.id}>
+                                    {brand.name}
+                                </Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                        name='categoryId'
+                        label='Danh mục'
+                        rules={[{required: true, message: 'Vui lòng chọn danh mục'}]}
+                    >
+                        <TreeSelect
+                            treeData={categoryTreeData}
+                            placeholder='Chọn danh mục cho sản phẩm'
+                            allowClear
+                            treeExpandAction='click'
+                        />
+                    </Form.Item>
+
+                    <Form.Item
+                        name='origin'
+                        label='Xuất xứ'
+                        rules={[{required: true, message: 'Vui lòng chọn xuất xứ'}]}
+                    >
+                        <Select
+                            showSearch
+                            placeholder='Chọn quốc gia'
+                            filterOption={(input, option) =>
+                                option.children.toLowerCase().includes(input.toLowerCase())
+                            }
+                        >
+                            {countryNames.map((country) => (
+                                <Option key={country} value={country}>
+                                    {country}
+                                </Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                        name='description'
+                        label='Mô tả sản phẩm'
+                    >
+                        <ReactQuill
+                            theme='snow'
+                            placeholder='Nhập mô tả sản phẩm...'
+                        />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="status"
+                        label="Trạng thái"
+                        initialValue="ACTIVE"
+                        rules={[{ required: true, message: 'Vui lòng chọn trạng thái' }]}
+                    >
+                        <Select>
+                            <Option value="ACTIVE">Hoạt động</Option>
+                            <Option value="INACTIVE">Ẩn sản phẩm</Option>
+                        </Select>
+                    </Form.Item>
+
+                    <ProductVariantsForm form={form} handleImagesUploadingChange={handleImagesUploadingChange}/>
+
+                    <Form.Item>
+                        <div style={{display: 'flex', justifyContent: 'flex-end', gap: '8px'}}>
+                            <button id={styles.cancelBtn} type='button' onClick={handleClose}>Hủy</button>
+                            <button id={styles.submitBtn}
+                                    type='submit'
+                                    disabled={imagesUploading}
+                            >
+                                {imagesUploading ? 'Đang tải ảnh...' : (editingProduct ? 'Lưu thay đổi' : 'Tạo sản phẩm')}
+                            </button>
+                        </div>
+                    </Form.Item>
+                </Form>
+            </Modal>
+        )
+    }
+
+    export default ProductFormModal

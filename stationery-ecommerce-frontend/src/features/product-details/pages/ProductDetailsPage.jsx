@@ -194,7 +194,7 @@ const ProductDetailsPage = () => {
                                         key={variant.id}
                                         className={`
                                             ${styles.variantButton}
-                                            ${selectedVariant.id === variant.id ? styles.activeVariant : ''}
+                                            ${selectedVariant.id === variant.id && !outOfStock ? styles.activeVariant : ''}
                                             ${outOfStock ? styles.disabledVariant : ''}
                                         `}
                                         onClick={() => handleVariantSelect(variant)}

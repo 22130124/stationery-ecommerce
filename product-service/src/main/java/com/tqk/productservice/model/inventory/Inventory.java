@@ -29,7 +29,7 @@ public class Inventory {
     private ProductVariant productVariant;
 
     @Column(name = "stock")
-    private int stock;
+    private int stock = 0;
 
     @LastModifiedDate
     @Column(name = "updated_at")

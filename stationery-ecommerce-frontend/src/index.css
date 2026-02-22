@@ -22,3 +22,16 @@ code {
     margin-bottom: 0 !important;
     margin-top: 5px !important;
 }
+
+button {
+    height: 48px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}

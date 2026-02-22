@@ -43,7 +43,7 @@ public class Product {
     @Column(name = "origin")
     private String origin;
 
-    @Column(name = "slug")
+    @Column(name = "slug", unique = true)
     private String slug;
 
     @Column(name = "rating")
