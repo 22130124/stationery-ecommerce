@@ -1,26 +1,29 @@
 // LoginPage.jsx
-import React, {useState} from 'react'
-import {login} from '../../../api/authApi'
+import React, {useEffect, useState} from 'react'
+import {login, logout} from '../slice/authSlice'
 import AuthForm from '../components/AuthForm'
 import {useNavigate, useLocation} from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { jwtDecode } from 'jwt-decode'
 import {getProfile} from '../../../api/profileApi'
 import authBanner from '../assets/auth-banner.jpg';
 import styles from './AuthPage.module.scss'
+import {useDispatch, useSelector} from "react-redux";
 
 const LoginPage = () => {
     const location = useLocation()
     const navigate = useNavigate()
+    const dispatch = useDispatch()
 
     const [message, setMessage] = useState('')
-    const [isSuccess, setIsSuccess] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
+
+    useEffect(() => {
+        dispatch(logout)
+    })
 
     const handleSubmit = async (formData) => {
         if (formData.error) {
             setMessage(formData.error)
-            setIsSuccess(false)
             return
         }
 
@@ -30,48 +33,39 @@ const LoginPage = () => {
         toast.dismiss()
         const toastId = toast.loading('Đang xử lý đăng nhập...')
 
-        try {
-            const data = await login(formData.email, formData.password)
+        const resultAction = await dispatch(login({
+            email: formData.email,
+            password: formData.password
+        }))
 
-            localStorage.setItem('token', data.token)
+        if (login.fulfilled.match(resultAction)) {
 
-            const decoded = jwtDecode(data.token)
-            const role = decoded.role || decoded.roles
+            const data = resultAction.payload
+            toast.success('Đăng nhập thành công...', { id: toastId, duration: 2000 })
 
-            toast.success(
-                'Đăng nhập thành công. Đang chuyển hướng...',
-                { id: toastId, duration: 2000 }
-            )
+            const role = data.role
 
-            const searchParams = new URLSearchParams(location.search)
-            const redirectPath = searchParams.get('redirect')
+            if (role === 'ADMIN') {
+                navigate('/admin/dashboard')
+            } else {
+                const profile = await getProfile()
 
-            setTimeout(async () => {
-                if (role === 'ADMIN') {
-                    navigate('/admin/dashboard')
-                } else {
-                    // Nếu có redirectPath
-                    if (redirectPath) {
-                        navigate(redirectPath)
-                    } else {
-                        // Nếu tài khoản đăng nhập vừa được đăng ký thì chuyển hướng vào trang hồ sơ cá nhân để cập nhật thông tin cá nhân
-                        const profile = await getProfile()
-                        console.log(profile)
-                        if (profile.status === 'INCOMPLETED') {
-                            navigate('/profile')
-                            return
-                        }
-                        // Nếu không thì vào trang danh sách sản phẩm
-                        navigate('/product-list')
-                    }
+                if (profile.status === 'INCOMPLETED') {
+                    navigate('/profile')
+                    return
                 }
-            }, 2000)
-        } catch (error) {
-            setIsSuccess(false)
-            toast.error(error.message, { id: toastId, duration: 5000 }) 
-        } finally {
-            setIsSubmitting(false)
+
+                navigate('/product-list')
+            }
+
+        } else {
+            toast.error(resultAction.payload || "Đăng nhập thất bại", {
+                id: toastId,
+                duration: 5000
+            })
         }
+
+        setIsSubmitting(false)
     }
 
     return (
@@ -88,7 +82,6 @@ const LoginPage = () => {
                     buttonText="Đăng nhập"
                     onSubmit={handleSubmit}
                     message={message}
-                    isSuccess={isSuccess}
                     isSubmitting={isSubmitting}
                 />
             </div>

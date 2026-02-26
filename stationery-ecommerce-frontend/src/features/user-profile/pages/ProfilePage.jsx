@@ -32,6 +32,7 @@ export default function ProfilePage() {
 
             if (data.status === 'INCOMPLETED') {
                 setEditing(true)
+                toast.dismissAll()
                 toast('Vui lòng hoàn thiện hồ sơ để không bị gián đoạn trải nghiệm mua hàng', {
                     duration: Infinity,
                     id: 'complete-profile-toast',

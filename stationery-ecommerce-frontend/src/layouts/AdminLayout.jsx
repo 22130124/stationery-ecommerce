@@ -1,11 +1,15 @@
 // src/features/admin/layouts/AdminLayout.jsx
 import React from 'react';
-import {Outlet, Link, useLocation} from 'react-router-dom';
+import {Outlet, Link, useLocation, useNavigate} from 'react-router-dom';
 import styles from './AdminLayout.module.scss';
 import RequireAuth from "../components/RequireAdminAuth";
+import {useDispatch} from "react-redux";
+import {logout} from "../features/auth/slice/authSlice";
 
 const AdminLayout = () => {
     const location = useLocation();
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const menuItems = [
         {label: "Tổng quan", path: "/admin/dashboard"},
@@ -14,8 +18,12 @@ const AdminLayout = () => {
         {label: "Quản lý tài khoản", path: "/admin/account-management"},
         {label: "Quản lý danh mục", path: "/admin/category-management"},
         {label: "Quản lý nhà cung cấp và thương hiệu", path: "/admin/supplier-management"},
-        {label: "Đăng xuất", path: "/login"},
     ];
+
+    const handleLogout = () => {
+        dispatch(logout())
+        navigate('/login', {replace: true})
+    }
 
     return (
         <div className={styles.container}>
@@ -31,6 +39,9 @@ const AdminLayout = () => {
                             <Link to={item.path}>{item.label}</Link>
                         </li>
                     ))}
+                    <li key='logout' onClick={handleLogout}>
+                        <Link>Đăng xuất</Link>
+                    </li>
                 </ul>
             </aside>
 

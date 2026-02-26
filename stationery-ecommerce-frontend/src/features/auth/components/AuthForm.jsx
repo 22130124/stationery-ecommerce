@@ -9,7 +9,7 @@ import toast from 'react-hot-toast'
 import {getProfile} from '../../../api/profileApi'
 
 // formType: 'login' | 'signup'
-const AuthForm = ({ formType, title, buttonText, onSubmit, message, isSuccess, isSubmitting}) => {
+const AuthForm = ({ formType, title, buttonText, onSubmit, isSubmitting}) => {
     const navigate = useNavigate()
     const location = useLocation()
 

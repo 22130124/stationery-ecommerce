@@ -6,6 +6,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.tqk.authservice.dto.request.AuthRequest;
 import com.tqk.authservice.dto.response.AccountResponse;
+import com.tqk.authservice.dto.response.LoginResponse;
 import com.tqk.authservice.exception.AuthException;
 import com.tqk.authservice.model.Account;
 import com.tqk.authservice.model.AuthProvider;
@@ -51,7 +52,7 @@ public class AuthService {
     @Value("${GOOGLE_CLIENT_ID}")
     private String googleClientId;
 
-    public String login(AuthRequest request) {
+    public LoginResponse login(AuthRequest request) {
         String email = request.getEmail();
         String password = request.getPassword();
 
@@ -71,7 +72,12 @@ public class AuthService {
             throw new AuthException("Tài khoản đã bị khóa. Vui lòng liên hệ qua gmail 22130124@st.hcmuaf.edu.vn để được hỗ trợ");
         }
 
-        return generateToken(account);
+        LoginResponse response = new LoginResponse();
+        response.setToken(generateToken(account));
+        response.setEmail(account.getEmail());
+        response.setRole(account.getRole());
+
+        return response;
     }
 
     @Transactional

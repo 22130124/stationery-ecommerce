@@ -5,15 +5,19 @@ import {getActiveCategories} from '../../api/categoryApi'
 import {Link, useNavigate} from 'react-router-dom'
 import {useEffect, useState} from 'react'
 import {getProfile} from "../../api/profileApi";
+import {useDispatch, useSelector} from "react-redux";
+import {logout} from "../../features/auth/slice/authSlice";
 
 const Header = () => {
     const [hoveredMenu, setHoveredMenu] = useState(null)
     const [categories, setCategories] = useState([])
-    const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [searchKeyword, setSearchKeyword] = useState('')
     const [user, setUser] = useState(null)
+    const isLoggedIn = useSelector(state => state.auth.isLoggedIn)
+    const email = useSelector(state => state.auth.email)
 
     const navigate = useNavigate()
+    const dispatch = useDispatch()
 
     const handleMouseEnter = (menu) => setHoveredMenu(menu)
     const handleMouseLeave = () => setHoveredMenu(null)
@@ -27,13 +31,11 @@ const Header = () => {
         fetchCategories()
 
         const token = localStorage.getItem('token')
-        setIsLoggedIn(!!token)
     }, [])
 
     // Lấy thông tin user
     useEffect(() => {
         const token = localStorage.getItem('token')
-        setIsLoggedIn(!!token)
 
         if (!token) return
 
@@ -80,7 +82,7 @@ const Header = () => {
 
     const handleLogout = () => {
         localStorage.removeItem('token')
-        setIsLoggedIn(false)
+        dispatch(logout())
         navigate('/login')
     }
 
@@ -189,7 +191,7 @@ const Header = () => {
                             alt="avatar"
                             className={styles.headerAvatar}
                         />
-                        <span className={styles.userEmail}>{shortenEmail(user.email)}</span>
+                        <span className={styles.userEmail}>{shortenEmail(email)}</span>
                     </>
                 ) : (
                     <>

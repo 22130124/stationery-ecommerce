@@ -5,6 +5,7 @@ import com.tqk.authservice.dto.request.ForgotPasswordRequest;
 import com.tqk.authservice.dto.request.GoogleAuthRequest;
 import com.tqk.authservice.dto.request.ResetPasswordRequest;
 import com.tqk.authservice.dto.response.AccountResponse;
+import com.tqk.authservice.dto.response.LoginResponse;
 import com.tqk.authservice.service.AuthService;
 import com.tqk.authservice.service.EmailVerificationService;
 import com.tqk.authservice.service.PasswordResetService;
@@ -38,8 +39,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
-        String token = authService.login(request);
-        Map<String, String> response = Map.of("token", token);
+        LoginResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
 
