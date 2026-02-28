@@ -38,6 +38,7 @@
   padding: 8px 16px;
   border-radius: 8px;
   transition: background 0.3s ease;
+  position: relative;
 
   &:hover {
     background: #f8f9fa;
@@ -58,6 +59,7 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
   padding: 16px 0;
   animation: fadeIn 0.2s ease;
+  font-weight: 400;
 }
 
 /* Search box */

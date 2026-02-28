@@ -128,8 +128,13 @@ public class AIService {
             productResponseList.addAll(products);
         }
 
-        chatResponse.setMessage("Đây là sản phẩm phù hợp với yêu cầu của bạn");
-        chatResponse.setProducts(productResponseList);
+        if (productResponseList.isEmpty()) {
+            chatResponse.setMessage("Không tìm thấy sản phẩm nào phù hợp với yêu cầu của bạn. Bạn có muốn tìm sản phẩm nào khác không?");
+        } else {
+            chatResponse.setMessage("Đây là sản phẩm phù hợp với yêu cầu của bạn");
+            chatResponse.setProducts(productResponseList);
+        }
+
         chatResponse.setRelated(geminiResponse.isRelated());
 
         return chatResponse;

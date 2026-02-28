@@ -32,7 +32,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             FROM products p
             LEFT JOIN product_variants pv ON pv.product_id = p.id
             LEFT JOIN product_variant_colors pvc ON pvc.product_id = p.id
-            WHERE p.active_status = true
+            WHERE p.status = 'ACTIVE'
                 AND (:categoryId IS NULL OR p.category_id = :categoryId)
                 AND (:brandId IS NULL OR p.brand_id = :brandId)
                 /* nếu hasColors = 1 thì filter theo màu */
