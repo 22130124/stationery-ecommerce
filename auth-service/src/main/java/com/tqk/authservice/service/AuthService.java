@@ -7,7 +7,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.tqk.authservice.dto.request.AuthRequest;
 import com.tqk.authservice.dto.response.AccountResponse;
 import com.tqk.authservice.dto.response.LoginResponse;
-import com.tqk.authservice.exception.AuthException;
+import com.tqk.authservice.exception.ExceptionCode;
 import com.tqk.authservice.model.Account;
 import com.tqk.authservice.model.AuthProvider;
 import com.tqk.authservice.model.PasswordResetToken;
@@ -19,12 +19,13 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
@@ -56,20 +57,22 @@ public class AuthService {
         String email = request.getEmail();
         String password = request.getPassword();
 
-        Account account = accountRepository.findByEmail(email).orElseThrow(() -> new AuthException("Thông tin đăng nhập không chính xác"));
+        Account account = accountRepository.findByEmail(email).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.UNAUTHORIZED, ExceptionCode.INVALID_CREDENTIALS.name()));
 
-        AuthProvider authProvider = authProviderRepository.findByAccount(account).orElseThrow(() -> new AuthException("Thông tin đăng nhập không chính xác"));
+        AuthProvider authProvider = authProviderRepository.findByAccount(account).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.UNAUTHORIZED, ExceptionCode.INVALID_CREDENTIALS.name()));
 
         if (!passwordEncoder.matches(password, authProvider.getPassword())) {
-            throw new AuthException("Thông tin đăng nhập không chính xác");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, ExceptionCode.INVALID_CREDENTIALS.name());
         }
 
         if (!account.isVerified()) {
-            throw new AuthException("Vui lòng vào hộp thư email để kích hoạt tài khoản");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, ExceptionCode.ACCOUNT_NOT_VERIFIED.name());
         }
 
         if (!account.isActiveStatus()) {
-            throw new AuthException("Tài khoản đã bị khóa. Vui lòng liên hệ qua gmail 22130124@st.hcmuaf.edu.vn để được hỗ trợ");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, ExceptionCode.ACCOUNT_LOCKED.name());
         }
 
         LoginResponse response = new LoginResponse();
@@ -89,7 +92,7 @@ public class AuthService {
 
             GoogleIdToken idToken = verifier.verify(idTokenString);
             if (idToken == null) {
-                throw new AuthException("Token Google ID không hợp lệ.");
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, ExceptionCode.GOOGLE_TOKEN_INVALID.name());
             }
 
             GoogleIdToken.Payload payload = idToken.getPayload();
@@ -103,7 +106,7 @@ public class AuthService {
             return generateToken(account);
 
         } catch (GeneralSecurityException | IOException e) {
-            throw new AuthException("Lỗi khi xác thực Google token: " + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionCode.GOOGLE_TOKEN_VERIFICATION_FAILED.name());
         }
     }
 
@@ -133,7 +136,7 @@ public class AuthService {
         String email = request.getEmail();
 
         if (accountRepository.existsByEmail(email)) {
-            throw new AuthException("Email đã tồn tại");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ExceptionCode.EMAIL_ALREADY_EXISTS.name());
         }
 
         String password = request.getPassword();
@@ -173,8 +176,16 @@ public class AuthService {
                 .compact();
     }
 
+    public LoginResponse getInfoByAccountId(Integer accountId) {
+        Account account = accountRepository.findById(accountId).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, ExceptionCode.ACCOUNT_NOT_FOUND.name()));
+        LoginResponse response = new LoginResponse();
+        response.setEmail(account.getEmail());
+        response.setRole(account.getRole());
+        return response;
+    }
+
     public String getEmail(Integer id) {
-        Account account = accountRepository.findById(id).orElseThrow(() -> new AuthException("Không tìm thấy tài khoản có id: " + id));
+        Account account = accountRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, ExceptionCode.ACCOUNT_NOT_FOUND.name()));
         return account.getEmail();
     }
 
@@ -188,14 +199,14 @@ public class AuthService {
     }
 
     public Integer changeStatus(Integer id, boolean status) {
-        Account account = accountRepository.findById(id).orElseThrow(() -> new AuthException("Không tìm thấy tài khoản có id: " + id));
+        Account account = accountRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, ExceptionCode.ACCOUNT_NOT_FOUND.name()));
         account.setActiveStatus(status);
         accountRepository.save(account);
         return account.getId();
     }
 
     public Integer changeRole(Integer id, String role) {
-        Account account = accountRepository.findById(id).orElseThrow(() -> new AuthException("Không tìm thấy tài khoản có id: " + id));
+        Account account = accountRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, ExceptionCode.ACCOUNT_NOT_FOUND.name()));
         account.setRole(role);
         accountRepository.save(account);
         return account.getId();

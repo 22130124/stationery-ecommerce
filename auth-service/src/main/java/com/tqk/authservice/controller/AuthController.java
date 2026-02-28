@@ -43,6 +43,12 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/current")
+    public ResponseEntity<?> getCurrent(@RequestHeader("X-Account-Id") Integer accountId) {
+        LoginResponse response = authService.getInfoByAccountId(accountId);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/google")
     public ResponseEntity<?> loginGoogle(@RequestBody GoogleAuthRequest request) {
         String token = authService.loginGoogle(request.getToken());

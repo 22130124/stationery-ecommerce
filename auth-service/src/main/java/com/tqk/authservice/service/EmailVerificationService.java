@@ -1,15 +1,15 @@
 package com.tqk.authservice.service;
 
-import com.tqk.authservice.exception.AuthException;
+import com.tqk.authservice.exception.ExceptionCode;
 import com.tqk.authservice.model.Account;
 import com.tqk.authservice.model.EmailVerificationToken;
 import com.tqk.authservice.repository.AccountRepository;
 import com.tqk.authservice.repository.EmailVerificationTokenRepository;
 import com.tqk.authservice.repository.client.ProfileClient;
 import lombok.RequiredArgsConstructor;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -41,10 +41,11 @@ public class EmailVerificationService {
     // Hàm xử lý xác minh token
     public void verifyAccount(String token) {
         EmailVerificationToken verificationToken = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new AuthException("Token xác thực không hợp lệ"));
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.UNAUTHORIZED, ExceptionCode.EMAIL_TOKEN_INVALID.name()));
 
         if (verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new AuthException("Token đã hết hạn");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, ExceptionCode.EMAIL_TOKEN_EXPIRED.name());
         }
 
         Account account = verificationToken.getAccount();

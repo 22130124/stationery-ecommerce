@@ -2,7 +2,7 @@ package com.tqk.authservice.service;
 
 import com.tqk.authservice.dto.request.ForgotPasswordRequest;
 import com.tqk.authservice.dto.request.ResetPasswordRequest;
-import com.tqk.authservice.exception.AuthException;
+import com.tqk.authservice.exception.ExceptionCode;
 import com.tqk.authservice.model.Account;
 import com.tqk.authservice.model.AuthProvider;
 import com.tqk.authservice.model.PasswordResetToken;
@@ -10,9 +10,11 @@ import com.tqk.authservice.repository.AccountRepository;
 import com.tqk.authservice.repository.AuthProviderRepository;
 import com.tqk.authservice.repository.PasswordResetTokenRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -63,10 +65,11 @@ public class PasswordResetService {
     @Transactional
     public void resetPassword(ResetPasswordRequest request) {
         PasswordResetToken resetToken = tokenRepository.findByToken(request.getToken())
-                .orElseThrow(() -> new AuthException("Token không hợp lệ"));
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.UNAUTHORIZED, ExceptionCode.PASSWORD_TOKEN_INVALID.name()));
 
         if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new AuthException("Token đã hết hạn");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, ExceptionCode.PASSWORD_TOKEN_EXPIRED.name());
         }
 
         AuthProvider provider = authProviderRepository.findByAccount(resetToken.getAccount()).orElseThrow();

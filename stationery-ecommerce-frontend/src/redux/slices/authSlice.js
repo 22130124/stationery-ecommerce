@@ -15,6 +15,17 @@ export const login = createAsyncThunk(
     }
 )
 
+export const getCurrent = createAsyncThunk(
+    "auth/getCurrent",
+    async (token, {rejectWithValue}) => {
+        try {
+            return await authApi.getCurrent(token)
+        } catch (error) {
+            return rejectWithValue(error.message)
+        }
+    }
+)
+
 const authSlice = createSlice({
     name: "auth",
     initialState: {
@@ -31,6 +42,7 @@ const authSlice = createSlice({
             state.email = null
             state.role = null
             state.isLoggedIn = false
+            localStorage.removeItem('token')
         }
     },
     extraReducers: (builder) => {
@@ -48,6 +60,14 @@ const authSlice = createSlice({
             })
             .addCase(login.rejected, (state, action) => {
                 state.loading = false
+                state.error = action.payload
+            })
+            .addCase(getCurrent.fulfilled, (state, action) => {
+                state.email = action.payload.email
+                state.role = action.payload.role
+                state.isLoggedIn = true
+            })
+            .addCase(getCurrent.rejected, (state, action) => {
                 state.error = action.payload
             })
     }

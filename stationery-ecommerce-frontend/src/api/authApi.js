@@ -90,3 +90,9 @@ export const resetPassword = (payload) =>
         method: 'POST',
         body: JSON.stringify(payload),
     })
+
+export const getCurrent = (token) =>
+    apiFetch(`${BASE_URL}/current`, {
+        method: 'POST',
+        body: JSON.stringify(token),
+    })

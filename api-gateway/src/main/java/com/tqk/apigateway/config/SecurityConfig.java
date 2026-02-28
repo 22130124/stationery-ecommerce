@@ -27,6 +27,7 @@ public class SecurityConfig {
                         .pathMatchers("/orders/admin","/orders/admin/**").hasRole("ADMIN")
                         .pathMatchers("/auth/admin","/auth/admin/**").hasRole("ADMIN")
                         .pathMatchers("/dashboard","/dashboard/**").hasRole("ADMIN")
+                        .pathMatchers("/auth/current").authenticated()
                         .pathMatchers("/auth", "/auth/**").permitAll()
                         .pathMatchers("/products", "/products/**").permitAll()
                         .pathMatchers("/search", "/search/**").permitAll()
