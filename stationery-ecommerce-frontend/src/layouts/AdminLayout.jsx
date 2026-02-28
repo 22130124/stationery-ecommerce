@@ -4,7 +4,7 @@ import {Outlet, Link, useLocation, useNavigate} from 'react-router-dom';
 import styles from './AdminLayout.module.scss';
 import RequireAuth from "../components/RequireAdminAuth";
 import {useDispatch} from "react-redux";
-import {logout} from "../features/auth/slice/authSlice";
+import {logout} from "../redux/slices/authSlice";
 
 const AdminLayout = () => {
     const location = useLocation();

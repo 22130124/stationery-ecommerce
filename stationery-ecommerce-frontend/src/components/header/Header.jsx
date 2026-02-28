@@ -6,7 +6,7 @@ import {Link, useNavigate} from 'react-router-dom'
 import {useEffect, useState} from 'react'
 import {getProfile} from "../../api/profileApi";
 import {useDispatch, useSelector} from "react-redux";
-import {logout} from "../../features/auth/slice/authSlice";
+import {logout} from "../../redux/slices/authSlice";
 
 const Header = () => {
     const [hoveredMenu, setHoveredMenu] = useState(null)
@@ -18,6 +18,8 @@ const Header = () => {
 
     const navigate = useNavigate()
     const dispatch = useDispatch()
+
+    const cartQuantity = useSelector((state) => state.cart.totalItems)
 
     const handleMouseEnter = (menu) => setHoveredMenu(menu)
     const handleMouseLeave = () => setHoveredMenu(null)
@@ -174,7 +176,10 @@ const Header = () => {
 
             {/* Giỏ hàng */}
             <Link className={styles.menuItem} to='/shopping-cart'>
-                <FaShoppingCart/>
+                <div className={styles.cartIconWrapper}>
+                    <FaShoppingCart/>
+                    <span className={styles.cartBadge}>{cartQuantity}</span>
+                </div>
                 <span>Giỏ hàng</span>
             </Link>
 

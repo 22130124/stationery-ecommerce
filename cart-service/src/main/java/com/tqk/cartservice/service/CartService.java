@@ -60,6 +60,8 @@ public class CartService {
             }
         }
 
+        cartResponse.setTotalItems(cartItems.size());
+
         return cartResponse;
     }
 
@@ -71,7 +73,7 @@ public class CartService {
     }
 
     @Transactional
-    public void addCartItem(Integer accountId, AddCartItemRequest request) {
+    public CartResponse addCartItem(Integer accountId, AddCartItemRequest request) {
 
         // 1. Lấy cart của user
         Cart cart = cartRepository.findByAccountId(accountId)
@@ -98,6 +100,8 @@ public class CartService {
             newItem.setQuantity(request.getQuantity());
             cartItemRepository.save(newItem);
         }
+
+        return getCartByAccountId(accountId);
     }
 
     @Transactional
@@ -124,7 +128,7 @@ public class CartService {
         Cart cart = cartRepository.findByAccountId(accountId).orElseGet(() -> createEmptyCart(accountId));
 
         // Tìm item trong giỏ hàng
-        CartItem cartItem = cartItemRepository.findByIdAndCartId(variantId, cart.getId())
+        CartItem cartItem = cartItemRepository.findByCartIdAndVariantId(cart.getId(), variantId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ExceptionCode.ITEM_NOT_FOUND.name()));
 
         // Cập nhật số lượng

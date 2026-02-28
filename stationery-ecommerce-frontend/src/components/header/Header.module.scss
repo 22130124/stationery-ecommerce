@@ -175,6 +175,26 @@
   }
 }
 
+.cartIconWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.cartBadge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  background-color: #ff424e;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 50%;
+  min-width: 18px;
+  text-align: center;
+}
+
 .submenu {
   position: absolute;
   top: 0;

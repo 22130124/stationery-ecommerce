@@ -1,19 +1,22 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import styles from './ShoppingCart.module.scss';
 import { FaTrashAlt, FaRegTrashAlt } from 'react-icons/fa';
-import { getCart, removeCartItem, updateCartItem } from '../../../api/cartApi';
+import { removeCartItem, updateCartItem } from '../../../api/cartApi';
 import {useNavigate, useLocation, Link} from 'react-router-dom';
 import { Modal, Checkbox, Spin } from 'antd';
 import toast from 'react-hot-toast';
 import { createOrders } from '../../../api/orderApi';
 import { getProfile } from '../../../api/profileApi';
 import {pay} from "../../../api/paymentApi";
+import {getCart, removeItem} from '../../../redux/slices/cartSlice'
+import {useDispatch} from "react-redux";
 
 const { confirm } = Modal;
 
 const ShoppingCart = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const dispatch = useDispatch();
 
     const [cartItems, setCartItems] = useState([]);
     const [selectedItems, setSelectedItems] = useState([]);
@@ -25,9 +28,10 @@ const ShoppingCart = () => {
     useEffect(() => {
         const fetchCart = async () => {
             setLoading(true);
-            const data = await getCart();
-            if (data) {
-                const items = data.cart.items || []
+            const getCartResult = await dispatch(getCart())
+            if (getCart.fulfilled.match(getCartResult)) {
+                const items = getCartResult.payload.items || []
+                console.log(items);
                 setCartItems(items);
 
                 // Kiểm tra nếu là truy cập trang giỏ hàng thông qua nút mua ngay
@@ -47,6 +51,11 @@ const ShoppingCart = () => {
                     // Vào giỏ hàng bình thường
                     setSelectedItems(items.map(item => item.variantId));
                 }
+            } else {
+                toast.dismissAll()
+                toast.error(getCartResult.payload || "Lấy thông tin giỏ hàng thất bại", {
+                    duration: 5000
+                })
             }
             setLoading(false);
         };
@@ -88,10 +97,15 @@ const ShoppingCart = () => {
     };
 
     const handleRemoveItem = async (variantId) => {
-        const newCartData = await removeCartItem(variantId);
-        if (newCartData) {
-            setCartItems(newCartData.cart.items);
+        const removeItemResult = await dispatch(removeItem({variantId: variantId}));
+        if(removeItem.fulfilled.match(removeItemResult)) {
+            setCartItems(removeItemResult.payload.items || []);
             setSelectedItems(prev => prev.filter(selectedId => selectedId !== variantId));
+        } else {
+            toast.dismissAll()
+            toast.error(removeItemResult.payload || "Loại bỏ sản phẩm ra khỏi giỏ hàng thất bại", {
+                duration: 5000
+            })
         }
     };
 

@@ -1,6 +1,6 @@
 // LoginPage.jsx
 import React, {useEffect, useState} from 'react'
-import {login, logout} from '../slice/authSlice'
+import {login, logout} from '../../../redux/slices/authSlice'
 import AuthForm from '../components/AuthForm'
 import {useNavigate, useLocation} from 'react-router-dom'
 import toast from 'react-hot-toast'
@@ -8,6 +8,7 @@ import {getProfile} from '../../../api/profileApi'
 import authBanner from '../assets/auth-banner.jpg';
 import styles from './AuthPage.module.scss'
 import {useDispatch, useSelector} from "react-redux";
+import {getCart} from "../../../redux/slices/cartSlice";
 
 const LoginPage = () => {
     const location = useLocation()
@@ -33,15 +34,23 @@ const LoginPage = () => {
         toast.dismiss()
         const toastId = toast.loading('Đang xử lý đăng nhập...')
 
-        const resultAction = await dispatch(login({
+        const loginResult = await dispatch(login({
             email: formData.email,
             password: formData.password
         }))
 
-        if (login.fulfilled.match(resultAction)) {
+        if (login.fulfilled.match(loginResult)) {
 
-            const data = resultAction.payload
+            const data = loginResult.payload
             toast.success('Đăng nhập thành công...', { id: toastId, duration: 2000 })
+
+            const getCartResult = await dispatch(getCart())
+            if(getCart.rejected.match(getCartResult)) {
+                toast.error(getCartResult.payload || "Lấy thông tin giỏ hàng thất bại", {
+                    id: toastId,
+                    duration: 5000
+                })
+            }
 
             const role = data.role
 
@@ -59,7 +68,7 @@ const LoginPage = () => {
             }
 
         } else {
-            toast.error(resultAction.payload || "Đăng nhập thất bại", {
+            toast.error(loginResult.payload || "Đăng nhập thất bại", {
                 id: toastId,
                 duration: 5000
             })

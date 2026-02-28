@@ -10,4 +10,5 @@ public class CartResponse {
     private Integer id;
     private Integer accountId;
     private List<CartItemResponse> items = new ArrayList<>();
+    private int totalItems;
 }

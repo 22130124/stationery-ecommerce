@@ -19,20 +19,17 @@ public class CartController {
 
     // Lấy giỏ hàng hiện tại
     @GetMapping
-    public ResponseEntity<?> getCart(
-            @RequestHeader("X-Account-Id") Integer accountId) {
-
+    public ResponseEntity<?> getCart(@RequestHeader("X-Account-Id") Integer accountId) {
         CartResponse cart = cartService.getCartByAccountId(accountId);
-        Map<String, Object> response = Map.of("cart", cart);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(cart);
     }
 
     @PostMapping
     public ResponseEntity<?> addOrUpdateCartItem(
             @RequestHeader("X-Account-Id") Integer accountId,
             @RequestBody AddCartItemRequest request) {
-        cartService.addCartItem(accountId, request);
-        return ResponseEntity.ok().build();
+        CartResponse response = cartService.addCartItem(accountId, request);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{variantId}")
@@ -56,8 +53,7 @@ public class CartController {
             @RequestHeader("X-Account-Id") Integer accountId, @PathVariable Integer variantId) {
 
         CartResponse cart = cartService.removeCartItem(accountId, variantId);
-        Map<String, Object> response = Map.of("cart", cart);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(cart);
     }
 
     // Xóa toàn bộ items trong giỏ hàng

@@ -124,12 +124,12 @@
   }
 
   input, textarea {
-    padding: 14px 16px;
+    padding: 18px 16px;
     border: 2px solid #e5e7eb;
     border-radius: 12px;
-    font-size: 1rem;
     transition: all 0.3s ease;
     background: #f9fafb;
+    line-height: 1.5;
 
     &:focus {
       outline: none;

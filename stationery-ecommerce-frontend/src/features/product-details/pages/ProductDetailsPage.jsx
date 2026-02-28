@@ -5,8 +5,9 @@ import {getProductBySlug} from "../../../api/productApi";
 import styles from "./ProductDetailsPage.module.scss";
 import DOMPurify from 'dompurify'
 import toast from "react-hot-toast";
-import {addToCart} from "../../../api/cartApi";
+import {addToCart} from "../../../redux/slices/cartSlice";
 import RecommendedProducts from "../components/RecommendedProducts";
+import {useDispatch} from "react-redux";
 
 const ProductDetailsPage = () => {
     const {slug} = useParams();
@@ -15,6 +16,7 @@ const ProductDetailsPage = () => {
     const [mainImage, setMainImage] = useState('');
     const [quantity, setQuantity] = useState(1);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     // Hàm fetch thông tin sản phẩm
     useEffect(() => {
@@ -79,21 +81,23 @@ const ProductDetailsPage = () => {
         }
 
         toast.loading('Đang thêm sản phẩm vào giỏ hàng...', {toasterId: 'loading'})
-        try {
-            await addToCart({
-                productId: product.id,
-                variantId: selectedVariant.id,
-                quantity: quantity,
-            });
-        } catch (error) {
-        } finally {
-            toast.dismiss('loading')
+        const addToCartResult = await dispatch(addToCart({
+            productId: product.id,
+            variantId: selectedVariant.id,
+            quantity: quantity,
+        }))
+        if (addToCart.fulfilled.match(addToCartResult)) {
+            toast.dismissAll();
+            toast.success(
+                `Đã thêm ${quantity} ${product.name} ${selectedVariant.name} vào giỏ hàng`
+            );
+        } else {
+            toast.dismissAll();
+            toast.error(addToCartResult.payload || "Thêm sản phẩm vào giỏ hàng thất bại", {
+                duration: 5000
+            })
         }
-
-        toast.dismiss();
-        toast.success(
-            `Đã thêm ${quantity} ${product.name} ${selectedVariant.name} vào giỏ hàng`
-        );
+        toast.dismiss('loading')
     };
 
     const handleBuyNow = async () => {
